@@ -43,6 +43,11 @@
     </div>
 
     <div class="card">
+      <h4 style="margin-top: 0;">プレビュー</h4>
+      <div id="previewArea" class="preview-box" style="background: #fff; border: 1px solid #eee; padding: 20px; border-radius: 8px; min-height: 100px; white-space: pre-wrap;"></div>
+    </div>
+
+    <div class="card">
       <details>
         <summary style="cursor: pointer; font-weight: bold; color: #2c3e50;">⚙️ ハイライト・書式設定</summary>
         <div class="details-content" style="padding-top: 15px;">
@@ -54,10 +59,6 @@
       </details>
     </div>
 
-    <div class="card">
-      <h4 style="margin-top: 0;">プレビュー</h4>
-      <div id="previewArea" class="preview-box" style="background: #fff; border: 1px solid #eee; padding: 20px; border-radius: 8px; min-height: 100px; white-space: pre-wrap;"></div>
-    </div>
   </main>
   <?php include __DIR__ . '/../footer.php'; ?>
 </body>
