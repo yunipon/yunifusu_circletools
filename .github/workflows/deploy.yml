@@ -1,0 +1,22 @@
+name: Deploy to Xserver
+
+on:
+  push:
+    branches:
+      - main  # mainブランチにpushされた時に動く
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: xsvt.xsrv.jp
+          username: xsvt
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SERVER_PASSPHRASE }}
+          port: 10022
+          script: |
+            cd ~/yunifusu.com/public_html/circletools
+            git pull origin main
