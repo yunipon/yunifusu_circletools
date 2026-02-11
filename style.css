@@ -1,0 +1,862 @@
+:root {
+  /* メインカラー：濃いネイビー（ヘッダーやメニュー用） */
+  --primary-color: #333f52;
+  /* アクセントカラー：明るい水色（ボタンやリンク用） */
+  --accent-color: #00a8e8;
+  /* 背景色：非常に薄いグレー（白に近い） */
+  --bg-color: #f4f7f9;
+  /* テキスト：真っ黒ではなく濃いグレー */
+  --text-color: #333333;
+}
+
+/* 基本設定：すべての計算を「ボーダー込み」にする */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* ==========================================
+    ハンバーガーメニュー
+   ========================================== */
+
+/* 通常時*/
+.hamburger-btn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 10001;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 5px;
+  background: var(--primary-color);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 通常時の三本線の色 */
+.hamburger-btn span {
+  display: block;
+  background: #ffffff;
+  width: 25px;
+  height: 3px;
+  transition: all 0.3s ease;
+}
+
+/* ★開いている時（JSでactiveクラスがついた時） */
+.hamburger-btn.active {
+  background: #ffffff;
+}
+
+.hamburger-btn.active span {
+  background: var(--primary-color);
+  /* 三本線をネイビーにする */
+}
+
+/* ==========================================
+    フッターの調整
+   ========================================== */
+
+footer {
+  /* PCではサイドメニューの幅だけ左を空ける */
+  margin-left: 250px;
+  clear: both;
+  /* 回り込みを強制解除 */
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  footer {
+    margin-left: 0;
+    /* スマホではリセット */
+    padding-bottom: 20px;
+  }
+}
+
+/* ==========================================
+    サイドメニュー設定
+   ========================================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -250px;
+  /* スマホでは右から出る */
+  width: 250px;
+  height: 100vh;
+  background-color: var(--primary-color);
+  color: #ffffff;
+  z-index: 10000;
+  transition: 0.3s ease;
+  padding: 20px;
+}
+
+/* メニューが開いた時のクラス */
+.sidebar.active {
+  right: 0;
+}
+
+/* 背景を暗くするオーバーレイ */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* メニュー内のヘッダー（タイトルの親要素） */
+.sidebar-header {
+  padding-right: 50px;
+  margin-bottom: 20px;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  /* 改行を防ぐ */
+  text-align: center;
+}
+
+/* サイドメニュー内のリンク用スタイル */
+.nav-link {
+  color: #cbd5e0;
+  text-decoration: none;
+  padding: 10px;
+  border-left: 4px solid transparent;
+  transition: 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: #425169;
+  color: #ffffff;
+  border-left: 4px solid var(--accent-color);
+}
+
+.nav-link.active {
+  font-weight: bold;
+}
+
+.sidebar h2 {
+  font-size: 1.1em;
+  margin-bottom: 25px;
+  color: #ffc107;
+  text-align: center;
+}
+
+.sidebar-logo {
+  padding: 30px 25px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  letter-spacing: 1px;
+  border-bottom: 1px solid #3e4f5f;
+}
+
+.section-title {
+  text-transform: uppercase;
+  color: #ffffff;
+  padding: 10px 15px;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.nav-item {
+  color: #adb5bd;
+  font-size: 0.75rem;
+  text-decoration: none;
+  padding: 10px 30px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* アイコンと文字の間隔 */
+}
+
+.nav-item:hover {
+  background: #495057;
+  color: white;
+}
+
+.nav-item.active {
+  background: #007bff;
+  color: white;
+}
+
+/* ==========================================
+    ボタン群の設定
+   ========================================== */
+.btn-group {
+  margin: 15px 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  /* 削除ボタンも固定 */
+}
+
+/* ==========================================
+    mainページ（書式設定）
+   ========================================== */
+
+.main-content {
+  /* PCでの左メニュー分を確保 */
+  margin-left: 250px;
+  padding: 30px;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  /* 背景を少しグレーにするとカードが際立ちます */
+}
+
+/* コンテンツの内側に「最大幅用のラッパー」を作るか、
+   直接 main-content 内の要素を制限します */
+.container {
+  /* ★ここでお好みの最大幅を設定（800px〜1200pxが一般的） */
+  max-width: 1500px;
+  /* 左右中央寄せ */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page.active {
+  display: block;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  padding: 15px;
+  font-size: 14px;
+  line-height: 1.6;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  box-sizing: border-box;
+  /* パディングを含めて100%にする */
+}
+
+/* 文字数カウントのエリア：枠線をつけず、右寄せにする */
+.char-count {
+  text-align: right;
+  font-size: 13px;
+  color: #6c757d;
+  padding: 5px 0;
+  border: none;
+  /* ここに枠線があったら消す */
+}
+
+/* ツールの中身を包むラッパー：ここがポイント！ */
+.content-header {
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.content-header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2rem;
+  color: #2c3e50;
+}
+
+.subtitle {
+  color: #7f8c8d;
+  margin-bottom: 40px;
+}
+
+/* --- カードデザイン --- */
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e1e8ed;
+  /* 薄い枠線 */
+  border-radius: 8px;
+  /* 角を少し丸く */
+  padding: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  /* 非常に軽い影 */
+  margin-bottom: 20px;
+}
+
+h1,
+h3 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  color: #333;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.tool-card {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tool-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-color);
+}
+
+.card-icon {
+  font-size: 1.5rem;
+  background: #f0f7ff;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+/* ==========================================
+    ルール枠の設定（削除、ハイライト）
+   ========================================== */
+
+/* 「%%%」のコメントアウトの文字色 */
+.comment-text {
+  color: #999;
+  font-size: 0.9em;
+  background-color: #f8f9fa;
+  border-left: 3px solid #ccc;
+  padding: 5px;
+}
+
+/* カード全体の横並び設定 */
+.rule-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  /* 横幅いっぱい */
+}
+
+/* 入力欄（ラベルとパターン）を広げる設定 */
+.rule-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+  /* 余白を目一杯広げる */
+  min-width: 150px;
+  /* 潰れすぎないように最低幅を確保 */
+}
+
+/* 入力ボックス自体も横幅100%にする */
+.rule-label-input,
+.rule-pattern {
+  width: 100% !important;
+  box-sizing: border-box;
+  /* 枠線を含めた幅計算 */
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.dual-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: #eee;
+  padding: 5px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.palette-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.palette-label {
+  font-size: 10px;
+  min-width: 30px;
+  color: #666;
+}
+
+.color-chip {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+  border: 1px solid #999;
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-chip.selected {
+  outline: 2px solid #000;
+  border-color: #fff;
+  z-index: 1;
+}
+
+.chip-none {
+  position: relative;
+  background: #fff;
+}
+
+.chip-none::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: red;
+  transform: rotate(45deg);
+}
+
+.rule-card {
+  background: #fdfdfd;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.rule-card .rule-header input[type="text"],
+.rule-card .rule-header .rule-pattern,
+.rule-card .btn-danger {
+  height: 24px !important;
+  /* ★ここを隣の枠の高さに合わせる（32px〜36pxが一般的） */
+  box-sizing: border-box;
+  /* 枠線を含めた計算にする */
+  margin: 0;
+  /* 余計な隙間を消す */
+}
+
+.rule-card .btn-danger {
+  width: 24px !important;
+  /* 高さと同じ数値に */
+  min-width: 24px !important;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rule-card .btn-danger .material-symbols-outlined {
+  font-size: 16px !important;
+  line-height: 1;
+  display: block;
+}
+
+.rule-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 0.85em;
+  color: #666;
+  padding-left: 25px;
+  flex-wrap: wrap;
+}
+
+.rule-pattern {
+  flex-grow: 1;
+  font-family: monospace;
+  padding: 4px;
+  border: 1px solid #eee;
+}
+
+/* ==========================================
+    ①台本整形ツール
+   ========================================== */
+
+/* 置換エリア全体のスタイル */
+.replace-section {
+  background: #ffffff;
+  /* グレーから白に変えるとよりモダンです */
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e1e8ed;
+  margin-bottom: 20px;
+
+  /* フレックスボックスの設定 */
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  /* 入力欄とボタンの裾を揃える */
+  flex-wrap: wrap;
+  /* ★ここが重要：幅が足りない時に改行させる */
+}
+
+/* 入力ユニット（ラベル＋入力欄）をグループ化する場合 */
+.replace-group {
+  flex: 1;
+  /* PCでは均等に広がる */
+  min-width: 200px;
+  /* ★200pxを切ると自動で改行される */
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* スマホ表示（768px以下）の微調整 */
+@media (max-width: 768px) {
+  .replace-section {
+    flex-direction: column;
+    /* 縦並びを強制 */
+    align-items: stretch;
+    /* 横幅いっぱいに広げる */
+  }
+
+  .replace-group {
+    width: 100%;
+  }
+
+  .replace-section button {
+    width: 100%;
+    /* ボタンも横いっぱいに */
+    max-width: 100px;
+    margin-top: 10px;
+  }
+}
+
+.replace-input {
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  flex: 1;
+}
+
+details {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+summary {
+  background: #f1f3f5;
+  padding: 12px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  border-bottom: 1px solid #ddd;
+}
+
+.details-content {
+  padding: 15px 20px;
+}
+
+/* ==========================================
+    プロット作成ページスタイル
+   ========================================== */
+
+.rule-card label {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 12px;
+}
+
+#plot-tracks textarea {
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.heroine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.preview-box {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  min-height: 150px;
+  white-space: pre-wrap;
+  line-height: 1.8;
+  margin-top: 10px;
+  border-radius: 4px;
+  font-size: 11pt;
+  color: #000;
+}
+
+.p-c-intro,
+.p-c-hero-setting {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+#plotPage input,
+#plotPage textarea {
+  /* 高さを明示的に指定（またはpaddingで統一） */
+  padding: 4px 6px !important;
+  border-radius: 4px !important;
+  border: 1px solid #ced4da;
+  /* 枠線の太さを計算に含める */
+  box-sizing: border-box !important;
+}
+
+
+/* 必須項目かつ未入力の場合、枠線を赤くする */
+#plotPage input:required:invalid,
+#plotPage textarea:required:invalid {
+  border-color: #ff466b !important;
+  background-color: #fffafb;
+}
+
+/* 入力されたら（有効になったら）通常の枠線に戻す */
+#plotPage input:required:valid,
+#plotPage textarea:required:valid {
+  border-color: #ced4da !important;
+  background-color: #ffffff;
+}
+
+.track-number {
+  display: inline-block;
+  background: var(--primary-color);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 3px;
+  /*上、右、下、左*/
+  margin: 0 10px 10px 0;
+}
+
+/* ==========================================
+    正規表現の使い方ページ
+   ========================================== */
+
+.example-code {
+  color: #d81b60;
+  background: #fff0f5;
+  padding: 3px 6px;
+  margin-right: 5px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.guide-table th,
+.guide-table td {
+  border: 1px solid #e1e8ed;
+  padding: 15px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.guide-table th {
+  background: #f8f9fa;
+  text-align: center;
+  /* <th>の中央寄せ */
+  color: var(--primary-color);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.guide-table code {
+  color: #d81b60;
+  background: #fff0f5;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.symbol-col {
+  width: 15%;
+  text-align: center;
+}
+
+.name-col {
+  width: 20%;
+  font-weight: bold;
+  background: #fafafa;
+}
+
+.desc-col {
+  width: 65%;
+  color: #444;
+}
+
+/* ==========================================
+    PC用スタイル（769px以上：左固定）
+   ========================================== */
+@media (min-width: 769px) {
+
+  .hamburger-btn,
+  .sidebar-overlay {
+    display: none;
+    /* ボタンと背景を隠す */
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* PCでは左に固定 */
+    right: auto;
+    width: 250px;
+    height: 100vh;
+  }
+
+  .sidebar-header {
+    padding-right: 0;
+    /* PCでは右ボタンがないので余白不要 */
+  }
+
+  /* メインコンテンツを右にずらして被らないようにする */
+  .main-content {
+    margin-left: 250px;
+    margin-right: 0;
+    padding: 30px;
+  }
+}
+
+
+/* =================================================
+    スマホ・タブレット用レスポンシブ設定（769px以上：左固定）
+   ================================================= */
+@media (max-width: 768px) {
+
+  .main-content {
+    margin-left: 0;
+    padding: 60px 15px 20px;
+    /* 上はハンバーガーボタン分を空ける */
+  }
+
+  .container {
+    max-width: 100%;
+    /* スマホでは横幅いっぱい */
+  }
+
+  /* 1. 横並びのレイアウトを縦並びに強制変更 */
+  .editor-layout,
+  .container-flex {
+    display: flex;
+    flex-direction: column !important;
+  }
+
+  /* 2. 左右のエリアを横幅いっぱいに */
+  .editor-left,
+  .editor-right,
+  .card,
+  .editor-container {
+    width: 100% !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    padding: 10px !important;
+  }
+
+  .dual-palette {
+    margin-left: 25px;
+  }
+
+  /* 3. ボタンを大きく、押しやすくする */
+  button,
+  .btn {
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  button,
+  .btn-info,
+  .btn-danger {
+    width: 100%;
+    /* ボタンを横いっぱいに広げる */
+    height: 44px;
+    /* 指で押しやすい高さ */
+    margin-bottom: 8px;
+    font-size: 16px !important;
+    /* 文字を少し大きく */
+  }
+
+  /* 4. テキストエリアの高さ調整 */
+  textarea {
+    min-height: 100px !important;
+  }
+
+  /* 5. ルール設定（rule-card）の中身を整理 */
+  .rule-header {
+    flex-wrap: wrap;
+    /* 狭い画面で折り返す */
+    gap: 5px;
+  }
+
+  .rule-pattern {
+    width: 100% !important;
+    /* パターン入力欄を横いっぱいに */
+    order: 3;
+    /* 順番を最後に持ってくる */
+  }
+
+  /* 6. ナビゲーション（メニュー）を押しやすく */
+  .nav {
+    display: flex;
+    overflow-x: auto;
+    /* メニューが多い場合に横スクロール可能に */
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+}

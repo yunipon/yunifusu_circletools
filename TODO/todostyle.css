@@ -1,0 +1,181 @@
+/* リスト全体のコンテナにカウンタを設定 */
+#sortable-list {
+  counter-reset: item-number;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  background: white;
+  gap: 5px;
+  /* 全体の隙間を少し詰める */
+}
+
+/* 【変更】一番左に表示される番号 */
+.list-item::before {
+  counter-increment: item-number;
+  content: counter(item-number);
+  /* ドットを消して数字のみにするなどお好みで */
+  width: 30px;
+  font-weight: bold;
+  color: #aaa;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 0.85em;
+}
+
+/* 【変更】番号の次に来るハンドル */
+.handle {
+  color: #ccc;
+  cursor: grab;
+  width: 25px;
+  flex-shrink: 0;
+  text-align: center;
+  margin-right: 5px;
+}
+
+.list-group {
+  margin-top: 20px;
+  border: 1px solid #eee;
+  border-radius: 5px;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  background: white;
+  cursor: grab;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item:active {
+  cursor: grabbing;
+}
+
+.handle {
+  color: #ccc;
+  margin-right: 15px;
+  font-size: 20px;
+  user-select: none;
+}
+
+.content-area {
+  flex-grow: 1;
+}
+
+.done-text {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  flex: 1;
+}
+
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: white;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-add {
+  background: #28a745;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.btn-toggle {
+  background: #6c757d;
+}
+
+.btn-toggle.done {
+  background: #007bff;
+}
+
+.btn-delete {
+  background: #dc3545;
+}
+
+.action-btns {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.ghost {
+  opacity: 0.4;
+  background: #e2e2e2;
+}
+
+/* ディスプレイサイズが小さい時（例：600px以下）の調整 */
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+
+  .list-item {
+    gap: 5px;
+    padding: 8px 5px;
+  }
+
+  /* 項目と内容を1:3で維持しつつ、文字サイズを少し下げる */
+  .item-title {
+    font-size: 0.9em;
+  }
+
+  .item-content {
+    font-size: 0.85em;
+  }
+
+  /* ボタンを小さくする */
+  .btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  /* さらに小さい画面（400px以下）では「戻す」などの文字を短縮 */
+  .btn-toggle::before {
+    content: "";
+  }
+
+  /* 必要に応じて、スマホ時はアイコンのみにする等の工夫が可能です */
+}
+
+/* 入力フォームもレスポンシブに */
+@media (max-width: 500px) {
+  .form-row {
+    flex-direction: column;
+    /* スマホでは入力欄を縦に並べる */
+  }
+
+  .btn-add {
+    width: 100%;
+  }
+}
