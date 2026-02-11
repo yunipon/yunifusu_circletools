@@ -20,3 +20,6 @@ jobs:
           script: |
             cd ~/yunifusu.com/public_html/circletools
             git pull origin main
+          connect_timeout: 30s
+          script_stop: true
+          debug: true # 詳細なログを出すようにする
