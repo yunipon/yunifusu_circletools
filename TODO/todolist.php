@@ -59,7 +59,7 @@ $items = file_exists($filename) ? file($filename, FILE_IGNORE_NEW_LINES | FILE_S
 
 <head>
   <meta charset="UTF-8">
-  <title>開発予定リスト</title>
+  <title>開発リスト</title>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <?php include __DIR__ . '/../header.php'; ?>
   <link rel="stylesheet" href="todostyle.css">
