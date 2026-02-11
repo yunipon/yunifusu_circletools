@@ -4,6 +4,7 @@
 # 特定のファイルを除外
 # config.php
 .DS_Store
+.user.ini
 
 # 特定の拡張子をすべて除外
 # *.log
