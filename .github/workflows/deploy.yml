@@ -17,6 +17,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ""
           port: 10022
+          debug: true
           script: |
             cd ~/yunifusu.com/public_html/circletools
             git pull origin main
