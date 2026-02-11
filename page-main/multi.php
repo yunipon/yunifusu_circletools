@@ -51,6 +51,11 @@
     </div>
 
     <div class="card">
+      <h4>プレビュー</h4>
+      <div id="previewAreaMulti" class="preview-box" style="background: #fff; border: 1px solid #eee; padding: 20px; border-radius: 8px; min-height: 200px; white-space: pre-wrap;"></div>
+    </div>
+
+    <div class="card">
       <details>
         <summary style="cursor: pointer; font-weight: bold;">⚙️ 複数ヒロイン専用：書式設定</summary>
         <div class="details-content" style="padding-top: 15px;">
@@ -60,11 +65,6 @@
           <button class="btn-danger" onclick="resetToDefault('multi')">デフォルトに戻す</button>
         </div>
       </details>
-    </div>
-
-    <div class="card">
-      <h4>プレビュー</h4>
-      <div id="previewAreaMulti" class="preview-box" style="background: #fff; border: 1px solid #eee; padding: 20px; border-radius: 8px; min-height: 200px; white-space: pre-wrap;"></div>
     </div>
   </main>
   <?php include __DIR__ . '/../footer.php'; ?>
