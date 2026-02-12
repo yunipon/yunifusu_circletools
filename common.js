@@ -121,9 +121,12 @@ function refreshAllCounts(type) {
 // ==========================================
 function applyExtract() {
   const area = document.getElementById('textExtract');
+  const areabefore = document.getElementById('textExtractBefore');
   if (!area || !area.value) return;
 
   let text = area.value;
+  areabefore.value = text;
+  updateCharCount('textExtractBefore', 'countExtractBefore');
 
   // 全体に対する一括カッコ統一（基本処理）
   text = text.replace(/\(/g, "（").replace(/\)/g, "）");
@@ -372,10 +375,11 @@ function clearData(type) {
 
   if (type === 'extract') {
     const textArea = document.getElementById('textExtract');
-    const previewArea = document.getElementById('previewAreaExtract');
+    const textAreaBefore = document.getElementById('textExtractBefore');
     if (textArea) textArea.value = '';
-    if (previewArea) previewArea.innerHTML = '';
+    if (textAreaBefore) textAreaBefore.value = '';
     refreshAllCounts(type);
+    updateCharCount('textExtractBefore', 'countExtractBefore');
   }
   else if (type === 'fmt') {
     const textArea = document.getElementById('textFormat');
@@ -419,15 +423,27 @@ function clearData(type) {
 
 function executeReplace() {
   const area = document.getElementById('textExtract');
+  const areabefore = document.getElementById('textExtractBefore');
   const b = document.getElementById('replaceBefore').value;
   const a = document.getElementById('replaceAfter').value;
+
   if (!b) return;
+  areabefore.value = area.value;
+  updateCharCount('textExtractBefore', 'countExtractBefore');
+
   const re = new RegExp(b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
   area.value = area.value.replace(re, a);
   updateCharCount('textExtract', 'countExtract');
 }
 
 function shrinkBlankLines(id) {
+  if (id === 'textExtract') {
+    const area = document.getElementById('textExtract');
+    const areabefore = document.getElementById('textExtractBefore');
+    let text = area.value;
+    areabefore.value = text;
+    updateCharCount('textExtractBefore', 'countExtractBefore');
+  }
   const a = document.getElementById(id); a.value = a.value.replace(/\n{3,}/g, '\n\n'); runPreview(); runMultiPreview();
 }
 

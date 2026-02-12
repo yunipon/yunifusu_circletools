@@ -26,6 +26,7 @@
       </div>
 
       <div class="editor-container">
+        <h4>台本貼り付け</h4>
         <textarea id="textExtract"
           oninput="updateCharCount('textExtract', 'countExtract')"
           placeholder="台本を貼り付けてください..."
@@ -42,6 +43,18 @@
         <button class="btn-primary" onclick="exportToWord()">Wordに出力</button>
         <button class="btn-danger" onclick="clearData('extract')">データクリア</button>
       </div>
+
+      <div class="editor-container" style="padding-top: 15px;">
+        <textarea id="textExtractBefore"
+          oninput="updateCharCount('textExtractBefore', 'countExtractBefore')"
+          placeholder="整形実行前の台本が出力されます。"
+          style="width: 100%; min-height: 300px;"></textarea>
+        </textarea>
+        <div class="char-count">
+          文字数: <span id="countExtractBefore">0</span>
+        </div>
+      </div>
+
     </div>
 
     <div class="card">
