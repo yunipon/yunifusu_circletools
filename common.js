@@ -168,7 +168,8 @@ function applyExtract() {
 function runPreview() {
   const text = document.getElementById('textFormat')?.value;
   const area = document.getElementById('previewArea');
-  if (!text || !area) return;
+  //if (!text || !area) return;
+  if (!area) return; //textが空でも動くように変更
 
   area.innerHTML = text.split('\n').map(line => {
     const trimmed = line.trim();
@@ -183,7 +184,8 @@ function runPreview() {
 function runMultiPreview() {
   const text = document.getElementById('textMulti')?.value;
   const area = document.getElementById('previewAreaMulti');
-  if (!text || !area) return;
+  //if (!text || !area) return;
+  if (!area) return; //textが空でも動くように変更
 
   const names = Array.from(document.querySelectorAll('.heroine-name')).map(i => i.value.trim());
   const blocks = text.split(/\n\s*\n/);

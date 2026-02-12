@@ -536,27 +536,6 @@ h3 {
   gap: 5px;
 }
 
-/* スマホ表示（768px以下）の微調整 */
-@media (max-width: 768px) {
-  .replace-section {
-    flex-direction: column;
-    /* 縦並びを強制 */
-    align-items: stretch;
-    /* 横幅いっぱいに広げる */
-  }
-
-  .replace-group {
-    width: 100%;
-  }
-
-  .replace-section button {
-    width: 100%;
-    /* ボタンも横いっぱいに */
-    max-width: 100px;
-    margin-top: 10px;
-  }
-}
-
 .replace-input {
   padding: 8px;
   border: 1px solid #ced4da;
@@ -585,6 +564,41 @@ summary {
   padding: 15px 20px;
 }
 
+.editor-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+#format-page textarea {
+  width: 100%;
+  min-height: 500px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+
+#format-page .preview-box {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  min-height: 500px;
+  max-height: 500px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
 /* ==========================================
     プロット作成ページスタイル
    ========================================== */
@@ -611,11 +625,11 @@ summary {
   margin-bottom: 10px;
 }
 
-.preview-box {
+#plot-page .preview-box {
   background: white;
   border: 1px solid #ccc;
   padding: 20px;
-  min-height: 150px;
+  min-height: 100px;
   white-space: pre-wrap;
   line-height: 1.8;
   margin-top: 10px;
@@ -623,6 +637,7 @@ summary {
   font-size: 11pt;
   color: #000;
 }
+
 
 .p-c-intro,
 .p-c-hero-setting {
@@ -774,6 +789,7 @@ summary {
 /* =================================================
     スマホ・タブレット用レスポンシブ設定（769px以上：左固定）
    ================================================= */
+/* スマホ表示（768px以下）の微調整 */
 @media (max-width: 768px) {
 
   .main-content {
@@ -787,16 +803,7 @@ summary {
     /* スマホでは横幅いっぱい */
   }
 
-  /* 1. 横並びのレイアウトを縦並びに強制変更 */
-  .editor-layout,
-  .container-flex {
-    display: flex;
-    flex-direction: column !important;
-  }
-
   /* 2. 左右のエリアを横幅いっぱいに */
-  .editor-left,
-  .editor-right,
   .card,
   .editor-container {
     width: 100% !important;
@@ -834,7 +841,7 @@ summary {
 
   /* 4. テキストエリアの高さ調整 */
   textarea {
-    min-height: 100px !important;
+    min-height: 100px;
   }
 
   /* 5. ルール設定（rule-card）の中身を整理 */
@@ -858,5 +865,34 @@ summary {
     /* メニューが多い場合に横スクロール可能に */
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
+  }
+
+
+  .replace-section {
+    flex-direction: column;
+    /* 縦並びを強制 */
+    align-items: stretch;
+    /* 横幅いっぱいに広げる */
+  }
+
+  .replace-group {
+    width: 100%;
+  }
+
+  .replace-section button {
+    width: 100%;
+    /* ボタンも横いっぱいに */
+    max-width: 100px;
+    margin-top: 10px;
+  }
+
+  #format-page textarea {
+    min-height: 200px;
+    max-height: 300px;
+  }
+
+  #format-page .preview-box {
+    min-height: 200px;
+    max-height: 300px;
   }
 }
