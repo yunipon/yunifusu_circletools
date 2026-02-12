@@ -58,7 +58,7 @@
     </div>
 
     <div class="card">
-      <details>
+      <details open>
         <summary style="cursor: pointer; font-weight: bold; color: #2c3e50;">⚙️ 削除ルール設定</summary>
         <div class="details-content" style="padding-top: 15px;">
           <div class="extract-notice" style="background-color: #f8f9fa; border-left: 4px solid #3498db; padding: 15px; margin-bottom: 20px; border-radius: 4px;">

@@ -56,7 +56,7 @@
     </div>
 
     <div class="card">
-      <details>
+      <details open>
         <summary style="cursor: pointer; font-weight: bold;">⚙️ 複数ヒロイン専用：書式設定</summary>
         <div class="details-content" style="padding-top: 15px;">
           <div id="ruleListMulti"></div>
