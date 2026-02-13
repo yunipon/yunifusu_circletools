@@ -449,6 +449,31 @@ function shrinkBlankLines(id) {
   const a = document.getElementById(id); a.value = a.value.replace(/\n{3,}/g, '\n\n'); runPreview(); runMultiPreview();
 }
 
+/**
+ * 指定されたtextarea内の空白行をすべて削除して詰める
+ */
+function removeAllBlankLines(targetId) {
+  const area = document.getElementById(targetId);
+  if (!area || !area.value) return;
+
+  const areabefore = document.getElementById('textExtractBefore');
+  areabefore.value = area.value;
+  updateCharCount('textExtractBefore', 'countExtractBefore');
+
+  // 1. 改行を消す
+  // 2. 半角スペース・タブ・改行などの空白文字(\s)をすべて消す
+  // 3. 全角スペース(　)をすべて消す
+  const joinedText = area.value
+    .replace(/\r?\n/g, '')     // 改行を削除
+    .replace(/[\s　]/g, '');    // 半角/全角スペース・タブを削除
+
+  area.value = joinedText;
+
+  // 文字数カウントも更新しておく
+  const countId = targetId === 'textExtract' ? 'countExtract' : 'countFormat';
+  updateCharCount(targetId, countId);
+}
+
 function updateFormatDialogueCount() {
   const val = document.getElementById('textFormat')?.value || "";
   const count = val.replace(/\n/g, "").length; // 簡易版
