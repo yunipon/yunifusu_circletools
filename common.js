@@ -24,6 +24,7 @@ const defaultExtract = [
 //{ label: '《》内削除', pattern: '《[^》]*》', active: true },
 
 const defaultFormat = [
+  { label: 'コメント（%%%）', pattern: 'format_comment', active: true, bgColor: '#E0E0E0', fgColor: '#666666', bold: false, fontSize: '11', isSpecial: true },
   { label: 'トラック名', pattern: '^(トラック|Track|ＴＲＡＣＫ)', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: '行頭（）', pattern: '^\\s*[（\\(].*[）\\)]', active: false, bgColor: '#FFFF00', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: '行頭【】', pattern: '^\\s*【.*】', active: false, bgColor: '#FFFF00', fgColor: '#000000', bold: true, fontSize: '11' },
@@ -166,18 +167,45 @@ function applyExtract() {
 }
 
 function runPreview() {
-  const text = document.getElementById('textFormat')?.value;
   const area = document.getElementById('previewArea');
-  //if (!text || !area) return;
-  if (!area) return; //textが空でも動くように変更
+  if (!area) return;
+
+  let text = document.getElementById('textFormat')?.value || "";
+
+  // --- 【追加】%%%コメントの一括ハイライト処理 ---
+  const commentRule = formatRules.find(r => r.pattern === 'format_comment' && r.active);
+  if (commentRule) {
+    // プレビュー用に、コメント区間を特殊な一時タグ <comment_block> で囲う
+    // 改行を維持するため、内部の処理は後で行う
+    text = text.replace(/%%%[\s\S]*?%%%/g, (match) => {
+      return `__COMMENT_START__${match}__COMMENT_END__`;
+    });
+  }
 
   area.innerHTML = text.split('\n').map(line => {
-    const trimmed = line.trim();
-    if (!trimmed) return "<div>&nbsp;</div>";
-    let matched = formatRules.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
-    if (!matched) matched = formatRules.find(r => r.active && !r.pattern);
-    return `<div style="${getStyle(matched)}">${escapeHtml(line)}</div>`;
+    // コメントブロック内の行かどうか判定
+    const isCommentLine = line.includes('__COMMENT_START__') || line.includes('__COMMENT_END__') ||
+      (text.split(line)[0].split('__COMMENT_START__').length > text.split(line)[0].split('__COMMENT_END__').length);
+
+    const trimmed = line.replace(/__COMMENT_START__|__COMMENT_END__/g, '').trim();
+
+    if (!trimmed && !isCommentLine) return "<div>&nbsp;</div>";
+
+    let matched;
+    if (line.includes('__COMMENT_START__') || isCommentLine || line.includes('__COMMENT_END__')) {
+      // コメント用ルールを適用
+      matched = commentRule;
+    } else {
+      // 通常の行判定
+      matched = formatRules.find(r => r.active && r.pattern && !r.isSpecial && new RegExp(r.pattern).test(trimmed));
+      if (!matched) matched = formatRules.find(r => r.active && !r.pattern && !r.isSpecial);
+    }
+
+    // 表示用に一時マーカーを消してHTMLエスケープ
+    const displayLine = line.replace(/__COMMENT_START__|__COMMENT_END__/g, '');
+    return `<div style="${getStyle(matched)}">${escapeHtml(displayLine) || '&nbsp;'}</div>`;
   }).join('');
+
   updateFormatDialogueCount();
 }
 
@@ -1031,9 +1059,22 @@ async function exportToWord() {
       // 一人整形（フラット構造）の場合
       const allDivs = preview.querySelectorAll('div');
       allDivs.forEach(div => {
+        // ネストされたdivがある場合は親側をスキップし、中身を持つdivのみ処理
         if (div.querySelector('div') === null) {
           let text = div.innerText.replace(/\u00A0/g, " ").trim();
-          lines.push({ text: text, color: rgbToHex(div.style.color) || "000000", highlight: null });
+
+          // 修正ポイント：colorとhighlight(背景色)を両方取得する
+          const fgColor = rgbToHex(div.style.color);
+          // 背景色が 'transparent' や 'none' ではないか確認して取得
+          const bgColor = (div.style.backgroundColor && div.style.backgroundColor !== 'transparent' && div.style.backgroundColor !== 'none')
+            ? rgbToHex(div.style.backgroundColor)
+            : null;
+
+          lines.push({
+            text: text,
+            color: fgColor || "000000",
+            highlight: bgColor // ここを null ではなく bgColor に変更
+          });
         }
       });
     }

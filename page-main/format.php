@@ -20,7 +20,6 @@
         <div class="editor-header">
           <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
             <button class="btn-primary" onclick="runPreview()">プレビュー更新</button>
-            <button class="btn-primary" onclick="shrinkBlankLines('textFormat')">空行を1行に整理</button>
             <button class="btn-primary" onclick="exportToWord()">Wordに出力</button>
             <button class="btn-danger" onclick="clearData('fmt')">データクリア</button>
           </div>
