@@ -1,11 +1,11 @@
 // ==========================================
 // 1. グローバル設定・定数
 // ==========================================
-const heroineColors = ["#E50000", "#0000FF", "#008000", "#8A2BE2", "#D2691E"];
+const heroineColors = ["#E50000", "#0000FF", "#008000", "#8A2BE2", "#D2691E", "#666666"];
 const heroineColorPairs = [
   { fg: "#E50000", bg: "#FFDADA" }, { fg: "#0000FF", bg: "#D1F5FF" },
   { fg: "#008000", bg: "#D1FFD1" }, { fg: "#8A2BE2", bg: "#E6D1FF" },
-  { fg: "#D2691E", bg: "#F5E0D1" }
+  { fg: "#D2691E", bg: "#F5E0D1" }, { fg: "#666666", bg: "#E0E0E0" }
 ];
 
 let extractRules = [], formatRules = [], multiRules = [];
@@ -24,16 +24,22 @@ const defaultExtract = [
 //{ label: '《》内削除', pattern: '《[^》]*》', active: true },
 
 const defaultFormat = [
-  { label: 'コメント（%%%）', pattern: 'format_comment', active: true, bgColor: '#E0E0E0', fgColor: '#666666', bold: false, fontSize: '11', isSpecial: true },
-  { label: 'トラック名', pattern: '^(トラック|Track|ＴＲＡＣＫ)', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
-  { label: '行頭（）', pattern: '^\\s*[（\\(].*[）\\)]', active: false, bgColor: '#FFFF00', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: '行頭【】', pattern: '^\\s*【.*】', active: false, bgColor: '#FFFF00', fgColor: '#000000', bold: true, fontSize: '11' },
-  { label: 'ト書き (//)', pattern: '^//', active: false, bgColor: 'none', fgColor: '#E50000', bold: false, fontSize: '11' },
-  { label: 'ト書き (■)', pattern: '^■', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: 'ト書き (□)', pattern: '^□', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: 'ト書き (◆)', pattern: '^◆', active: true, bgColor: '#D1F5FF', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: 'ト書き (◇)', pattern: '^◇', active: true, bgColor: '#D1F5FF', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: '注釈 (※)', pattern: '^※', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
+  { label: 'コメント｜%%% ~ %%%', pattern: 'format_comment', active: true, bgColor: 'none', fgColor: '#666666', bold: false, fontSize: '11', isSpecial: true },
+  { label: 'トラック名｜トラック or Track or ＴＲＡＣＫ', pattern: '^(トラック|Track|ＴＲＡＣＫ)', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '14' },
+  { label: 'SE指示｜◆SE：〜ここから/ここまで', pattern: '^◆SE：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
+  { label: 'SE指示方向｜◆SE方向：｜必要であれば使用', pattern: '^◆SE方向：.*', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
+  { label: '編集指示｜■編集：', pattern: '^■編集：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
+  { label: '同時指示｜【同時：〜ここから/ここまで】', pattern: '^\\s*【同時：.*(ここから|ここまで)\\s*】', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: true, fontSize: '11' },
+  { label: '特記事項｜※補足：｜間を開ける指示など', pattern: '^※補足：.*', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
+  { label: '状況説明｜《状況：〜》', pattern: '^\s*《状況：.*》', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
+
+  { label: '話者｜//キャラ名：', pattern: '^\/\/.*：', active: true, bgColor: 'none', fgColor: '#0000FF', bold: true, fontSize: '11' },
+  { label: 'ト書き｜◇音声：｜方向・距離・（有声/無声）', pattern: '^◇音声：', active: true, bgColor: 'none', fgColor: '#0000FF', bold: false, fontSize: '11' },
+  { label: 'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示', pattern: '^□演技：', active: true, bgColor: 'none', fgColor: '#0000FF', bold: false, fontSize: '11' },
+  { label: '秒数演技指示｜＊　〜　秒', pattern: '^＊.*', active: true, bgColor: '#D1F5FF', fgColor: '#0000FF', bold: false, fontSize: '11' },
+  { label: 'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など', pattern: '^\\s*[（\\(].*｜ループ：.*\\s*[）\\)]', active: true, bgColor: '#FFFF00', fgColor: '#0000FF', bold: true, fontSize: '11' },
+
+  { label: '補足｜（）｜フェラ、絶頂　など', pattern: '^\\s*[（\\(][^）\\)]*[）\\)]', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: 'セリフ (その他)', pattern: '', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' }
 ];
 
@@ -262,7 +268,7 @@ function renderList(id, rules, type) {
     let paletteHtml = "";
     if (type === 'fmt' || type === 'multi') {
       // --- 文字色選択用のチップ ---
-      const fgOptions = [...heroineColors, "#000000"]; // ヒロイン5色 + 黒
+      const fgOptions = [...heroineColors, "#000000"]; // ヒロイン6色 + 黒
       let fgHtml = `<div class="palette-group"><span class="palette-label">文字:</span>`;
       fgOptions.forEach(color => {
         // 大文字小文字を無視して比較
@@ -276,7 +282,7 @@ function renderList(id, rules, type) {
       fgHtml += `</div>`;
 
       // --- 背景色選択用のチップ ---
-      const bgOptions = [...heroineColorPairs.map(p => p.bg), "#FFFF00", "none"]; // ヒロイン用薄色5色 + 黄 + なし
+      const bgOptions = [...heroineColorPairs.map(p => p.bg), "#FFFF00", "none"]; // ヒロイン用薄色6色 + 黄 + なし
       let bgHtml = `<div class="palette-group"><span class="palette-label">背景:</span>`;
       bgOptions.forEach(color => {
         // 文字列として比較し、'none' も正しく判定
@@ -561,7 +567,7 @@ function renderHeroineInputs() {
   }
 }
 
-function addHeroineInput() { if (heroineCount < 5) { heroineCount++; renderHeroineInputs(); } }
+function addHeroineInput() { if (heroineCount < 6) { heroineCount++; renderHeroineInputs(); } }
 
 // ==========================================
 // プロット作成　入力ページ

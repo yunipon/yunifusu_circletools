@@ -20,7 +20,7 @@
       <p style="margin:0 0 10px 0; font-weight:bold;">ヒロイン名設定</p>
       <div id="heroineInputs" class="heroine-grid"></div>
       <button id="addHeroineBtn" class="btn-primary" onclick="addHeroineInput()" style="margin-top:10px;">
-        + 人数を追加 (最大5名)
+        + 人数を追加 (最6名)
       </button>
     </div>
 
