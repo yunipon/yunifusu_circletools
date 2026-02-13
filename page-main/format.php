@@ -55,13 +55,17 @@
       </div>
 
       <div class="card">
+
         <details open>
-          <summary style="cursor: pointer; font-weight: bold; color: #2c3e50;">⚙️ ハイライト・書式設定</summary>
+          <summary style="cursor: pointer; font-weight: bold; color: #2c3e50;">⚙️ ハイライト・書式設定（上から優先処理されます）</summary>
           <div class="details-content" style="padding-top: 15px;">
             <div id="ruleListFormat"></div>
-            <button class="btn-primary" onclick="addNewRule('fmt')">+ 項目追加</button>
-            <button class="btn-primary" onclick="saveSettings('fmt')">設定を保存</button>
-            <button class="btn-danger" onclick="resetToDefault('fmt')">デフォルトに戻す</button>
+
+            <div class="btn-group" style="margin-top: 15px;">
+              <button class="btn-primary" onclick="addNewRule('fmt')">+ 項目追加</button>
+              <button class="btn-primary" onclick="saveSettings('fmt')">設定を保存</button>
+              <button class="btn-danger" onclick="resetToDefault('fmt')">デフォルトに戻す</button>
+            </div>
           </div>
         </details>
       </div>

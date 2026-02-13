@@ -270,41 +270,31 @@ function renderList(id, rules, type) {
   container.innerHTML = rules.map((r, i) => {
     let paletteHtml = "";
     if (type === 'fmt' || type === 'multi') {
-      // --- 文字色選択用のチップ ---
-      const fgOptions = [...heroineColors, "#000000"]; // ヒロイン6色 + 黒
+      // --- 文字色・背景色のチップ生成（既存のコードと同じ） ---
+      const fgOptions = [...heroineColors, "#000000"];
       let fgHtml = `<div class="palette-group"><span class="palette-label">文字:</span>`;
       fgOptions.forEach(color => {
-        // 大文字小文字を無視して比較
         const isSelected = (r.fgColor && r.fgColor.toUpperCase() === color.toUpperCase());
-        fgHtml += `
-          <button class="color-chip ${isSelected ? 'selected' : ''}"
-            style="background-color:${color};"
-            onclick="updateRule('${type}', ${i}, 'fgColor', '${color}')" title="${color}">
-          </button>`;
+        fgHtml += `<button class="color-chip ${isSelected ? 'selected' : ''}" style="background-color:${color};" onclick="updateRule('${type}', ${i}, 'fgColor', '${color}')" title="${color}"></button>`;
       });
       fgHtml += `</div>`;
 
-      // --- 背景色選択用のチップ ---
-      const bgOptions = [...heroineColorPairs.map(p => p.bg), "#FFFF00", "none"]; // ヒロイン用薄色6色 + 黄 + なし
+      const bgOptions = [...heroineColorPairs.map(p => p.bg), "#FFFF00", "none"];
       let bgHtml = `<div class="palette-group"><span class="palette-label">背景:</span>`;
       bgOptions.forEach(color => {
-        // 文字列として比較し、'none' も正しく判定
         const isSelected = String(r.bgColor || "").toUpperCase() === String(color || "").toUpperCase();
         const displayColor = (color === 'none' ? '#ffffff' : color);
-        bgHtml += `
-          <button class="color-chip ${isSelected ? 'selected' : ''} ${color === 'none' ? 'chip-none' : ''}"
-            style="background-color:${displayColor};"
-            onclick="updateRule('${type}', ${i}, 'bgColor', '${color}')" title="${color}">
-          </button>`;
+        bgHtml += `<button class="color-chip ${isSelected ? 'selected' : ''} ${color === 'none' ? 'chip-none' : ''}" style="background-color:${displayColor};" onclick="updateRule('${type}', ${i}, 'bgColor', '${color}')" title="${color}"></button>`;
       });
       bgHtml += `</div>`;
-
       paletteHtml = `<div class="dual-palette">${fgHtml}${bgHtml}</div>`;
     }
 
     return `
-      <div class="rule-card">
+      <div class="rule-card" data-index="${i}">
           <div class="rule-header">
+            <div class="handle" style="cursor: grab; color: #ccc; margin-right: 10px; font-size: 20px; user-select: none;">☰</div>
+            
             <input type="checkbox" ${r.active ? 'checked' : ''} onchange="updateRule('${type}',${i},'active',this.checked)">
             
             <div class="rule-info">
@@ -319,6 +309,47 @@ function renderList(id, rules, type) {
         </div>
     `;
   }).join('');
+
+  // リスト描画後に SortableJS を適用
+  initSortableForList(id, type);
+}
+
+/*条件リストの並べ替え実行関数*/
+
+function initSortableForList(id, type) {
+  const el = document.getElementById(id);
+  if (!el || typeof Sortable === 'undefined') return;
+
+  Sortable.create(el, {
+    handle: '.handle', // ☰ 部分でのみドラッグ可能
+    ghostClass: 'ghost',
+    onEnd: function () {
+      // 1. DOMの現在の並びから、元の配列のどのインデックスがどの順になったか取得
+      const newOrder = Array.from(el.children).map(item => parseInt(item.getAttribute('data-index')));
+
+      // 2. 対象となる配列を特定
+      let targetArray;
+      if (type === 'ext') targetArray = extractRules;
+      else if (type === 'fmt') targetArray = formatRules;
+      else if (type === 'multi') targetArray = multiRules;
+
+      // 3. 配列を新しい順番に再構築
+      const reordered = newOrder.map(oldIdx => targetArray[oldIdx]);
+
+      // 4. 元のグローバル変数を更新
+      if (type === 'ext') extractRules = reordered;
+      else if (type === 'fmt') formatRules = reordered;
+      else if (type === 'multi') multiRules = reordered;
+
+      // 5. インデックス（data-index）を正しく振り直すために再描画
+      renderList(id, reordered, type);
+
+      // 6. 設定を保存し、プレビューを更新
+      saveSettings(type);
+      if (type === 'fmt') runPreview();
+      if (type === 'multi') runMultiPreview();
+    }
+  });
 }
 
 // ボタンクリック時に文字色と背景色を同時に更新する関数

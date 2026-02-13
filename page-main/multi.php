@@ -57,7 +57,7 @@
 
     <div class="card">
       <details open>
-        <summary style="cursor: pointer; font-weight: bold;">⚙️ 複数ヒロイン専用：書式設定</summary>
+        <summary style="cursor: pointer; font-weight: bold;">⚙️ 複数ヒロイン専用：書式設定（上から優先処理されます）</summary>
         <div class="details-content" style="padding-top: 15px;">
           <div id="ruleListMulti"></div>
           <button class="btn-primary" onclick="addNewRule('multi')">+ 項目追加</button>

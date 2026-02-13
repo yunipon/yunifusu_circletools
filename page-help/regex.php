@@ -109,7 +109,64 @@
       </div>
 
       <div class="card">
-        <h3>4. 正規表現 記号辞書</h3>
+        <h3>4. 条件の優先順位</h3>
+        <div class="example-box">
+          <h4 class="highlight">💡 ルール作成のコツ： 狭いものから広いものへ</h4>
+          <div class="rule-card">
+
+            <div class="rule-card" data-index="12">
+              <div class="rule-header">
+                <div class="handle" style="cursor: grab; color: #ccc; margin-right: 10px; font-size: 20px; user-select: none;">☰</div>
+
+                <input type="checkbox" checked="" onchange="updateRule('fmt',12,'active',this.checked)">
+
+                <div class="rule-info">
+                  <input type="text" class="rule-label-input" placeholder="ラベル" value="ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など" onchange="updateRule('fmt',12,'label',this.value)">
+                  <input type="text" class="rule-pattern" placeholder="正規表現パターン" value="^\s*[（\(].*｜ループ：.*\s*[）\)]" onchange="updateRule('fmt',12,'pattern',this.value)">
+                </div>
+                <div class="dual-palette">
+                  <div class="palette-group"><span class="palette-label">文字:</span><button class="color-chip " style="background-color:#E50000;" onclick="updateRule('fmt', 12, 'fgColor', '#E50000')" title="#E50000"></button><button class="color-chip selected" style="background-color:#0000FF;" onclick="updateRule('fmt', 12, 'fgColor', '#0000FF')" title="#0000FF"></button><button class="color-chip " style="background-color:#008000;" onclick="updateRule('fmt', 12, 'fgColor', '#008000')" title="#008000"></button><button class="color-chip " style="background-color:#8A2BE2;" onclick="updateRule('fmt', 12, 'fgColor', '#8A2BE2')" title="#8A2BE2"></button><button class="color-chip " style="background-color:#D2691E;" onclick="updateRule('fmt', 12, 'fgColor', '#D2691E')" title="#D2691E"></button><button class="color-chip " style="background-color:#666666;" onclick="updateRule('fmt', 12, 'fgColor', '#666666')" title="#666666"></button><button class="color-chip " style="background-color:#000000;" onclick="updateRule('fmt', 12, 'fgColor', '#000000')" title="#000000"></button></div>
+                  <div class="palette-group"><span class="palette-label">背景:</span><button class="color-chip  " style="background-color:#FFDADA;" onclick="updateRule('fmt', 12, 'bgColor', '#FFDADA')" title="#FFDADA"></button><button class="color-chip  " style="background-color:#D1F5FF;" onclick="updateRule('fmt', 12, 'bgColor', '#D1F5FF')" title="#D1F5FF"></button><button class="color-chip  " style="background-color:#D1FFD1;" onclick="updateRule('fmt', 12, 'bgColor', '#D1FFD1')" title="#D1FFD1"></button><button class="color-chip  " style="background-color:#E6D1FF;" onclick="updateRule('fmt', 12, 'bgColor', '#E6D1FF')" title="#E6D1FF"></button><button class="color-chip  " style="background-color:#F5E0D1;" onclick="updateRule('fmt', 12, 'bgColor', '#F5E0D1')" title="#F5E0D1"></button><button class="color-chip  " style="background-color:#E0E0E0;" onclick="updateRule('fmt', 12, 'bgColor', '#E0E0E0')" title="#E0E0E0"></button><button class="color-chip selected " style="background-color:#FFFF00;" onclick="updateRule('fmt', 12, 'bgColor', '#FFFF00')" title="#FFFF00"></button><button class="color-chip  chip-none" style="background-color:#ffffff;" onclick="updateRule('fmt', 12, 'bgColor', 'none')" title="none"></button></div>
+                </div>
+                <button class="btn-danger" onclick="deleteRule('fmt',12)" title="削除">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="rule-card" data-index="13">
+              <div class="rule-header">
+                <div class="handle" style="cursor: grab; color: #ccc; margin-right: 10px; font-size: 20px; user-select: none;">☰</div>
+
+                <input type="checkbox" checked="" onchange="updateRule('fmt',13,'active',this.checked)">
+
+                <div class="rule-info">
+                  <input type="text" class="rule-label-input" placeholder="ラベル" value="補足｜（）｜フェラ、絶頂　など" onchange="updateRule('fmt',13,'label',this.value)">
+                  <input type="text" class="rule-pattern" placeholder="正規表現パターン" value="^\s*[（\(][^）\)]*[）\)]" onchange="updateRule('fmt',13,'pattern',this.value)">
+                </div>
+                <div class="dual-palette">
+                  <div class="palette-group"><span class="palette-label">文字:</span><button class="color-chip " style="background-color:#E50000;" onclick="updateRule('fmt', 13, 'fgColor', '#E50000')" title="#E50000"></button><button class="color-chip " style="background-color:#0000FF;" onclick="updateRule('fmt', 13, 'fgColor', '#0000FF')" title="#0000FF"></button><button class="color-chip " style="background-color:#008000;" onclick="updateRule('fmt', 13, 'fgColor', '#008000')" title="#008000"></button><button class="color-chip " style="background-color:#8A2BE2;" onclick="updateRule('fmt', 13, 'fgColor', '#8A2BE2')" title="#8A2BE2"></button><button class="color-chip " style="background-color:#D2691E;" onclick="updateRule('fmt', 13, 'fgColor', '#D2691E')" title="#D2691E"></button><button class="color-chip " style="background-color:#666666;" onclick="updateRule('fmt', 13, 'fgColor', '#666666')" title="#666666"></button><button class="color-chip selected" style="background-color:#000000;" onclick="updateRule('fmt', 13, 'fgColor', '#000000')" title="#000000"></button></div>
+                  <div class="palette-group"><span class="palette-label">背景:</span><button class="color-chip  " style="background-color:#FFDADA;" onclick="updateRule('fmt', 13, 'bgColor', '#FFDADA')" title="#FFDADA"></button><button class="color-chip  " style="background-color:#D1F5FF;" onclick="updateRule('fmt', 13, 'bgColor', '#D1F5FF')" title="#D1F5FF"></button><button class="color-chip  " style="background-color:#D1FFD1;" onclick="updateRule('fmt', 13, 'bgColor', '#D1FFD1')" title="#D1FFD1"></button><button class="color-chip  " style="background-color:#E6D1FF;" onclick="updateRule('fmt', 13, 'bgColor', '#E6D1FF')" title="#E6D1FF"></button><button class="color-chip  " style="background-color:#F5E0D1;" onclick="updateRule('fmt', 13, 'bgColor', '#F5E0D1')" title="#F5E0D1"></button><button class="color-chip  " style="background-color:#E0E0E0;" onclick="updateRule('fmt', 13, 'bgColor', '#E0E0E0')" title="#E0E0E0"></button><button class="color-chip selected " style="background-color:#FFFF00;" onclick="updateRule('fmt', 13, 'bgColor', '#FFFF00')" title="#FFFF00"></button><button class="color-chip  chip-none" style="background-color:#ffffff;" onclick="updateRule('fmt', 13, 'bgColor', 'none')" title="none"></button></div>
+                </div>
+                <button class="btn-danger" onclick="deleteRule('fmt',13)" title="削除">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </div>
+
+
+          </div>
+          <p><strong>仕組みの解説:</strong></p>
+          <ul>
+            <li style="margin: 5px 0px;">「<span style="color: #0000FF; background-color: #FFFF00;">（佐藤｜ループ：上記呼吸音　ここから）</span>」は上にあるルールが優先されます。</li>
+            <li style="margin: 5px 0px;">同じ記号（カッコなど）を使うルールが複数あるときは、「中身が限定されているルール」を上に書きましょう。</li>
+            <li style="margin: 5px 0px;">下に書くと、上の「何でも一致するルール」に吸い込まれてしまい、正しく判定されません。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>5. 正規表現 記号辞書</h3>
         <p>パターンを作成する際によく使われる共通記号の解説です。</p>
 
         <div style="overflow-x: auto;">
@@ -133,8 +190,6 @@
             </tbody>
           </table>
         </div>
-
-
       </div>
   </main>
   <?php include __DIR__ . '/../footer.php'; ?>
