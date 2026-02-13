@@ -40,7 +40,7 @@ const defaultFormat = [
   { label: 'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など', pattern: '^\\s*[（\\(].*｜ループ：.*\\s*[）\\)]', active: true, bgColor: '#FFFF00', fgColor: '#0000FF', bold: true, fontSize: '11' },
 
   { label: '補足｜（）｜フェラ、絶頂　など', pattern: '^\\s*[（\\(][^）\\)]*[）\\)]', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: 'セリフ (その他)', pattern: '', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' }
+  { label: 'セリフ (その他)', pattern: '.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' }
 ];
 
 /*　過去
@@ -178,38 +178,41 @@ function runPreview() {
 
   let text = document.getElementById('textFormat')?.value || "";
 
-  // --- 【追加】%%%コメントの一括ハイライト処理 ---
+  // 1. コメントルールを探す
   const commentRule = formatRules.find(r => r.pattern === 'format_comment' && r.active);
+
+  // 2. コメント区間をマーク（改行を含む全一致）
   if (commentRule) {
-    // プレビュー用に、コメント区間を特殊な一時タグ <comment_block> で囲う
-    // 改行を維持するため、内部の処理は後で行う
     text = text.replace(/%%%[\s\S]*?%%%/g, (match) => {
-      return `__COMMENT_START__${match}__COMMENT_END__`;
+      // 内部の各行にマークを付ける
+      return match.split('\n').map(l => `__C_L__${l}`).join('\n');
     });
   }
 
-  area.innerHTML = text.split('\n').map(line => {
-    // コメントブロック内の行かどうか判定
-    const isCommentLine = line.includes('__COMMENT_START__') || line.includes('__COMMENT_END__') ||
-      (text.split(line)[0].split('__COMMENT_START__').length > text.split(line)[0].split('__COMMENT_END__').length);
-
-    const trimmed = line.replace(/__COMMENT_START__|__COMMENT_END__/g, '').trim();
+  const lines = text.split('\n');
+  area.innerHTML = lines.map(line => {
+    let matched = null;
+    let isCommentLine = line.startsWith('__C_L__');
+    let displayLine = isCommentLine ? line.replace('__C_L__', '') : line;
+    let trimmed = displayLine.trim();
 
     if (!trimmed && !isCommentLine) return "<div>&nbsp;</div>";
 
-    let matched;
-    if (line.includes('__COMMENT_START__') || isCommentLine || line.includes('__COMMENT_END__')) {
-      // コメント用ルールを適用
+    if (isCommentLine) {
       matched = commentRule;
     } else {
-      // 通常の行判定
-      matched = formatRules.find(r => r.active && r.pattern && !r.isSpecial && new RegExp(r.pattern).test(trimmed));
-      if (!matched) matched = formatRules.find(r => r.active && !r.pattern && !r.isSpecial);
+      // --- 【重要】ここを修正：r.pattern が空でないかチェック ---
+      matched = formatRules.find(r =>
+        r.active &&
+        r.pattern && // 空文字でないこと
+        r.pattern.length > 0 &&
+        !r.isSpecial &&
+        new RegExp(r.pattern).test(trimmed)
+      );
     }
 
-    // 表示用に一時マーカーを消してHTMLエスケープ
-    const displayLine = line.replace(/__COMMENT_START__|__COMMENT_END__/g, '');
-    return `<div style="${getStyle(matched)}">${escapeHtml(displayLine) || '&nbsp;'}</div>`;
+    const style = getStyle(matched);
+    return `<div style="${style}">${escapeHtml(displayLine) || '&nbsp;'}</div>`;
   }).join('');
 
   updateFormatDialogueCount();
