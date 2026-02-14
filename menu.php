@@ -16,22 +16,29 @@
   </nav>
 
   <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
-    <p class="section-title">・メインツール</p>
-    <a href="/page-main/extract.php" class="nav-item">① セリフのみ抽出</a>
-    <a href="/page-main/format.php" class="nav-item">② 台本整形（1人）</a>
-    <a href="/page-main/multi.php" class="nav-item">③ 複数ヒロイン整形</a>
-    <a href="/page-main/plot.php" class="nav-item">④ プロット作成</a>
+    <details open>
+      <summary class="section-title">メインツール</summary>
+      <a href="/page-main/extract.php" class="nav-item">① セリフのみ抽出</a>
+      <a href="/page-main/format.php" class="nav-item">② 台本整形（1人）</a>
+      <a href="/page-main/multi.php" class="nav-item">③ 複数ヒロイン整形</a>
+      <a href="/page-main/plot.php" class="nav-item">④ プロット作成</a>
+    </details>
   </nav>
 
   <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
-    <p class="section-title">・サイドツール</p>
+    <details>
+      <summary class="section-title">サイドツール</p>
+    </details>
   </nav>
 
   <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
-    <p class="section-title">・情報管理</p>
-    <a href="/pages/settings.php" class="nav-item">環境設定</a>
-    <a href="/page-help/regex.php" class="nav-item">正規表現ガイド</a>
-    <a href="/TODO/todolist.php" class="nav-item">開発予定</a>
+    <details>
+      <summary class="section-title">情報管理</summary>
+      <a href="/pages/settings.php" class="nav-item">環境設定</a>
+      <a href="/page-help/regex.php" class="nav-item">正規表現ガイド</a>
+      <a href="/page-help/helpformat.php" class="nav-item">台本の書き方</a>
+      <a href="/TODO/todolist.php" class="nav-item">開発予定</a>
+    </details>
   </nav>
 
 </div>

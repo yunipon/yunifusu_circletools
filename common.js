@@ -24,14 +24,15 @@ const defaultExtract = [
 //{ label: '《》内削除', pattern: '《[^》]*》', active: true },
 
 const defaultFormat = [
+  { label: 'トラック装飾の削除', pattern: '^＝＊＝.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: 'コメント｜%%% ~ %%%', pattern: 'format_comment', active: true, bgColor: 'none', fgColor: '#666666', bold: false, fontSize: '11', isSpecial: true },
-  { label: 'トラック名｜トラック or Track or ＴＲＡＣＫ', pattern: '^(トラック|Track|ＴＲＡＣＫ)', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '14' },
+  { label: 'トラック名｜トラック or Track or ＴＲＡＣＫ', pattern: '^(トラック|Track|ＴＲＡＣＫ)', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: 'SE指示｜◆SE：〜ここから/ここまで', pattern: '^◆SE：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: 'SE指示方向｜◆SE方向：｜必要であれば使用', pattern: '^◆SE方向：.*', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: '編集指示｜■編集：', pattern: '^■編集：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: '同時指示｜【同時：〜ここから/ここまで】', pattern: '^\\s*【同時：.*(ここから|ここまで)\\s*】', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: true, fontSize: '11' },
+  { label: '同時指示｜【同時　〜ここから/ここまで】', pattern: '^\\s*【同時.*(ここから|ここまで)\\s*】', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: '特記事項｜※補足：｜間を開ける指示など', pattern: '^※補足：.*', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: '状況説明｜《状況：〜》', pattern: '^\s*《状況：.*》', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
+  { label: '状況説明｜《状況：〜》', pattern: '^\s*《状況：.*》', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
 
   { label: '話者｜//キャラ名：', pattern: '^\/\/.*：', active: true, bgColor: 'none', fgColor: '#0000FF', bold: true, fontSize: '11' },
   { label: 'ト書き｜◇音声：｜方向・距離・（有声/無声）', pattern: '^◇音声：', active: true, bgColor: 'none', fgColor: '#0000FF', bold: false, fontSize: '11' },
@@ -39,7 +40,7 @@ const defaultFormat = [
   { label: '秒数演技指示｜＊　〜　秒', pattern: '^＊.*', active: true, bgColor: '#D1F5FF', fgColor: '#0000FF', bold: false, fontSize: '11' },
   { label: 'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など', pattern: '^\\s*[（\\(].*｜ループ：.*\\s*[）\\)]', active: true, bgColor: '#FFFF00', fgColor: '#0000FF', bold: true, fontSize: '11' },
 
-  { label: '補足｜（）｜フェラ、絶頂　など', pattern: '^\\s*[（\\(][^）\\)]*[）\\)]', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: false, fontSize: '11' },
+  { label: '補足｜（）｜フェラ、絶頂　など', pattern: '^\\s*[（\\(][^）\\)]*[）\\)]', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: 'セリフ (その他)', pattern: '.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' }
 ];
 

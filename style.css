@@ -62,6 +62,17 @@ body {
   /* 三本線をネイビーにする */
 }
 
+#sidebar summary {
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+}
+
+#sidebar details {
+  margin-top: 20px;
+  overflow: hidden;
+}
+
 /* ==========================================
     フッターの調整
    ========================================== */
@@ -543,7 +554,7 @@ h3 {
   flex: 1;
 }
 
-details {
+.card details {
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -551,7 +562,7 @@ details {
   overflow: hidden;
 }
 
-summary {
+.card summary {
   background: #f1f3f5;
   padding: 12px 20px;
   font-weight: bold;
