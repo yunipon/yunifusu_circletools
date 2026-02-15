@@ -27,22 +27,30 @@ const defaultFormat = [
   { label: 'トラック装飾の削除', pattern: '^＝＊＝.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: 'コメント｜%%% ~ %%%', pattern: 'format_comment', active: true, bgColor: 'none', fgColor: '#666666', bold: false, fontSize: '11', isSpecial: true },
   { label: 'トラック名｜トラック or Track or ＴＲＡＣＫ', pattern: '^(トラック|Track|ＴＲＡＣＫ)', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
-  { label: 'SE指示｜◆SE：〜ここから/ここまで', pattern: '^◆SE：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
+  { label: 'SE指示｜◆SE：〇〇　ここから/ここまで', pattern: '^◆SE：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: 'SE指示方向｜◆SE方向：｜必要であれば使用', pattern: '^◆SE方向：.*', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: '編集指示｜■編集：', pattern: '^■編集：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: '同時指示｜【同時　〜ここから/ここまで】', pattern: '^\\s*【同時.*(ここから|ここまで)\\s*】', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: true, fontSize: '11' },
+  { label: '同時指示｜【同時　〜ここから/ここまで】', pattern: '^【同時.*(ここから|ここまで)[\s　]*】', active: true, bgColor: '#FFFF00', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: '特記事項｜※補足：｜間を開ける指示など', pattern: '^※補足：.*', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
-  { label: '状況説明｜《状況：〜》', pattern: '^\s*《状況：.*》', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
+  { label: '状況説明｜《状況：〇〇》', pattern: '^\s*《状況：.*》', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
 
   { label: '話者｜//キャラ名：', pattern: '^\/\/.*：', active: true, bgColor: 'none', fgColor: '#0000FF', bold: true, fontSize: '11' },
   { label: 'ト書き｜◇音声：｜方向・距離・（有声/無声）', pattern: '^◇音声：', active: true, bgColor: 'none', fgColor: '#0000FF', bold: false, fontSize: '11' },
   { label: 'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示', pattern: '^□演技：', active: true, bgColor: 'none', fgColor: '#0000FF', bold: false, fontSize: '11' },
-  { label: '秒数演技指示｜＊　〜　秒', pattern: '^＊.*', active: true, bgColor: '#D1F5FF', fgColor: '#0000FF', bold: false, fontSize: '11' },
-  { label: 'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など', pattern: '^\\s*[（\\(].*｜ループ：.*\\s*[）\\)]', active: true, bgColor: '#FFFF00', fgColor: '#0000FF', bold: true, fontSize: '11' },
+  { label: 'アドリブ演技指示｜＊〇〇　秒/回', pattern: '^＊.*', active: true, bgColor: '#D1F5FF', fgColor: '#0000FF', bold: false, fontSize: '11' },
+  { label: 'ループ用指示｜（キャラ名｜ループ：〇回/ここから/ここまで）｜回数や開始終了指示など', pattern: '^\\s*[（\\(].*｜ループ：.*\\s*[）\\)]', active: true, bgColor: '#FFFF00', fgColor: '#0000FF', bold: true, fontSize: '11' },
 
   { label: '補足｜（）｜フェラ、絶頂　など', pattern: '^\\s*[（\\(][^）\\)]*[）\\)]', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: 'セリフ (その他)', pattern: '.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' }
 ];
+
+/* runMultiPreview()　での判定除外のリスト */
+multiPreviewIgnoreLabels = [
+  '話者｜//キャラ名：',
+  'ト書き｜◇音声：',
+  'ト書き｜□演技：',
+  'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）',
+]
 
 /*　過去
 const defaultFormat = [
@@ -219,40 +227,132 @@ function runPreview() {
   updateFormatDialogueCount();
 }
 
+/**
+ * 複数人プレビュー：大型アップデート版（ルール微調整済み）
+ */
 function runMultiPreview() {
-  const text = document.getElementById('textMulti')?.value;
   const area = document.getElementById('previewAreaMulti');
-  //if (!text || !area) return;
-  if (!area) return; //textが空でも動くように変更
+  if (!area) return;
 
-  const names = Array.from(document.querySelectorAll('.heroine-name')).map(i => i.value.trim());
-  const blocks = text.split(/\n\s*\n/);
+  let text = document.getElementById('textMulti')?.value || "";
 
-  area.innerHTML = blocks.map(block => {
-    const lines = block.split('\n');
-    let targetIdx = -1;
-    lines.forEach(line => {
-      names.forEach((name, i) => {
-        if (name && new RegExp("^(\\/\\/" + name + "[:：]|【" + name + "】)").test(line.trim())) targetIdx = i;
-      });
+  // 1. コメントルール(%%%)の適用
+  const commentRule = typeof formatRules !== 'undefined' ? formatRules.find(r => r.pattern === 'format_comment' && r.active) : null;
+  if (commentRule) {
+    text = text.replace(/%%%[\s\S]*?%%%/g, (match) => {
+      return match.split('\n').map(l => `__C_L__${l}`).join('\n');
     });
+  }
 
-    const renderedLines = lines.map(line => {
-      const trimmed = line.trim();
-      if (!trimmed) return "<div>&nbsp;</div>";
-      if (targetIdx !== -1) {
-        const colors = heroineColorPairs[targetIdx];
-        let style = `color:${colors.fg};`;
-        if (/^[（(]/.test(trimmed)) style += `background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
-        else if (/^(\/\/|【)/.test(trimmed)) style += `font-weight:bold;`;
-        return `<div style="${style}">${escapeHtml(line)}</div>`;
+  const heroineNames = Array.from(document.querySelectorAll('.heroine-name')).map(i => i.value.trim());
+  const lines = text.split('\n');
+  let currentTargetIdx = -1;
+
+  area.innerHTML = lines.map((line, index) => {
+    let isCommentLine = line.startsWith('__C_L__');
+    let displayLine = isCommentLine ? line.replace('__C_L__', '') : line;
+    let trimmed = displayLine.trim();
+
+    if (!trimmed && !isCommentLine) return "<div style='height:1em;'>&nbsp;</div>";
+    if (isCommentLine) return `<div style="${getStyle(commentRule)}">${escapeHtml(displayLine)}</div>`;
+
+    // --- ヒロイン判定（状態の更新） ---
+
+    // ループ指定（その行限定）
+    let loopMatch = trimmed.match(/[（(]([^｜|]+)｜ループ：/);
+    let tempTargetIdx = -1;
+    if (loopMatch) {
+      tempTargetIdx = heroineNames.indexOf(loopMatch[1].trim());
+    }
+
+    // 先読みロジック（◇ または □ が来た時）
+    if (trimmed.startsWith('◇') || trimmed.startsWith('□')) {
+      // その行から下に向かって、次に現れる「名前」を探す
+      for (let i = index; i < lines.length; i++) { // index(現在行)からスキャン開始
+        let futureLine = lines[i].trim();
+        if (!futureLine) continue;
+
+        // 1. 名前定義が見つかった場合
+        let nameMatch = futureLine.match(/^\/\/([^：: \t\n]+)[:：]/);
+        if (nameMatch) {
+          let foundIdx = heroineNames.indexOf(nameMatch[1].trim());
+          if (foundIdx !== -1) {
+            currentTargetIdx = foundIdx; // ここで「今のヒロイン」を確定！
+          }
+          break; // 名前が見つかったのでスキャン終了
+        }
+
+        // 2. ストッパー（演出指示など）が見つかった場合
+        let isStopper = defaultFormat.some(rule => {
+          // 無視リスト（同時、ループ、音声、演技など）に入っているものはストッパーにしない
+          if (multiPreviewIgnoreLabels.includes(rule.label) || !rule.active || !rule.pattern || rule.isSpecial) return false;
+          return new RegExp(rule.pattern).test(futureLine);
+        });
+
+        // 演出指示（◆やトラックなど）にぶつかったら、そのヒロインの指示ではないと判断して中止
+        if (isStopper) break;
       }
-      let matched = multiRules.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
-      return `<div style="${getStyle(matched || { fgColor: '#000000' })}">${escapeHtml(line)}</div>`;
-    }).join('');
-    return `<div style="margin-bottom:1.5em;">${renderedLines}</div>`;
+    }
+
+    // 名前定義による更新
+    let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
+    if (nameDefMatch) {
+      let foundIdx = heroineNames.indexOf(nameDefMatch[1].trim());
+      if (foundIdx !== -1) currentTargetIdx = foundIdx;
+    }
+
+    // --- スタイル適用 ---
+    let activeIdx = (tempTargetIdx !== -1) ? tempTargetIdx : currentTargetIdx;
+
+    // A: ヒロイン区間の色付け
+    if (activeIdx !== -1) {
+      const colors = heroineColorPairs[activeIdx];
+      let style = `color:${colors.fg};`;
+      if (/^[（(]/.test(trimmed)) {
+        style += `background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
+      } else if (/^(\/\/|◇|□|＊)/.test(trimmed)) {
+        style += `font-weight:bold;`;
+      }
+      return `<div style="${style}">${escapeHtml(displayLine)}</div>`;
+    }
+
+    // B: ヒロイン区間外なら共通ルール（defaultFormat）を適用
+    let matched = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
+    return `<div style="${getStyle(matched || { fgColor: '#000000' })}">${escapeHtml(displayLine)}</div>`;
+
   }).join('');
-  updateCharacterDialogueCounts();
+
+  if (typeof updateCharacterDialogueCounts === 'function') updateCharacterDialogueCounts();
+}
+
+/**
+ * 本文から名前を抽出して設定欄にセットする
+ */
+function autoFillHeroineNames() {
+  const text = document.getElementById('textMulti')?.value || "";
+  // 修正した名前抽出ロジック：//名前：形式
+  const regex = /\/\/([^：: \t\n]+)[:：]/g;
+  let matches = [];
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    const name = match[1].trim();
+    if (name && !matches.includes(name)) {
+      matches.push(name);
+    }
+    if (matches.length >= 5) break;
+  }
+
+  // 入力欄を取得してセット
+  const inputs = document.querySelectorAll('.heroine-name');
+  inputs.forEach((input, i) => {
+    if (matches[i]) {
+      input.value = matches[i];
+    }
+  });
+
+  // セットした後にプレビューを更新
+  runMultiPreview();
 }
 
 // ==========================================

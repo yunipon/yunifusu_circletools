@@ -233,6 +233,15 @@ footer {
   cursor: pointer;
 }
 
+.btn-secondary {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 .btn-danger {
   background: #dc3545;
   color: white;
@@ -278,6 +287,16 @@ footer {
 
 .btn-name:hover {
   background-color: #bbdefb;
+}
+
+.btn-Dir {
+  background-color: #FFDADA;
+  border-color: #faa0a0;
+}
+
+.btn-Dist {
+  background-color: #D1FFD1;
+  border-color: #6aff6a;
 }
 
 /* ==========================================

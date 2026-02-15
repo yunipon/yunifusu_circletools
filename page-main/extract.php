@@ -15,26 +15,47 @@
     <div class="content-header">
       <h1>① セリフのみ抽出</h1>
     </div>
-    <div class="card" style="margin-bottom: 15px;">
-      <div style="margin-bottom: 10px; font-weight: bold; color: #2c3e50; font-size: 0.9rem;">📋 クイックコピー</div>
+    <details class="card" open>
+      <summary style="margin-bottom: 10px; font-weight: bold; color: #2c3e50; font-size: 0.9rem; background: white;">📋 クイックコピー</summary>
       <div id="copyPalette" style="display: flex; flex-wrap: wrap; gap: 8px;">
         <button class="btn-copy" onclick="copyToClipboard('%%%')">%%%</button>
         <button class="btn-copy" onclick="copyToClipboard('＝＊＝')">＝＊＝</button>
         <button class="btn-copy" onclick="copyToClipboard('トラック')">トラック</button>
         <button class="btn-copy" onclick="copyToClipboard('◆SE：')">◆SE：</button>
+        <button class="btn-copy" onclick="copyToClipboard('◆SE：　ここから')">◆SE：始</button>
+        <button class="btn-copy" onclick="copyToClipboard('◆SE：　ここまで')">◆SE：終</button>
         <button class="btn-copy" onclick="copyToClipboard('◆SE方向：')">◆SE方向：</button>
         <button class="btn-copy" onclick="copyToClipboard('■編集：')">■編集：</button>
         <button class="btn-copy" onclick="copyToClipboard('【同時　ここから】')">【同時】始</button>
         <button class="btn-copy" onclick="copyToClipboard('【同時　ここまで】')">【同時】終</button>
+        <button class="btn-copy" onclick="copyToClipboard('（）')">補足</button>
         <button class="btn-copy" onclick="copyToClipboard('※補足：')">※補足：</button>
         <button class="btn-copy" onclick="copyToClipboard('《状況：》')">《状況：》</button>
-        <button class="btn-copy" onclick="copyToClipboard('◇音声：')">◇音声：</button>
-        <button class="btn-copy" onclick="copyToClipboard('□演技：')">□演技：</button>
         <button class="btn-copy" onclick="copyToClipboard('＊　秒')">＊秒</button>
+        <button class="btn-copy" onclick="copyToClipboard('＊　回')">＊回</button>
+        <button class="btn-copy" onclick="copyToClipboard('□演技：')">□演技：</button>
+
+        <div id="DirDistButtons" style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button class="btn-copy" onclick="copyToClipboard('◇音声：')">◇音声：</button>
+          <button class="btn-copy btn-Dir" onclick="copyToClipboard('正面 ')">正面</button>
+          <button class="btn-copy btn-Dir" onclick="copyToClipboard('右 ')">右</button>
+          <button class="btn-copy btn-Dir" onclick="copyToClipboard('左 ')">左</button>
+          <button class="btn-copy btn-Dir" onclick="copyToClipboard('上 ')">上</button>
+          <button class="btn-copy btn-Dir" onclick="copyToClipboard('下 ')">下</button>
+
+          <button class="btn-copy btn-Dist" onclick="copyToClipboard('普通')">普通</button>
+          <button class="btn-copy btn-Dist" onclick="copyToClipboard('遠い')">遠い</button>
+          <button class="btn-copy btn-Dist" onclick="copyToClipboard('近い')">近い</button>
+          <button class="btn-copy btn-Dist" onclick="copyToClipboard('密着')">密着</button>
+
+          <button class="btn-copy" onclick="copyToClipboard('有声')">有声</button>
+          <button class="btn-copy" onclick="copyToClipboard('無声')">無声</button>
+        </div>
 
         <div id="dynamicNameButtons" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
       </div>
-    </div>
+    </details>
+
     <div class="card">
       <div class="replace-section" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
         <strong style="font-size: 0.9rem;">文字列置換:</strong>
