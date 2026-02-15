@@ -102,12 +102,13 @@ footer {
   right: -250px;
   /* スマホでは右から出る */
   width: 250px;
-  height: 100vh;
+  height: 100%;
   background-color: var(--primary-color);
   color: #ffffff;
   z-index: 10000;
   transition: 0.3s ease;
   padding: 20px;
+  overflow-y: auto
 }
 
 /* メニューが開いた時のクラス */
