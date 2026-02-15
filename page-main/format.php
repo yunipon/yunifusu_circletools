@@ -32,6 +32,27 @@
           </div>
         </div>
 
+        <div class="card" style="margin-bottom: 15px;">
+          <div style="margin-bottom: 10px; font-weight: bold; color: #2c3e50; font-size: 0.9rem;">📋 クイックコピー</div>
+          <div id="copyPalette" style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button class="btn-copy" onclick="copyToClipboard('%%%')">%%%</button>
+            <button class="btn-copy" onclick="copyToClipboard('＝＊＝')">＝＊＝</button>
+            <button class="btn-copy" onclick="copyToClipboard('トラック')">トラック</button>
+            <button class="btn-copy" onclick="copyToClipboard('◆SE：')">◆SE：</button>
+            <button class="btn-copy" onclick="copyToClipboard('◆SE方向：')">◆SE方向：</button>
+            <button class="btn-copy" onclick="copyToClipboard('■編集：')">■編集：</button>
+            <button class="btn-copy" onclick="copyToClipboard('【同時　ここから】')">【同時】始</button>
+            <button class="btn-copy" onclick="copyToClipboard('【同時　ここまで】')">【同時】終</button>
+            <button class="btn-copy" onclick="copyToClipboard('※補足：')">※補足：</button>
+            <button class="btn-copy" onclick="copyToClipboard('《状況：》')">《状況：》</button>
+            <button class="btn-copy" onclick="copyToClipboard('◇音声：')">◇音声：</button>
+            <button class="btn-copy" onclick="copyToClipboard('□演技：')">□演技：</button>
+            <button class="btn-copy" onclick="copyToClipboard('＊　秒')">＊秒</button>
+
+            <div id="dynamicNameButtons" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+          </div>
+        </div>
+
         <div class="split-container" style="display: flex; flex-wrap: wrap; gap: 20px;">
           <div class="editor-pane" style="flex: 1; min-width: 300px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -41,7 +62,7 @@
               </div>
             </div>
             <textarea id="textFormat"
-              oninput="updateCharCount('textFormat', 'countFormat'); runPreview();"
+              oninput="updateCharCount('textFormat', 'countFormat'); runPreview(); updateNameButtons('textFormat');"
               placeholder="台本を貼り付けてください..."></textarea>
           </div>
 

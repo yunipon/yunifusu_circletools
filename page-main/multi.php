@@ -23,11 +23,30 @@
         + 人数を追加 (最6名)
       </button>
     </div>
+    <div class="card" style="margin-bottom: 15px;">
+      <div style="margin-bottom: 10px; font-weight: bold; color: #2c3e50; font-size: 0.9rem;">📋 クイックコピー</div>
+      <div id="copyPalette" style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <button class="btn-copy" onclick="copyToClipboard('%%%')">%%%</button>
+        <button class="btn-copy" onclick="copyToClipboard('＝＊＝')">＝＊＝</button>
+        <button class="btn-copy" onclick="copyToClipboard('トラック')">トラック</button>
+        <button class="btn-copy" onclick="copyToClipboard('◆SE：')">◆SE：</button>
+        <button class="btn-copy" onclick="copyToClipboard('◆SE方向：')">◆SE方向：</button>
+        <button class="btn-copy" onclick="copyToClipboard('■編集：')">■編集：</button>
+        <button class="btn-copy" onclick="copyToClipboard('【同時　ここから】')">【同時】始</button>
+        <button class="btn-copy" onclick="copyToClipboard('【同時　ここまで】')">【同時】終</button>
+        <button class="btn-copy" onclick="copyToClipboard('※補足：')">※補足：</button>
+        <button class="btn-copy" onclick="copyToClipboard('《状況：》')">《状況：》</button>
+        <button class="btn-copy" onclick="copyToClipboard('◇音声：')">◇音声：</button>
+        <button class="btn-copy" onclick="copyToClipboard('□演技：')">□演技：</button>
+        <button class="btn-copy" onclick="copyToClipboard('＊　秒')">＊秒</button>
 
+        <div id="dynamicNameButtons" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+      </div>
+    </div>
     <div class="card">
       <div class="editor-container">
         <textarea id="textMulti"
-          oninput="updateCharCount('textMulti', 'countMulti'); runMultiPreview();"
+          oninput="updateCharCount('textMulti', 'countMulti'); runMultiPreview(); updateNameButtons('textMulti');"
           placeholder="複数人の台本を貼り付けてください..."
           style="width: 100%; min-height: 300px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
         <div class="char-count" style="text-align: right; margin-top: 5px; color: #666;">

@@ -245,6 +245,42 @@ footer {
 }
 
 /* ==========================================
+    コピペ用ボタン群の設定
+   ========================================== */
+
+.btn-copy {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #495057;
+}
+
+.btn-copy:hover {
+  background-color: #e9ecef;
+  border-color: #ced4da;
+}
+
+.btn-copy:active {
+  background-color: #ced4da;
+  transform: translateY(1px);
+}
+
+/* 名前用ボタンは少し色を変えて目立たせる */
+.btn-name {
+  background-color: #e3f2fd;
+  border-color: #bbdefb;
+  color: #1976d2;
+}
+
+.btn-name:hover {
+  background-color: #bbdefb;
+}
+
+/* ==========================================
     mainページ（書式設定）
    ========================================== */
 
@@ -847,7 +883,7 @@ h3 {
     height: 44px;
     /* 指で押しやすい高さ */
     margin-bottom: 8px;
-    font-size: 16px !important;
+    font-size: 16px;
     /* 文字を少し大きく */
   }
 
@@ -906,5 +942,21 @@ h3 {
   #format-page .preview-box {
     min-height: 200px;
     max-height: 300px;
+  }
+
+  .btn-copy {
+    /* 4列にする設定：100%を4つに分け、gapの分を引く */
+    flex: 0 0 calc((100% - 8px * 3) / 4);
+    font-size: 0.6rem;
+    padding: 4px 2px;
+    height: auto;
+  }
+
+  .name-button-group {
+    /* 2列にする設定：100%を2つに分け、gapの分を引く */
+    flex: 0 0 calc((100% - 8px) / 2);
+    font-size: 0.6rem;
+    padding: 4px 2px;
+    height: auto;
   }
 }

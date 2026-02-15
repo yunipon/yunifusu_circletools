@@ -432,6 +432,63 @@ function resetToDefault(type) {
   alert("デフォルトに戻しました。");
 }
 
+/**
+ * 規定の書式をクリップボードにコピー
+ */
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    // 簡易的な通知（お好みでトースト通知などに変えてください）
+    console.log("Copied: " + text);
+  }).catch(err => {
+    console.error("Copy failed", err);
+  });
+}
+
+/**
+ * テキストエリアから「//名前：」を抽出してボタンを生成
+ */
+function updateNameButtons(ID) {
+
+  const textarea = document.getElementById(ID);
+  const container = document.getElementById('dynamicNameButtons');
+
+  // textarea（上で定義した変数）から値を取得
+  const text = textarea.value;
+  //console.log("現在のテキスト内容(先頭20文字):", text.substring(0, 20));
+
+  if (!container) return;
+
+  // 「//名前：〇〇」を検索（最大5個）
+  const regex = /\/\/([^：: \t\n]+)[:：]/g;
+  let matches = [];
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    const name = match[1].trim();
+    if (name && !matches.includes(name)) {
+      matches.push(name);
+      //console.log("名前を検出:", name);
+    }
+    if (matches.length >= 5) break;
+  }
+
+  // ボタンを生成
+  if (matches.length === 0) {
+    container.innerHTML = "";
+  } else {
+    container.innerHTML = matches.map(name => `
+      <div class="name-button-group">
+      <button class="btn-copy btn-name" onclick="copyToClipboard('//${name}：')">//${name}：</button>
+      <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　ここから）')">（${name}）ループ始</button>
+      <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　ここまで）')">（${name}）ループ終</button>
+      </div>
+    `).join('');
+  }
+}
+
+// テキスト入力のたびに名前ボタンを更新するように、既存のoninputに繋げる
+// 既存の updateCharCount や runPreview と一緒に実行してください
+
 // ==========================================
 // データクリア　処理
 // ==========================================
