@@ -17,11 +17,12 @@ const defaultExtract = [
   { label: 'トラック装飾の削除', pattern: '^＝＊＝.*', active: true },
   { label: 'トラック名の削除', pattern: '^(トラック|Track|ＴＲＡＣＫ|TRACK).*', active: true },
   { label: 'ト書き行削除', pattern: '^\\s*(◆|■|※|//|◇|□|＊).*', active: true },
+  { label: 'ト書き行削除', pattern: '^\\s*(SE|SE).*', active: true },
   { label: '【】内削除', pattern: '【[^】]*】', active: true },
   { label: '()内削除', pattern: '[（\\(][^）\\)]*[）\\)]', active: true },
+  { label: '《》内削除', pattern: '《[^》]*》', active: true },
   { label: 'スペース削除（文章の途中のスペースも削除）', pattern: '[ 　]', active: true }
 ];
-//{ label: '《》内削除', pattern: '《[^》]*》', active: true },
 
 const defaultFormat = [
   { label: 'トラック装飾の削除', pattern: '^＝＊＝.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
@@ -43,16 +44,6 @@ const defaultFormat = [
   { label: '補足｜（）｜フェラ、絶頂　など', pattern: '^\\s*[（\\(][^）\\)]*[）\\)]', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: 'セリフ (その他)', pattern: '.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' }
 ];
-
-/* runMultiPreview()　での判定除外のリスト */
-multiPreviewIgnoreLabels = [
-  '話者｜//キャラ名：',
-  'ト書き｜◇音声：｜方向・距離・（有声/無声）',
-  'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示',
-  'アドリブ演技指示｜＊〇〇　秒/回',
-  'セリフ (その他)',
-  'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など'
-]
 
 // --- 設定：ヒロインカラーを適用したいラベルのリスト ---
 heroineTargetLabels = [
