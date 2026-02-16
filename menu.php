@@ -29,6 +29,7 @@
     <details open>
       <summary class="section-title">ヘルプ</summary>
       <a href="/page-help/regex.php" class="nav-item">正規表現ガイド</a>
+      <a href="/page-home/contact.php" class="nav-item">お問い合わせ</a>
     </details>
   </nav>
 
