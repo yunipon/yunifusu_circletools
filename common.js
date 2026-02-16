@@ -47,10 +47,22 @@ const defaultFormat = [
 /* runMultiPreview()　での判定除外のリスト */
 multiPreviewIgnoreLabels = [
   '話者｜//キャラ名：',
-  'ト書き｜◇音声：',
-  'ト書き｜□演技：',
-  'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）',
+  'ト書き｜◇音声：｜方向・距離・（有声/無声）',
+  'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示',
+  'アドリブ演技指示｜＊〇〇　秒/回',
+  'セリフ (その他)',
+  'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など'
 ]
+
+// --- 設定：ヒロインカラーを適用したいラベルのリスト ---
+heroineTargetLabels = [
+  '話者｜//キャラ名：',
+  'ト書き｜◇音声：｜方向・距離・（有声/無声）',
+  'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示',
+  'アドリブ演技指示｜＊〇〇　秒/回',
+  'セリフ (その他)',
+  'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など'
+];
 
 /*　過去
 const defaultFormat = [
@@ -236,7 +248,7 @@ function runMultiPreview() {
 
   let text = document.getElementById('textMulti')?.value || "";
 
-  // 1. コメントルール(%%%)の適用
+  // 1. コメントルール(%%%)
   const commentRule = typeof formatRules !== 'undefined' ? formatRules.find(r => r.pattern === 'format_comment' && r.active) : null;
   if (commentRule) {
     text = text.replace(/%%%[\s\S]*?%%%/g, (match) => {
@@ -246,83 +258,124 @@ function runMultiPreview() {
 
   const heroineNames = Array.from(document.querySelectorAll('.heroine-name')).map(i => i.value.trim());
   const lines = text.split('\n');
-  let currentTargetIdx = -1;
 
-  area.innerHTML = lines.map((line, index) => {
+  let currentTargetIdx = -1;
+  let htmlResult = [];
+
+  for (let index = 0; index < lines.length; index++) {
+    let line = lines[index];
     let isCommentLine = line.startsWith('__C_L__');
     let displayLine = isCommentLine ? line.replace('__C_L__', '') : line;
     let trimmed = displayLine.trim();
 
-    if (!trimmed && !isCommentLine) return "<div style='height:1em;'>&nbsp;</div>";
-    if (isCommentLine) return `<div style="${getStyle(commentRule)}">${escapeHtml(displayLine)}</div>`;
+    // 空行・コメント処理（省略：これまでのコードと同じ）
+    if (!trimmed && !isCommentLine) { htmlResult.push("<div style='height:1em;'>&nbsp;</div>"); continue; }
+    if (isCommentLine) { htmlResult.push(`<div style="${getStyle(commentRule)}">${escapeHtml(displayLine)}</div>`); continue; }
 
-    // --- ヒロイン判定（状態の更新） ---
+    // --- ヒロイン判定の更新 ---
 
-    // ループ指定（その行限定）
+    // 1. 【基本】名前定義（//名前：）が来たら、そのキャラで確定
+    let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
+    if (nameDefMatch) {
+      let foundIdx = heroineNames.indexOf(nameDefMatch[1].trim());
+      if (foundIdx !== -1) {
+        currentTargetIdx = foundIdx;
+      }
+    }
+
+    // 2. 【イレギュラー対応】指示行（◇ または □）が来た時
+    if (trimmed.startsWith('◇') || trimmed.startsWith('□')) {
+      for (let i = index; i < lines.length; i++) {
+        let futureLine = lines[i].trim();
+        if (!futureLine) continue;
+
+        // 名前定義が見つかれば、そのキャラに確定して終了
+        let fNameMatch = futureLine.match(/^\/\/([^：: \t\n]+)[:：]/);
+        if (fNameMatch) {
+          let fIdx = heroineNames.indexOf(fNameMatch[1].trim());
+          if (fIdx !== -1) {
+            currentTargetIdx = fIdx;
+          }
+          break;
+        }
+
+        // --- multiPreviewIgnoreLabels を使った判定 ---
+        // defaultFormatの中から、現在スキャン中の行(futureLine)にマッチするルールを探す
+        let matchedRule = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(futureLine));
+
+        if (matchedRule) {
+          // マッチしたルールが「無視リスト」に入っていれば、スキャンを続行（無視する）
+          if (multiPreviewIgnoreLabels.includes(matchedRule.label)) {
+            continue;
+          } else {
+            // 無視リストにない演出指示（◆SEなど）にぶつかったら、そこでスキャンを中止
+            break;
+          }
+        }
+      }
+    }
+
+    // --- B. スタイル適用 ---
+
+    // 1. まず、この行が「ループ指示」かどうかを厳密に判定
     let loopMatch = trimmed.match(/[（(]([^｜|]+)｜ループ：/);
     let tempTargetIdx = -1;
     if (loopMatch) {
       tempTargetIdx = heroineNames.indexOf(loopMatch[1].trim());
     }
 
-    // 先読みロジック（◇ または □ が来た時）
-    if (trimmed.startsWith('◇') || trimmed.startsWith('□')) {
-      // その行から下に向かって、次に現れる「名前」を探す
-      for (let i = index; i < lines.length; i++) { // index(現在行)からスキャン開始
-        let futureLine = lines[i].trim();
-        if (!futureLine) continue;
-
-        // 1. 名前定義が見つかった場合
-        let nameMatch = futureLine.match(/^\/\/([^：: \t\n]+)[:：]/);
-        if (nameMatch) {
-          let foundIdx = heroineNames.indexOf(nameMatch[1].trim());
-          if (foundIdx !== -1) {
-            currentTargetIdx = foundIdx; // ここで「今のヒロイン」を確定！
-          }
-          break; // 名前が見つかったのでスキャン終了
-        }
-
-        // 2. ストッパー（演出指示など）が見つかった場合
-        let isStopper = defaultFormat.some(rule => {
-          // 無視リスト（同時、ループ、音声、演技など）に入っているものはストッパーにしない
-          if (multiPreviewIgnoreLabels.includes(rule.label) || !rule.active || !rule.pattern || rule.isSpecial) return false;
-          return new RegExp(rule.pattern).test(futureLine);
-        });
-
-        // 演出指示（◆やトラックなど）にぶつかったら、そのヒロインの指示ではないと判断して中止
-        if (isStopper) break;
-      }
+    // 2. 【最優先】ループ指示行なら、その場で見つかったヒロインの色を即適用
+    if (tempTargetIdx !== -1) {
+      const colors = heroineColorPairs[tempTargetIdx];
+      let style = `color:${colors.fg}; background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
+      htmlResult.push(`<div style="${style}">${escapeHtml(displayLine)}</div>`);
+      continue; // この行の処理はここで終了
     }
 
-    // 名前定義による更新
-    let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
-    if (nameDefMatch) {
-      let foundIdx = heroineNames.indexOf(nameDefMatch[1].trim());
-      if (foundIdx !== -1) currentTargetIdx = foundIdx;
+    // 3. 次に、共通の演出指示（同時、SE、編集など）をチェック
+    let commonRuleMatch = defaultFormat.find(r =>
+      r.active && r.pattern &&
+      !multiPreviewIgnoreLabels.includes(r.label) &&
+      new RegExp(r.pattern).test(trimmed)
+    );
+
+    if (commonRuleMatch) {
+      htmlResult.push(`<div style="${getStyle(commonRuleMatch)}">${escapeHtml(displayLine)}</div>`);
+      continue;
     }
 
-    // --- スタイル適用 ---
-    let activeIdx = (tempTargetIdx !== -1) ? tempTargetIdx : currentTargetIdx;
+    // 4. 通常のヒロイン判定（確定済みのキャラ）
+    let activeIdx = currentTargetIdx;
 
-    // A: ヒロイン区間の色付け
-    if (activeIdx !== -1) {
+    // この行がヒロインカラー適用対象（セリフ、音声、演技、アドリブなど）かチェック
+    let isHeroineItem = defaultFormat.some(r =>
+      ['話者｜//キャラ名：', 'ト書き｜◇音声：｜方向・距離・（有声/無声）',
+        'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示', 'アドリブ演技指示｜＊〇〇　秒/回',
+        'セリフ (その他)'].includes(r.label) &&
+      new RegExp(r.pattern).test(trimmed)
+    );
+
+    // 5. スタイル適用
+    if (activeIdx !== -1 && isHeroineItem) {
       const colors = heroineColorPairs[activeIdx];
       let style = `color:${colors.fg};`;
+
+      // カッコ始まりは「セリフ」として背景色をつける
       if (/^[（(]/.test(trimmed)) {
         style += `background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
-      } else if (/^(\/\/|◇|□|＊)/.test(trimmed)) {
+      } else {
+        // それ以外は太字
         style += `font-weight:bold;`;
       }
-      return `<div style="${style}">${escapeHtml(displayLine)}</div>`;
+      htmlResult.push(`<div style="${style}">${escapeHtml(displayLine)}</div>`);
+    } else {
+      // 演出指示でもヒロイン項目でもない場合（補足説明など）
+      let matchedFallback = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
+      htmlResult.push(`<div style="${getStyle(matchedFallback || { fgColor: '#000000' })}">${escapeHtml(displayLine)}</div>`);
     }
+  }
 
-    // B: ヒロイン区間外なら共通ルール（defaultFormat）を適用
-    let matched = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
-    return `<div style="${getStyle(matched || { fgColor: '#000000' })}">${escapeHtml(displayLine)}</div>`;
-
-  }).join('');
-
-  if (typeof updateCharacterDialogueCounts === 'function') updateCharacterDialogueCounts();
+  area.innerHTML = htmlResult.join('');
 }
 
 /**
