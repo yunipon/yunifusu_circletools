@@ -6,7 +6,7 @@
 
 <div id="sidebar" class="sidebar">
   <div class="sidebar-header">
-    <h3 style="color: white; margin-bottom: 20px;">台本作成ツール</h3>
+    <h3 style="color: white; margin-bottom: 20px;">MENU</h3>
   </div>
 
   <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
@@ -27,9 +27,8 @@
 
   <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
     <details open>
-      <summary class="section-title">情報管理</summary>
+      <summary class="section-title">ヘルプ</summary>
       <a href="/page-help/regex.php" class="nav-item">正規表現ガイド</a>
-      <a href="/page-help/helpformat.php" class="nav-item">台本の書き方</a>
     </details>
   </nav>
 

@@ -776,21 +776,6 @@ function updateCharacterDialogueCounts() {
   }
 }
 
-/*
-function updateFormatDialogueCount() {
-  const val = document.getElementById('textFormat')?.value || "";
-  const count = val.replace(/\n/g, "").length; // 簡易版
-  const display = document.getElementById('formatDialogueCount');
-  if (display) display.innerText = `セリフ：${count} 文字`;
-}
-
-function updateCharacterDialogueCounts() {
-  const val = document.getElementById('textMulti')?.value || "";
-  const totalDisplay = document.getElementById('multiDialogueCount');
-  if (totalDisplay) totalDisplay.innerText = `合計セリフ：${val.replace(/\n/g, "").length} 文字`;
-}
-*/
-
 // ==========================================
 // セリフカウント詳細
 // ==========================================
