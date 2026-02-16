@@ -599,9 +599,9 @@ function updateNameButtons(ID) {
   } else {
     container.innerHTML = matches.map(name => `
       <div class="name-button-group">
-      <button class="btn-copy btn-name" onclick="copyToClipboard('//${name}：')">//${name}：</button>
-      <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　ここから）')">（${name}）ループ始</button>
-      <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　ここまで）')">（${name}）ループ終</button>
+        <button class="btn-copy btn-name" onclick="copyToClipboard('//${name}：')">//${name}：</button>
+        <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　ここから）')">（${name}）ループ始</button>
+        <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　ここまで）')">（${name}）ループ終</button>
       </div>
     `).join('');
   }
