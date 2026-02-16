@@ -19,8 +19,7 @@
       <summary style="margin-bottom: 10px; font-weight: bold; color: #2c3e50; font-size: 0.9rem; background: white;">📋 クイックコピー</summary>
       <div id="copyPalette" style="display: flex; flex-wrap: wrap; gap: 8px;">
         <button class="btn-copy" onclick="copyToClipboard('%%%')">%%%</button>
-        <button class="btn-copy" onclick="copyToClipboard('＝＊＝')">＝＊＝</button>
-        <button class="btn-copy" onclick="copyToClipboard('トラック')">トラック</button>
+        <button class="btn-copy" onclick="copyToClipboard('＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝\nトラック\n＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝')">トラック（装飾）</button> <button class="btn-copy" onclick="copyToClipboard('トラック')">トラック</button>
         <button class="btn-copy" onclick="copyToClipboard('◆SE：')">◆SE：</button>
         <button class="btn-copy" onclick="copyToClipboard('◆SE：　ここから')">◆SE：始</button>
         <button class="btn-copy" onclick="copyToClipboard('◆SE：　ここまで')">◆SE：終</button>

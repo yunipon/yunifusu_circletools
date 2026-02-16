@@ -559,9 +559,9 @@ function resetToDefault(type) {
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
     // 簡易的な通知（お好みでトースト通知などに変えてください）
-    console.log("Copied: " + text);
+    //console.log("Copied: " + text);
   }).catch(err => {
-    console.error("Copy failed", err);
+    //console.error("Copy failed", err);
   });
 }
 
@@ -1243,60 +1243,63 @@ function importPlotText(input) {
 // ==========================================
 // 7. Word / Text 出力機能 (ブラウザ完結型)
 // ==========================================
+
 async function exportToWord() {
+  let preview = null;
   const multiArea = document.getElementById('previewAreaMulti');
   const singleArea = document.getElementById('previewArea');
-  const preview = (multiArea && multiArea.offsetHeight > 0) ? multiArea : singleArea;
+  const textArea = document.getElementById('textExtract'); // セリフ抽出用
+
+  // 1. どのソースを出力するか決定
+  if (multiArea && multiArea.offsetHeight > 0 && multiArea.innerHTML.trim() !== "") {
+    preview = multiArea;
+  } else if (singleArea && singleArea.offsetHeight > 0 && singleArea.innerHTML.trim() !== "") {
+    preview = singleArea;
+  }
 
   let lines = [];
 
+  // 2. プレビューエリア（HTML）がある場合の処理
   if (preview) {
-    // 複数ヒロイン（ブロック構造）の場合
-    if (preview.id === 'previewAreaMulti') {
-      const blocks = preview.querySelectorAll(':scope > div'); // ブロック単位(margin-bottomあり)を取得
-
-      blocks.forEach((block, bIdx) => {
-        const rowDivs = block.querySelectorAll('div');
-        rowDivs.forEach(div => {
-          if (div.querySelector('div') === null) {
-            let text = div.innerText.replace(/\u00A0/g, " ").trim();
-            lines.push({
-              text: text,
-              color: rgbToHex(div.style.color) || "000000",
-              highlight: rgbToHex(div.style.backgroundColor) || null
-            });
-          }
-        });
-
-        // ★ここがGASの「body.appendParagraph("")」に相当する処理
-        // ブロックの最後に、次のブロックとの間の空行を追加する
-        if (bIdx < blocks.length - 1) {
-          lines.push({ text: "", color: "000000", highlight: null });
-        }
-      });
-    } else {
-      // 一人整形（フラット構造）の場合
-      const allDivs = preview.querySelectorAll('div');
-      allDivs.forEach(div => {
-        // ネストされたdivがある場合は親側をスキップし、中身を持つdivのみ処理
-        if (div.querySelector('div') === null) {
-          let text = div.innerText.replace(/\u00A0/g, " ").trim();
-
-          // 修正ポイント：colorとhighlight(背景色)を両方取得する
-          const fgColor = rgbToHex(div.style.color);
-          // 背景色が 'transparent' や 'none' ではないか確認して取得
-          const bgColor = (div.style.backgroundColor && div.style.backgroundColor !== 'transparent' && div.style.backgroundColor !== 'none')
-            ? rgbToHex(div.style.backgroundColor)
-            : null;
-
-          lines.push({
-            text: text,
-            color: fgColor || "000000",
-            highlight: bgColor // ここを null ではなく bgColor に変更
+    Array.from(preview.childNodes).forEach(node => {
+      if (node.nodeType === 1) {
+        const leafDivs = node.querySelectorAll('div');
+        if (leafDivs.length > 0) {
+          leafDivs.forEach(ldiv => {
+            if (ldiv.querySelector('div') === null) pushLine(ldiv);
           });
+        } else {
+          pushLine(node);
         }
+      } else if (node.nodeType === 3) {
+        const text = node.textContent.replace(/\u00A0/g, " ").trim();
+        if (text === "" && node.textContent.includes('\n')) {
+          lines.push({ text: "", color: "000000", highlight: null });
+        } else if (text !== "") {
+          lines.push({ text: text, color: "000000", highlight: null });
+        }
+      }
+    });
+
+    function pushLine(el) {
+      let text = el.innerText.replace(/\u00A0/g, " ").trim();
+      lines.push({
+        text: text,
+        color: rgbToHex(el.style.color) || "000000",
+        highlight: rgbToHex(el.style.backgroundColor) || null
       });
     }
+  }
+  // 3. 【追加】プレビューがなく、テキストエリアに文字がある場合（セリフ抽出時など）
+  else if (textArea && textArea.value.trim() !== "") {
+    // テキストエリアの各行をループで回して lines に追加
+    textArea.value.split('\n').forEach(rawLine => {
+      lines.push({
+        text: rawLine.trim(),
+        color: "000000", // テキストエリアは装飾がないので黒固定
+        highlight: null
+      });
+    });
   }
 
   if (lines.length === 0) return alert("出力する内容がありません。");
@@ -1308,38 +1311,31 @@ async function exportToWord() {
       properties: {
         page: {
           margin: {
-            top: 1985,    // 35.01mm
+            top: 1985, // 35.01mm
             bottom: 1701, // 30mm
-            left: 1701,   // 30mm
-            right: 1701,  // 30mm
+            left: 1701, // 30mm
+            right: 1701, // 30mm
           },
         },
       },
       children: lines.map(line => {
-        // 行が空（または空白文字のみ）の場合の判定
-        const isBlank = !line.text || line.text.trim() === "";
+        const isBlank = !line.text || line.text === "";
 
         return new Paragraph({
-          spacing: {
-            line: 480, // 行間 2.0
-            before: 0,
-            after: 0,
-          },
-          children: [
+          spacing: { line: 480, before: 0, after: 0 },
+          // 【修正ポイント2】空白行なら空のchildrenを返し、
+          // 文字がある場合のみTextRunを生成する。これで余計なスペースが入らない
+          children: isBlank ? [] : [
             new TextRun({
-              // 空白行なら空文字を、そうでなければテキストを入れる
-              text: isBlank ? "" : line.text,
+              text: line.text,
               color: line.color,
               shading: line.highlight ? {
                 type: docx.ShadingType.CLEAR,
                 color: "auto",
                 fill: line.highlight,
               } : undefined,
-              size: 22, // 11pt
-              font: {
-                eastAsia: "Yu Mincho",
-                hint: "eastAsia",
-              },
+              size: 22,
+              font: { eastAsia: "Yu Mincho", hint: "eastAsia" },
             }),
           ],
         });
