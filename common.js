@@ -274,68 +274,50 @@ function runMultiPreview() {
 
     // --- ヒロイン判定の更新 ---
 
-    // 1. 【基本】名前定義（//名前：）が来たら、そのキャラで確定
+    // --- A. ヒロイン判定の更新 (定番・イレギュラー両対応) ---
     let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
     if (nameDefMatch) {
       let foundIdx = heroineNames.indexOf(nameDefMatch[1].trim());
-      if (foundIdx !== -1) {
-        currentTargetIdx = foundIdx;
-      }
+      if (foundIdx !== -1) currentTargetIdx = foundIdx;
     }
 
-    // 2. 【イレギュラー対応】指示行（◇ または □）が来た時
     if (trimmed.startsWith('◇') || trimmed.startsWith('□')) {
       for (let i = index; i < lines.length; i++) {
         let futureLine = lines[i].trim();
         if (!futureLine) continue;
-
-        // 名前定義が見つかれば、そのキャラに確定して終了
         let fNameMatch = futureLine.match(/^\/\/([^：: \t\n]+)[:：]/);
         if (fNameMatch) {
           let fIdx = heroineNames.indexOf(fNameMatch[1].trim());
-          if (fIdx !== -1) {
-            currentTargetIdx = fIdx;
-          }
+          if (fIdx !== -1) currentTargetIdx = fIdx;
           break;
         }
-
-        // --- multiPreviewIgnoreLabels を使った判定 ---
-        // defaultFormatの中から、現在スキャン中の行(futureLine)にマッチするルールを探す
-        let matchedRule = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(futureLine));
-
-        if (matchedRule) {
-          // マッチしたルールが「無視リスト」に入っていれば、スキャンを続行（無視する）
-          if (multiPreviewIgnoreLabels.includes(matchedRule.label)) {
-            continue;
-          } else {
-            // 無視リストにない演出指示（◆SEなど）にぶつかったら、そこでスキャンを中止
-            break;
-          }
-        }
+        // ストッパー判定（ヒロイン対象外のルールにぶつかったら中止）
+        let stopRule = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(futureLine));
+        if (stopRule && !heroineTargetLabels.includes(stopRule.label)) break;
       }
     }
 
     // --- B. スタイル適用 ---
 
-    // 1. まず、この行が「ループ指示」かどうかを厳密に判定
+    // 1. ループ指示行の個別判定（背景色を伴うため最優先）
     let loopMatch = trimmed.match(/[（(]([^｜|]+)｜ループ：/);
     let tempTargetIdx = -1;
     if (loopMatch) {
       tempTargetIdx = heroineNames.indexOf(loopMatch[1].trim());
     }
 
-    // 2. 【最優先】ループ指示行なら、その場で見つかったヒロインの色を即適用
     if (tempTargetIdx !== -1) {
       const colors = heroineColorPairs[tempTargetIdx];
       let style = `color:${colors.fg}; background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
       htmlResult.push(`<div style="${style}">${escapeHtml(displayLine)}</div>`);
-      continue; // この行の処理はここで終了
+      continue;
     }
 
-    // 3. 次に、共通の演出指示（同時、SE、編集など）をチェック
+    // 2. 演出指示（絶対的デフォルトルール）のチェック
+    // heroineTargetLabels に含まれないルールは、ヒロイン区間内でも defaultFormat を優先
     let commonRuleMatch = defaultFormat.find(r =>
       r.active && r.pattern &&
-      !multiPreviewIgnoreLabels.includes(r.label) &&
+      !heroineTargetLabels.includes(r.label) &&
       new RegExp(r.pattern).test(trimmed)
     );
 
@@ -344,34 +326,29 @@ function runMultiPreview() {
       continue;
     }
 
-    // 4. 通常のヒロイン判定（確定済みのキャラ）
+    // 3. ヒロインカラー適用（音声・演技・セリフなど）
     let activeIdx = currentTargetIdx;
-
-    // この行がヒロインカラー適用対象（セリフ、音声、演技、アドリブなど）かチェック
-    let isHeroineItem = defaultFormat.some(r =>
-      ['話者｜//キャラ名：', 'ト書き｜◇音声：｜方向・距離・（有声/無声）',
-        'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示', 'アドリブ演技指示｜＊〇〇　秒/回',
-        'セリフ (その他)'].includes(r.label) &&
+    let targetRule = defaultFormat.find(r =>
+      r.active && r.pattern &&
+      heroineTargetLabels.includes(r.label) &&
       new RegExp(r.pattern).test(trimmed)
     );
 
-    // 5. スタイル適用
-    if (activeIdx !== -1 && isHeroineItem) {
+    if (activeIdx !== -1 && targetRule) {
       const colors = heroineColorPairs[activeIdx];
       let style = `color:${colors.fg};`;
 
-      // カッコ始まりは「セリフ」として背景色をつける
+      // セリフ（カッコ始まり）は背景色、それ以外は太字
       if (/^[（(]/.test(trimmed)) {
         style += `background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
       } else {
-        // それ以外は太字
         style += `font-weight:bold;`;
       }
       htmlResult.push(`<div style="${style}">${escapeHtml(displayLine)}</div>`);
     } else {
-      // 演出指示でもヒロイン項目でもない場合（補足説明など）
-      let matchedFallback = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
-      htmlResult.push(`<div style="${getStyle(matchedFallback || { fgColor: '#000000' })}">${escapeHtml(displayLine)}</div>`);
+      // 4. どれにも当てはまらない、またはヒロイン未確定時のフォールバック
+      let fallbackMatch = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
+      htmlResult.push(`<div style="${getStyle(fallbackMatch || { fgColor: '#000000' })}">${escapeHtml(displayLine)}</div>`);
     }
   }
 
