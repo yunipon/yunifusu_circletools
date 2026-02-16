@@ -26,18 +26,10 @@
   </nav>
 
   <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
-    <details>
-      <summary class="section-title">サイドツール</p>
-    </details>
-  </nav>
-
-  <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
-    <details>
+    <details open>
       <summary class="section-title">情報管理</summary>
-      <a href="/pages/settings.php" class="nav-item">環境設定</a>
       <a href="/page-help/regex.php" class="nav-item">正規表現ガイド</a>
       <a href="/page-help/helpformat.php" class="nav-item">台本の書き方</a>
-      <a href="/TODO/todolist.php" class="nav-item">開発予定</a>
     </details>
   </nav>
 

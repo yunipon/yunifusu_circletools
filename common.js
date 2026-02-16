@@ -1,7 +1,7 @@
 // ==========================================
 // 1. グローバル設定・定数
 // ==========================================
-const heroineColors = ["#E50000", "#0000FF", "#008000", "#8A2BE2", "#D2691E", "#666666"];
+const heroineColors = ["#E50000", "#0000FF", "#008000", "#8A2BE2", "#D2691E"];
 const heroineColorPairs = [
   { fg: "#E50000", bg: "#FFDADA" }, { fg: "#0000FF", bg: "#D1F5FF" },
   { fg: "#008000", bg: "#D1FFD1" }, { fg: "#8A2BE2", bg: "#E6D1FF" },
@@ -344,6 +344,7 @@ function runMultiPreview() {
   }
 
   area.innerHTML = htmlResult.join('');
+  updateCharacterDialogueCounts();
 }
 
 /**
@@ -666,6 +667,130 @@ function clearData(type) {
   }
 }
 
+
+// ==========================================
+// 台本整形ツールのセリフカウント
+// ==========================================
+
+/**
+ * 1. 【解析】セリフデータを集計する共通関数
+ * この関数は画面を書き換えません。純粋に計算結果（データ）だけを返します。
+ */
+function analyzeDialogueData(inputText) {
+  if (!inputText) return { total: 0, byCharacter: {} };
+
+  let text = inputText;
+
+  // 1. カッコ統一 (applyExtractと同じ)
+  text = text.replace(/\(/g, "（").replace(/\)/g, "）");
+
+  // 2. コメント削除 (index 0 のルール)
+  const commentRule = extractRules[0];
+  if (commentRule && commentRule.pattern === 'delete_comment' && commentRule.active) {
+    text = text.replace(/%%%[\s\S]*?%%%/g, "");
+  }
+
+  const lines = text.split('\n');
+  const stats = { total: 0, byCharacter: {} };
+  let currentName = "メイン";
+
+  lines.forEach(line => {
+    let newLine = line.trim();
+    if (!newLine) return;
+
+    // 話者判定（//名前：）はカウントに含めず、ターゲットを切り替えるだけ
+    const nameMatch = newLine.match(/^\/\/(.*?)[:：]/);
+    if (nameMatch) {
+      currentName = nameMatch[1].trim();
+      return;
+    }
+
+    // 3. extractRulesを順番に適用して文字を削る
+    extractRules.forEach((rule, index) => {
+      if (index === 0 || !rule.active || !rule.pattern || rule.isSpecial) return;
+      if (newLine === "") return;
+
+      try {
+        const re = new RegExp(rule.pattern, 'g');
+        if (rule.pattern.startsWith('^')) {
+          // 行頭一致なら行ごと消す
+          if (re.test(newLine)) newLine = "";
+        } else {
+          // それ以外は該当箇所を空文字に置換
+          newLine = newLine.replace(re, '');
+        }
+      } catch (e) { }
+    });
+
+    // 4. 生き残った文字をカウント
+    if (newLine.trim() !== "") {
+      const len = newLine.trim().length;
+      stats.total += len;
+      stats.byCharacter[currentName] = (stats.byCharacter[currentName] || 0) + len;
+    }
+  });
+
+  return stats;
+}
+
+/*
+ * 上記の解析関数を呼び出して、画面に反映させる
+*/
+
+//一人台本用
+function updateFormatDialogueCount() {
+  const input = document.getElementById('textFormat').value;
+  const display = document.getElementById('formatDialogueCount');
+  if (!input || !display) return;
+
+  const stats = analyzeDialogueData(input);
+  display.innerText = `セリフ：${stats.total} 文字`;
+}
+
+//複数人台本用
+function updateCharacterDialogueCounts() {
+  const input = document.getElementById('textMulti').value;
+  const totalDisplay = document.getElementById('multiDialogueCount');
+  const breakdownDisplay = document.getElementById('characterBreakdown');
+
+  if (!input) {
+    if (totalDisplay) totalDisplay.innerText = "合計セリフ：0 文字";
+    if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+    return;
+  }
+
+  // 解析関数を呼び出す
+  const stats = analyzeDialogueData(input);
+
+  // 全体表示
+  totalDisplay.innerHTML = `合計セリフ：<strong>${stats.total}</strong> 文字 <small style="display: block; font-size: 0.8em; color: #999; margin-top: 2px;">※「①セリフのみ抽出」の保存済み条件を適用</small>`;
+
+  // キャラ別内訳
+  const names = Object.keys(stats.byCharacter);
+  if (names.length > 0) {
+    breakdownDisplay.style.display = 'block';
+    breakdownDisplay.innerHTML = "<strong>【キャラ別内訳】</strong><br>" +
+      names.map(name => `・${name}：${stats.byCharacter[name]} 文字`).join(' ／ ');
+  } else {
+    breakdownDisplay.style.display = 'none';
+  }
+}
+
+/*
+function updateFormatDialogueCount() {
+  const val = document.getElementById('textFormat')?.value || "";
+  const count = val.replace(/\n/g, "").length; // 簡易版
+  const display = document.getElementById('formatDialogueCount');
+  if (display) display.innerText = `セリフ：${count} 文字`;
+}
+
+function updateCharacterDialogueCounts() {
+  const val = document.getElementById('textMulti')?.value || "";
+  const totalDisplay = document.getElementById('multiDialogueCount');
+  if (totalDisplay) totalDisplay.innerText = `合計セリフ：${val.replace(/\n/g, "").length} 文字`;
+}
+*/
+
 // ==========================================
 // セリフカウント詳細
 // ==========================================
@@ -719,19 +844,6 @@ function removeAllBlankLines(targetId) {
   // 文字数カウントも更新しておく
   const countId = targetId === 'textExtract' ? 'countExtract' : 'countFormat';
   updateCharCount(targetId, countId);
-}
-
-function updateFormatDialogueCount() {
-  const val = document.getElementById('textFormat')?.value || "";
-  const count = val.replace(/\n/g, "").length; // 簡易版
-  const display = document.getElementById('formatDialogueCount');
-  if (display) display.innerText = `セリフ：${count} 文字`;
-}
-
-function updateCharacterDialogueCounts() {
-  const val = document.getElementById('textMulti')?.value || "";
-  const totalDisplay = document.getElementById('multiDialogueCount');
-  if (totalDisplay) totalDisplay.innerText = `合計セリフ：${val.replace(/\n/g, "").length} 文字`;
 }
 
 function updatePlotCharCount(textarea, displayId) {
@@ -1006,8 +1118,10 @@ function generatePlotText() {
 
   // 残りの項目
   addSection('主人公の設定', 'p-hero-setting');
-  addSection('コンセプト・推しポイント', 'p-concept');
-  addSection('サムネイル案', 'p-thumbnail');
+  addSection('その他１', 'p-concept');
+  addSection('その他２', 'p-thumbnail');
+  //addSection('コンセプト・推しポイント', 'p-concept');
+  //addSection('サムネイル案', 'p-thumbnail');
 
   document.getElementById('plotResult').value = res.trim();
 }
@@ -1057,11 +1171,11 @@ function parseAndFillPlot(text) {
       const data = getSectionContent(lines, i);
       document.getElementById('p-hero-setting').value = data.content;
       i = data.lastIndex;
-    } else if (line.includes('■コンセプト')) {
+    } else if (line.includes('■その他１')) {
       const data = getSectionContent(lines, i);
       document.getElementById('p-concept').value = data.content;
       i = data.lastIndex;
-    } else if (line.includes('■サムネイル案')) {
+    } else if (line.includes('■その他２')) {
       const data = getSectionContent(lines, i);
       document.getElementById('p-thumbnail').value = data.content;
       i = data.lastIndex;

@@ -90,14 +90,11 @@
         <button class="btn-primary" onclick="exportToWord()">Wordに出力</button>
         <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
 
-        <div id="multiDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">
-          合計セリフ：<span id="dialogueCharCountMulti">0</span> 文字
-          <span style="font-size: 0.8em; color: #aaa;">（抽出ルール適用）</span>
-        </div>
+        <div id="multiDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">合計セリフ：0 文字</div>
+        <div id="characterBreakdown" style="margin-top: 10px; font-size: 0.85em; color: #555; display:none; background: #fefefe; padding: 8px; border: 1px dashed #ddd;"></div>
+
       </div>
 
-      <div id="characterBreakdown" style="margin-top: 15px; font-size: 0.85em; color: #555; display:none; background: #fefefe; padding: 12px; border: 1px dashed #ddd; border-radius: 6px;">
-      </div>
     </div>
 
     <div class="card">

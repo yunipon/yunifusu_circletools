@@ -53,12 +53,12 @@
       </div>
 
       <div class="rule-card" style="border-left-color: #28a745;">
-        <h4>■ コンセプト・推しポイント</h4>
+        <h4>■ その他１</h4>
         <textarea id="p-concept" style="height:80px;"></textarea>
       </div>
 
       <div class="rule-card" style="border-left-color: #ffc107;">
-        <h4>■ サムネイル案</h4>
+        <h4>■ その他２</h4>
         <textarea id="p-thumbnail" style="height:80px;"></textarea>
       </div>
 
