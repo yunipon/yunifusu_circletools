@@ -98,7 +98,7 @@
     </div>
 
     <div class="card">
-      <h4>プレビュー</h4>
+      <h4>プレビュー（既定の書式設定で固定しています）</h4>
       <div id="previewAreaMulti" class="preview-box" style="background: #fff; border: 1px solid #eee; padding: 20px; border-radius: 8px; min-height: 200px; white-space: pre-wrap;"></div>
     </div>
   </main>

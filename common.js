@@ -789,7 +789,7 @@ function renderHeroineInputs() {
   }
 }
 
-function addHeroineInput() { if (heroineCount < 6) { heroineCount++; renderHeroineInputs(); } }
+function addHeroineInput() { if (heroineCount < 5) { heroineCount++; renderHeroineInputs(); } }
 
 // ==========================================
 // プロット作成　入力ページ
