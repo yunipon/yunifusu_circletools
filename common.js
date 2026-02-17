@@ -231,7 +231,7 @@ function runPreview() {
 }
 
 /**
- * 複数人プレビュー：大型アップデート版（ルール微調整済み）
+ * 複数人プレビュー：シンプル順次判定版
  */
 function runMultiPreview() {
   const area = document.getElementById('previewAreaMulti');
@@ -239,7 +239,7 @@ function runMultiPreview() {
 
   let text = document.getElementById('textMulti')?.value || "";
 
-  // 1. コメントルール(%%%)
+  // 1. コメントルール(%%%)の処理
   const commentRule = typeof formatRules !== 'undefined' ? formatRules.find(r => r.pattern === 'format_comment' && r.active) : null;
   if (commentRule) {
     text = text.replace(/%%%[\s\S]*?%%%/g, (match) => {
@@ -250,7 +250,7 @@ function runMultiPreview() {
   const heroineNames = Array.from(document.querySelectorAll('.heroine-name')).map(i => i.value.trim());
   const lines = text.split('\n');
 
-  let currentTargetIdx = -1;
+  let currentTargetIdx = -1; // 現在誰のターンか（初期値は未定）
   let htmlResult = [];
 
   for (let index = 0; index < lines.length; index++) {
@@ -259,44 +259,38 @@ function runMultiPreview() {
     let displayLine = isCommentLine ? line.replace('__C_L__', '') : line;
     let trimmed = displayLine.trim();
 
-    // 空行・コメント処理（省略：これまでのコードと同じ）
-    if (!trimmed && !isCommentLine) { htmlResult.push("<div style='height:1em;'>&nbsp;</div>"); continue; }
-    if (isCommentLine) { htmlResult.push(`<div style="${getStyle(commentRule)}">${escapeHtml(displayLine)}</div>`); continue; }
+    // 空行・コメント行の処理
+    if (!trimmed && !isCommentLine) {
+      htmlResult.push("<div style='height:1em;'>&nbsp;</div>");
+      continue;
+    }
+    if (isCommentLine) {
+      htmlResult.push(`<div style="${getStyle(commentRule)}">${escapeHtml(displayLine)}</div>`);
+      continue;
+    }
 
-    // --- ヒロイン判定の更新 ---
-
-    // --- A. ヒロイン判定の更新 (定番・イレギュラー両対応) ---
+    // --- A. ヒロイン判定の更新 ---
+    // 行頭が「//名前：」の場合、currentTargetIdx をその人のインデックスに更新する
     let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
     if (nameDefMatch) {
       let foundIdx = heroineNames.indexOf(nameDefMatch[1].trim());
-      if (foundIdx !== -1) currentTargetIdx = foundIdx;
-    }
-
-    if (trimmed.startsWith('◇') || trimmed.startsWith('□')) {
-      for (let i = index; i < lines.length; i++) {
-        let futureLine = lines[i].trim();
-        if (!futureLine) continue;
-        let fNameMatch = futureLine.match(/^\/\/([^：: \t\n]+)[:：]/);
-        if (fNameMatch) {
-          let fIdx = heroineNames.indexOf(fNameMatch[1].trim());
-          if (fIdx !== -1) currentTargetIdx = fIdx;
-          break;
-        }
-        // ストッパー判定（ヒロイン対象外のルールにぶつかったら中止）
-        let stopRule = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(futureLine));
-        if (stopRule && !heroineTargetLabels.includes(stopRule.label)) break;
+      if (foundIdx !== -1) {
+        currentTargetIdx = foundIdx;
       }
     }
 
+    // ★以前あった「startsWith('◇') || startsWith('□')」の時のループ先読み処理は完全に削除しました。
+    // これにより、◇や□の指示はその瞬間の currentTargetIdx（直前の//名前：）に準拠します。
+
     // --- B. スタイル適用 ---
 
-    // 1. ループ指示行の個別判定（背景色を伴うため最優先）
+    // 1. ループ指示行（（名前｜ループ：）の形式）の判定
+    // これは行内に名前が含まれるため、currentTargetIdxに関わらず指定キャラの色を適用
     let loopMatch = trimmed.match(/[（(]([^｜|]+)｜ループ：/);
     let tempTargetIdx = -1;
     if (loopMatch) {
       tempTargetIdx = heroineNames.indexOf(loopMatch[1].trim());
     }
-
     if (tempTargetIdx !== -1) {
       const colors = heroineColorPairs[tempTargetIdx];
       let style = `color:${colors.fg}; background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
@@ -304,40 +298,38 @@ function runMultiPreview() {
       continue;
     }
 
-    // 2. 演出指示（絶対的デフォルトルール）のチェック
-    // heroineTargetLabels に含まれないルールは、ヒロイン区間内でも defaultFormat を優先
+    // 2. 演出指示（絶対的デフォルトルール：SEや同時など）
+    // heroineTargetLabelsに含まれないものは、キャラのターンに関わらず共通色にする
     let commonRuleMatch = defaultFormat.find(r =>
       r.active && r.pattern &&
       !heroineTargetLabels.includes(r.label) &&
       new RegExp(r.pattern).test(trimmed)
     );
-
     if (commonRuleMatch) {
       htmlResult.push(`<div style="${getStyle(commonRuleMatch)}">${escapeHtml(displayLine)}</div>`);
       continue;
     }
 
     // 3. ヒロインカラー適用（音声・演技・セリフなど）
-    let activeIdx = currentTargetIdx;
     let targetRule = defaultFormat.find(r =>
       r.active && r.pattern &&
       heroineTargetLabels.includes(r.label) &&
       new RegExp(r.pattern).test(trimmed)
     );
 
-    if (activeIdx !== -1 && targetRule) {
-      const colors = heroineColorPairs[activeIdx];
+    if (currentTargetIdx !== -1 && targetRule) {
+      const colors = heroineColorPairs[currentTargetIdx];
       let style = `color:${colors.fg};`;
 
-      // セリフ（カッコ始まり）は背景色、それ以外は太字
+      // セリフ（カッコ始まり）は背景色、それ以外（◇や□、名前行など）は太字
       if (/^[（(]/.test(trimmed)) {
         style += `background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
       } else {
-        style += `font-weight:bold;`;
+        style += `font-weight:normal;`;
       }
       htmlResult.push(`<div style="${style}">${escapeHtml(displayLine)}</div>`);
     } else {
-      // 4. どれにも当てはまらない、またはヒロイン未確定時のフォールバック
+      // 4. どれにも当てはまらない場合（デフォルト）
       let fallbackMatch = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
       htmlResult.push(`<div style="${getStyle(fallbackMatch || { fgColor: '#000000' })}">${escapeHtml(displayLine)}</div>`);
     }
