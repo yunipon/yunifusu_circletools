@@ -46,7 +46,7 @@
         <button class="btn-copy" onclick="copyToClipboard('■編集：')">■編集：</button>
         <button class="btn-copy" onclick="copyToClipboard('【同時　ここから】')">【同時】始</button>
         <button class="btn-copy" onclick="copyToClipboard('【同時　ここまで】')">【同時】終</button>
-        <button class="btn-copy" onclick="copyToClipboard('（）')">補足</button>
+        <button class="btn-copy" onclick="copyToClipboard('（）')">（）</button>
         <button class="btn-copy" onclick="copyToClipboard('※補足：')">※補足：</button>
         <button class="btn-copy" onclick="copyToClipboard('《状況：》')">《状況：》</button>
         <button class="btn-copy" onclick="copyToClipboard('＊　秒')">＊秒</button>
