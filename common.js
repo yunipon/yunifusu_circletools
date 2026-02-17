@@ -45,15 +45,18 @@ const defaultFormat = [
   { label: 'セリフ (その他)', pattern: '.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' }
 ];
 
-// --- 設定：ヒロインカラーを適用したいラベルのリスト ---
-heroineTargetLabels = [
-  '話者｜//キャラ名：',
-  'ト書き｜◇音声：｜方向・距離・（有声/無声）',
-  'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示',
-  'アドリブ演技指示｜＊〇〇　秒/回',
-  'セリフ (その他)',
-  'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）｜回数や開始終了指示など'
+// --- 設定：ラベルと表示タイプの定義 ---
+const heroineTargetSettings = [
+  { label: '話者｜//キャラ名：', type: 'bold' },
+  { label: 'ト書き｜◇音声：｜方向・距離・（有声/無声）', type: 'bold' },
+  { label: 'ト書き｜□演技：)｜必要であれば（ここから/ここまで）指示', type: 'bold' },
+  { label: 'アドリブ演技指示｜＊〇〇　秒/回', type: 'bold' },
+  { label: 'セリフ (その他)', type: 'normal' },
+  { label: 'ループ用指示｜（キャラ名｜ループ：〜回/ここから/ここまで）', type: 'bg' }
 ];
+
+// 判定用にラベル名だけの配列も作っておく（既存コード互換用）
+const heroineTargetLabels = heroineTargetSettings.map(s => s.label);
 
 /*　過去
 const defaultFormat = [
@@ -321,18 +324,37 @@ function runMultiPreview() {
       const colors = heroineColorPairs[currentTargetIdx];
       let style = `color:${colors.fg};`;
 
-      // セリフ（カッコ始まり）は背景色、それ以外（◇や□、名前行など）は太字
-      if (/^[（(]/.test(trimmed)) {
-        style += `background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
-      } else {
+      // ★メンテナンス性を高めるポイント：
+      // 設定リストから、今のルール(targetRule.label)に対応する「タイプ」を検索する
+      const setting = heroineTargetSettings.find(s => s.label === targetRule.label);
+      const displayType = setting ? setting.type : 'normal'; // 見つからなければ通常色のみ
+
+      if (displayType === 'bold') {
+        // 【太字】
+        style += `font-weight:bold;`;
+      }
+      else if (displayType === 'normal') {
+        // 【標準】（色は付くが太くしない）
         style += `font-weight:normal;`;
       }
+      else if (displayType === 'bg') {
+        // 【背景色】（背景色）
+        style += `background-color:${colors.bg}; padding:0 4px; border-radius:2px;`;
+      }
+
       htmlResult.push(`<div style="${style}">${escapeHtml(displayLine)}</div>`);
+
     } else {
-      // 4. どれにも当てはまらない場合（デフォルト）
+      // --- 4. それ以外（ヒロイン未確定、またはヒロイン対象外のラベル） ---
+      // ここに以前の「fallbackMatch」のロジックを入れます。
+      // これにより、SE（◆）やコメント（%%%）などの標準色が適用されます。
       let fallbackMatch = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
-      htmlResult.push(`<div style="${getStyle(fallbackMatch || { fgColor: '#000000' })}">${escapeHtml(displayLine)}</div>`);
+
+      // どのルールにも当てはまらない場合は、普通の黒文字にする
+      let fallbackStyle = getStyle(fallbackMatch || { fgColor: '#000000' });
+      htmlResult.push(`<div style="${fallbackStyle}">${escapeHtml(displayLine)}</div>`);
     }
+
   }
 
   area.innerHTML = htmlResult.join('');
@@ -1377,7 +1399,8 @@ async function exportToWord() {
       lines.push({
         text: text,
         color: rgbToHex(el.style.color) || "000000",
-        highlight: rgbToHex(el.style.backgroundColor) || null
+        highlight: rgbToHex(el.style.backgroundColor) || null,
+        bold: el.style.fontWeight === "bold" || el.style.fontWeight >= 700
       });
     }
   }
@@ -1420,6 +1443,7 @@ async function exportToWord() {
             new TextRun({
               text: line.text,
               color: line.color,
+              bold: line.bold,
               shading: line.highlight ? {
                 type: docx.ShadingType.CLEAR,
                 color: "auto",
