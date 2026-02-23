@@ -21,6 +21,47 @@ body {
 }
 
 /* ==========================================
+   1. 基本設定（PC・デスクトップ基準）
+   ========================================== */
+.editor-container {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  /* 左右の間の余白 */
+  justify-content: space-between;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+/* レイアウト用の透明な箱 */
+.box {
+  display: block;
+  /* 内部は縦に並べる */
+  flex: 0 0 calc(50% - 12px);
+  min-width: 0;
+  background: transparent;
+  /* 背景なし */
+  border: none;
+  /* 枠線なし */
+  padding: 0;
+  /* 余計な余白なし */
+}
+
+.editor-left,
+.editor-right {
+  flex: 1;
+  /* これで均等（50%ずつ）になります */
+  min-width: 0;
+  /* テキストエリアの突き抜け防止 */
+}
+
+/* 右側もスクロールについてくるように設定 */
+.editor-right {
+  position: sticky;
+  top: 20px;
+}
+
+/* ==========================================
     ハンバーガーメニュー
    ========================================== */
 
@@ -619,11 +660,6 @@ h3 {
 /* 置換エリア全体のスタイル */
 .replace-section {
   background: #ffffff;
-  /* グレーから白に変えるとよりモダンです */
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #e1e8ed;
-  margin-bottom: 20px;
 
   /* フレックスボックスの設定 */
   display: flex;
@@ -638,7 +674,7 @@ h3 {
 .replace-group {
   flex: 1;
   /* PCでは均等に広がる */
-  min-width: 200px;
+  min-width: 50px;
   /* ★200pxを切ると自動で改行される */
   display: flex;
   flex-direction: column;
@@ -646,8 +682,8 @@ h3 {
 }
 
 .replace-input {
-  padding: 8px;
-  border: 1px solid #ced4da;
+  padding: 5px;
+  border: 1px solid #ddd;
   border-radius: 4px;
   flex: 1;
 }
@@ -913,12 +949,29 @@ textarea {
   }
 
   /* 2. 左右のエリアを横幅いっぱいに */
-  .card,
+  .card {
+    width: 100%;
+    margin-right: 0;
+    margin-left: 0;
+    padding: 10px;
+  }
+
   .editor-container {
-    width: 100% !important;
-    margin-right: 0 !important;
-    margin-left: 0 !important;
-    padding: 10px !important;
+    display: block;
+    /* 縦並びに変更 */
+  }
+
+  .editor-left,
+  .editor-right {
+    width: 100%;
+    /* 横幅いっぱいに広げる */
+    margin-bottom: 20px;
+  }
+
+  .editor-right {
+    position: static;
+    /* スマホでは追従を解除 */
+    top: auto;
   }
 
   .dual-palette {
