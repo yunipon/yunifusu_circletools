@@ -87,8 +87,17 @@ window.addEventListener('DOMContentLoaded', () => {
     console.error("Data Load Error:", e);
   }
 
+  // 【追加】プロットページなら、以下の「textareaごとの自動保存」は一切行わない
+  if (document.getElementById('plotPage')) {
+    // プロットページ専用の初期化（renderなど）があればここに書く
+    addPlotChar(); // 最初にキャラ入力欄を1つ出す
+    addPlotTrack(); // 最初にトラック入力欄を1つ出す
+    //renderAllRules(); // 必要なら実行
+    return; // ここで処理を終了。下の inputs.forEach は実行されない
+  }
+
   // 1. ページ内の全 textarea と input を取得
-  const inputs = document.querySelectorAll('textarea, input[type="text"]');
+  const inputs = document.querySelectorAll('textarea');
 
   inputs.forEach((el) => {
     // ページ固有のキーを作成（他ページとの混同を防ぐためURLパスを含める）
@@ -663,6 +672,7 @@ function clearData(type) {
     if (textAreaBefore) textAreaBefore.value = '';
     refreshAllCounts(type);
     updateCharCount('textExtractBefore', 'countExtractBefore');
+    textArea.dispatchEvent(new Event('input'));
   }
   else if (type === 'fmt') {
     const textArea = document.getElementById('textFormat');
@@ -674,6 +684,7 @@ function clearData(type) {
     // 文字数カウントもリセット
     refreshAllCounts(type);
     if (typeof updateFormatDialogueCount === 'function') { updateFormatDialogueCount(); }
+    textArea.dispatchEvent(new Event('input'));
   }
   else if (type === 'multi') {
     const textArea = document.getElementById('textMulti');
@@ -682,6 +693,7 @@ function clearData(type) {
     if (previewArea) previewArea.innerHTML = '';
     refreshAllCounts(type);
     if (typeof updateCharacterDialogueCounts === 'function') { updateCharacterDialogueCounts(); }
+    textArea.dispatchEvent(new Event('input'));
   }
   else if (type === 'plot') {
     // 基本項目
@@ -937,16 +949,6 @@ const CHAR_FIELDS = [
 // プロット用の状態管理
 let plotCharCount = 0;
 let plotTrackCount = 0;
-
-/**
- * プロットページの初期化（ページ読み込み時に実行）
- */
-window.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('plotPage')) {
-    addPlotChar(); // 最初にキャラ入力欄を1つ出す
-    addPlotTrack(); // 最初にトラック入力欄を1つ出す
-  }
-});
 
 /**
  * キャラクター詳細入力欄の追加
