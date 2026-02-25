@@ -1474,6 +1474,39 @@ function rgbToHex(rgb) {
   }).join('').toUpperCase();
 }
 
+/**
+ * テキストエリアの内容を.txtファイルとして保存する
+ * @param {string} textAreaId - 取得対象のテキストエリアのID
+ * @param {string} fileNamePrefix - 保存ファイル名の接頭辞
+ */
+function exportTextAreaToTxt(textAreaId, fileNamePrefix = "script") {
+  const textArea = document.getElementById(textAreaId);
+  if (!textArea || !textArea.value.trim()) {
+    alert("保存する内容がありません。");
+    return;
+  }
+
+  // ファイル名を作成（例：台本整形_20260225.txt）
+  const timestamp = new Date().toISOString().replace(/[:\-]|\..*/g, "");
+  const fileName = `${fileNamePrefix}_${timestamp}.txt`;
+
+  // テキストをBlob（データの塊）に変換
+  const blob = new Blob([textArea.value], { type: "text/plain" });
+
+  // ダウンロード用のリンクを生成
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+
+  // リンクをクリックさせてダウンロード開始
+  document.body.appendChild(link);
+  link.click();
+
+  // 後片付け
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+}
+
 // ==========================================
 // 9. サイドバー
 // ==========================================

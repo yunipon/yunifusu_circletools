@@ -89,8 +89,8 @@
           </div>
 
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-            <button class="btn-primary" onclick="runMultiPreview()">プレビュー更新</button>
-            <button class="btn-primary" onclick="exportToWord()">Wordに出力</button>
+            <button class="btn-primary" onclick="exportToWord()">Word出力</button>
+            <button class="btn-primary" onclick="exportTextAreaToTxt('textMulti', '複数人整形')">txt出力</button>
             <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
 
             <div id="multiDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">合計セリフ：0 文字</div>

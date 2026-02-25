@@ -75,8 +75,8 @@
             </div>
 
             <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
-              <button class="btn-primary" onclick="runPreview()">プレビュー更新</button>
-              <button class="btn-primary" onclick="exportToWord()">Wordに出力</button>
+              <button class="btn-primary" onclick="exportToWord()">Word出力</button>
+              <button class="btn-primary" onclick="exportTextAreaToTxt('textFormat', '一人用整形')">txt出力</button>
               <button class="btn-danger" onclick="clearData('fmt')">データクリア</button>
             </div>
 
