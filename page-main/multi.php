@@ -74,32 +74,38 @@
       </div>
     </details>
 
-    <div class="card">
-      <div class="editor-container">
-        <textarea id="textMulti"
-          oninput="updateCharCount('textMulti', 'countMulti'); runMultiPreview(); updateNameButtons('textMulti');"
-          placeholder="複数人の台本を貼り付けてください..."
-          style="width: 100%; min-height: 300px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
-        <div class="char-count" style="text-align: right; margin-top: 5px; color: #666;">
-          文字数: <span id="countMulti">0</span>
+    <div class="editor-container">
+      <div class="editor-left">
+        <div class="card">
+          <div class="box">
+            <h4>台本入力</h4>
+            <textarea id="textMulti"
+              oninput="updateCharCount('textMulti', 'countMulti'); runMultiPreview(); updateNameButtons('textMulti');"
+              placeholder="複数人の台本を貼り付けてください..."
+              style="width: 100%; min-height: 300px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+            <div class="char-count" style="text-align: right; margin-top: 5px; color: #666;">
+              文字数: <span id="countMulti">0</span>
+            </div>
+          </div>
+
+          <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <button class="btn-primary" onclick="runMultiPreview()">プレビュー更新</button>
+            <button class="btn-primary" onclick="exportToWord()">Wordに出力</button>
+            <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
+
+            <div id="multiDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">合計セリフ：0 文字</div>
+            <div id="characterBreakdown" style="margin-top: 10px; font-size: 0.85em; color: #555; display:none; background: #fefefe; padding: 8px; border: 1px dashed #ddd;"></div>
+
+          </div>
+
         </div>
       </div>
-
-      <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-        <button class="btn-primary" onclick="runMultiPreview()">プレビュー更新</button>
-        <button class="btn-primary" onclick="exportToWord()">Wordに出力</button>
-        <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
-
-        <div id="multiDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">合計セリフ：0 文字</div>
-        <div id="characterBreakdown" style="margin-top: 10px; font-size: 0.85em; color: #555; display:none; background: #fefefe; padding: 8px; border: 1px dashed #ddd;"></div>
-
+      <div class="editor-right">
+        <div class="card">
+          <h4>プレビュー（既定の書式設定で固定しています）</h4>
+          <div id="previewAreaMulti" class="preview-box"></div>
+        </div>
       </div>
-
-    </div>
-
-    <div class="card">
-      <h4>プレビュー（既定の書式設定で固定しています）</h4>
-      <div id="previewAreaMulti" class="preview-box"></div>
     </div>
   </main>
   <?php include __DIR__ . '/../footer.php'; ?>
