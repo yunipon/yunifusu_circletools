@@ -87,6 +87,25 @@ window.addEventListener('DOMContentLoaded', () => {
     console.error("Data Load Error:", e);
   }
 
+  // 1. ページ内の全 textarea と input を取得
+  const inputs = document.querySelectorAll('textarea, input[type="text"]');
+
+  inputs.forEach((el) => {
+    // ページ固有のキーを作成（他ページとの混同を防ぐためURLパスを含める）
+    const storageKey = `auto_save_${window.location.pathname}_${el.id || el.name || el.placeholder}`;
+
+    // 2. 復元
+    const savedValue = localStorage.getItem(storageKey);
+    if (savedValue !== null) {
+      el.value = savedValue;
+    }
+
+    // 3. 保存（入力のたびに実行）
+    el.addEventListener('input', () => {
+      localStorage.setItem(storageKey, el.value);
+    });
+  });
+
   // 画面描画（要素が存在する場合のみ）
   if (document.getElementById('heroineInputs')) renderHeroineInputs();
   renderAllRules();
