@@ -73,7 +73,13 @@
                 oninput="updateCharCount('textFormat', 'countFormat'); runPreview(); updateNameButtons('textFormat');"
                 placeholder="台本を貼り付けてください..."></textarea>
             </div>
-
+            <strong>台本チェック</strong>
+            <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+              <span class="tooltip" data-tooltip="「ここから」と「ここまで」のペアが揃っているか確認します">
+                <button class="btn-secondary" onclick="runScriptCheck()">始終チェック</button>
+              </span>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
               <button class="btn-primary" onclick="exportToWord()">Word出力</button>
               <button class="btn-primary" onclick="exportTextAreaToTxt('textFormat', '一人用整形')">txt出力</button>

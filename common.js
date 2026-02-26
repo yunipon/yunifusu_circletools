@@ -119,6 +119,9 @@ window.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('heroineInputs')) renderHeroineInputs();
   renderAllRules();
 
+  //文字数の更新
+  refreshAllCounts();
+
   // 初期プレビュー実行
   if (document.getElementById('textFormat')) runPreview();
   if (document.getElementById('textMulti')) runMultiPreview();
@@ -712,6 +715,117 @@ function clearData(type) {
   }
 }
 
+// ==========================================
+// 台本チェック　処理
+// ==========================================
+
+/**
+ * 1. ここから　ここまで　チェック
+ */
+
+//テキストの取得
+function runScriptCheck() {
+
+  // 1. 今表示されているページの中で、対象になりそうなIDを全部探す
+  const ids = ['textExtract', 'textFormat', 'textMulti'];
+  let targetElement = null;
+
+  for (let id of ids) {
+    const el = document.getElementById(id);
+    if (el) {
+      targetElement = el;
+      break; // 見つかったらループ終了
+    }
+  }
+
+  // 2. もしどのIDも見つからなければ終了
+  if (!targetElement) {
+    console.error("対象のテキストエリアが見つかりません");
+    return;
+  }
+
+  // 3. 値を取得（この時点で scriptText を用意）
+  const scriptText = targetElement.value;
+
+  // 4. もし空っぽなら何もしない
+  if (!scriptText) {
+    alert("テキストを入力してください");
+    return;
+  }
+
+  // 5. 関数でチェック
+  const result = checkDelimitedSections(scriptText);
+
+  if (!result.isValid) {
+    alert("【構成エラー】\n" + result.errors.join('\n'));
+  } else {
+    alert("チェック完了！「ここから・ここまで」のペアは完璧です。");
+  }
+}
+
+//チェック関数の本体
+function checkDelimitedSections(text) {
+  const lines = text.split('\n');
+  const stack = [];
+  const errors = [];
+
+  // 仕様①：拡張された記号リスト（行頭判定用）
+  // ( ) （ ） ◆ ◇ 【 】 [ ] ■ □ ※ ＊ 《 》
+  // 正規表現内では特殊な意味を持つ記号（[, ], (, )）を \ でエスケープしています
+  const indicatorRegex = /^[（(◆◇【\[■□※＊《()（）[\]】》]/;
+
+  lines.forEach((line, index) => {
+    const trimmedLine = line.trim();
+    const rowNum = index + 1;
+
+    // 行頭に指定記号がない場合はセリフ・地の文としてスルー
+    if (!indicatorRegex.test(trimmedLine)) {
+      return;
+    }
+
+    // 「ここから」判定
+    if (trimmedLine.includes('ここから')) {
+      // ラベル抽出時、比較の邪魔になる記号をすべて除去
+      let label = trimmedLine.split('ここから')[0]
+        .replace(/[()（）◆◇■□【】\[\]※＊《》]/g, '')
+        .trim();
+      stack.push({ label, line: rowNum, fullText: trimmedLine });
+    }
+    // 「ここまで」判定
+    else if (trimmedLine.includes('ここまで')) {
+      let endLabel = trimmedLine.split('ここまで')[0]
+        .replace(/[()（）◆◇■□【】\[\]※＊《》]/g, '')
+        .trim();
+
+      if (stack.length === 0) {
+        errors.push(`行 ${rowNum}: 「ここから」がないのに「${trimmedLine}」があります。`);
+        return;
+      }
+
+      const lastStart = stack.pop();
+
+      // 仕様② & ③ の判定
+      if (!isLabelMatch(lastStart.label, endLabel)) {
+        errors.push(`行 ${rowNum}: ラベルが一致しません。\n  開始(${lastStart.line}行目): "${lastStart.fullText}"\n  終了(${rowNum}行目): "${trimmedLine}"`);
+      }
+    }
+  });
+
+  // 閉じ忘れチェック
+  while (stack.length > 0) {
+    const unclosed = stack.pop();
+    errors.push(`行 ${unclosed.line}: 「${unclosed.fullText}」が閉じられていません。`);
+  }
+
+  return { isValid: errors.length === 0, errors };
+}
+
+function isLabelMatch(startLabel, endLabel) {
+  // 仕様③：「ループ：上記」対応
+  // 「：上記」や末尾の「：」を無視して比較
+  const normalize = (s) => s.replace(/：上記$/, '：').replace(/：$/, '');
+  return normalize(startLabel) === normalize(endLabel);
+}
 
 // ==========================================
 // 台本整形ツールのセリフカウント

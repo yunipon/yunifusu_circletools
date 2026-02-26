@@ -295,6 +295,60 @@ footer {
 }
 
 /* ==========================================
+    ツールチップの設定
+   ========================================== */
+
+/* 親要素の設定 */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* ポップアップ本体の設定 */
+.tooltip::before {
+  content: attr(data-tooltip);
+  /* 属性から文字を取得 */
+  position: absolute;
+  bottom: 125%;
+  left: 0;
+  transform: none;
+  padding: 8px 12px;
+  background-color: var(--primary-color);
+  color: #fff;
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  /* 改行させない */
+  opacity: 0;
+  visibility: hidden;
+  z-index: 10;
+}
+
+/* 三角形（吹き出しの角）の設定 */
+.tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0 8px;
+  border-style: solid;
+  border-color: var(--primary-color) transparent transparent transparent;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 10;
+}
+
+/* ホバーした時に表示 */
+.tooltip:hover::before,
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transition: none;
+}
+
+/* ==========================================
     コピペ用ボタン群の設定
    ========================================== */
 

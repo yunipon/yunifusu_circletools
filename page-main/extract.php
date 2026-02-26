@@ -81,7 +81,13 @@
               文字数: <span id="countExtract">0</span>
             </div>
           </div>
-
+          <strong>台本チェック</strong>
+          <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <span class="tooltip" data-tooltip="「ここから」と「ここまで」のペアが揃っているか確認します">
+              <button class="btn-secondary" onclick="runScriptCheck()">始終チェック</button>
+            </span>
+          </div>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
             <button class="btn-primary" onclick="applyExtract()">セリフのみ抽出</button>
             <button class="btn-primary" onclick="shrinkBlankLines('textExtract')">空行を1行に整理</button>
