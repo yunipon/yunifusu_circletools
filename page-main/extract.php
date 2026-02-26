@@ -72,11 +72,14 @@
 
           <div class="box">
             <h4>台本貼り付け</h4>
-            <textarea id="textExtract"
-              oninput="updateCharCount('textExtract', 'countExtract'); updateNameButtons('textExtract');"
-              placeholder="台本を貼り付けてください..."
-              style="width: 100%; min-height: 300px;"></textarea>
-            </textarea>
+            <div class="textarea-wrapper">
+              <div id="lineNumbers" class="line-numbers"></div>
+              <textarea id="textExtract"
+                oninput="updateCharCount('textExtract', 'countExtract'); updateNameButtons('textExtract'); updateLineNumbers()"
+                onscroll="syncScroll()"
+                placeholder="台本を貼り付けてください...">
+                </textarea>
+            </div>
             <div class="char-count">
               文字数: <span id="countExtract">0</span>
             </div>

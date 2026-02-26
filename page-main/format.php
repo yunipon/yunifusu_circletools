@@ -65,13 +65,19 @@
             <div class="editor-pane" style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <label style="font-weight: bold; color: #2c3e50;">台本入力</label>
-                <div class="char-count" style="font-size: 0.85rem; color: #666;">
-                  入力文字数: <span id="countFormat">0</span>
-                </div>
               </div>
-              <textarea id="textFormat"
-                oninput="updateCharCount('textFormat', 'countFormat'); runPreview(); updateNameButtons('textFormat');"
-                placeholder="台本を貼り付けてください..."></textarea>
+
+              <div class="textarea-wrapper">
+                <div id="lineNumbers" class="line-numbers"></div>
+                <textarea id="textFormat"
+                  oninput="updateCharCount('textFormat', 'countFormat'); runPreview(); updateNameButtons('textFormat'); updateLineNumbers()"
+                  onscroll="syncScroll()"
+                  placeholder="台本を貼り付けてください...">
+                </textarea>
+              </div>
+            </div>
+            <div class="char-count" style="font-size: 0.85rem; color: #666;">
+              入力文字数: <span id="countFormat">0</span>
             </div>
             <strong>台本チェック</strong>
             <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">

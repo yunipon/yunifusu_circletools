@@ -125,6 +125,11 @@ window.addEventListener('DOMContentLoaded', () => {
   // 初期プレビュー実行
   if (document.getElementById('textFormat')) runPreview();
   if (document.getElementById('textMulti')) runMultiPreview();
+
+  //行数表示実行
+  updateLineNumbers();
+  refreshAllCounts();
+
 });
 
 // ==========================================
@@ -168,6 +173,62 @@ function refreshAllCounts(type) {
     }
   });
 }
+
+// ==========================================
+// テキストエリアに行数追加
+// ==========================================
+
+// 行番号を更新する関数
+function updateLineNumbers() {
+  const ids = ['textExtract', 'textFormat', 'textMulti'];
+  let textarea = null;
+
+  // 1. ページ内に存在するテキストエリアを探す
+  for (let id of ids) {
+    const el = document.getElementById(id);
+    if (el) {
+      textarea = el;
+      break;
+    }
+  }
+
+  const lineNumbers = document.getElementById('lineNumbers');
+  // どちらかが見つからない場合は処理を中断
+  if (!textarea || !lineNumbers) return;
+
+  // 2. 改行の数を数えて行番号を生成
+  const lines = textarea.value.split('\n').length;
+
+  // 文字列連結を繰り返すより、配列を join する方がブラウザの処理が速くなります
+  const numberArray = [];
+  for (let i = 1; i <= lines; i++) {
+    numberArray.push(i);
+  }
+
+  lineNumbers.innerHTML = numberArray.join('<br>');
+}
+
+function syncScroll() {
+  const ids = ['textExtract', 'textFormat', 'textMulti'];
+  let textarea = null;
+
+  // 1. 存在するIDを探す
+  for (let id of ids) {
+    const el = document.getElementById(id);
+    if (el) {
+      textarea = el;
+      break;
+    }
+  }
+
+  // 2. 見つからなければ終了
+  const lineNumbers = document.getElementById('lineNumbers');
+  if (!textarea || !lineNumbers) return;
+
+  // 3. スクロール位置を同期
+  lineNumbers.scrollTop = textarea.scrollTop;
+}
+
 
 // ==========================================
 // 4. セリフ抽出・整形ロジック

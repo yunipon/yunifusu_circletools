@@ -79,10 +79,14 @@
         <div class="card">
           <div class="box">
             <h4>台本入力</h4>
-            <textarea id="textMulti"
-              oninput="updateCharCount('textMulti', 'countMulti'); runMultiPreview(); updateNameButtons('textMulti');"
-              placeholder="複数人の台本を貼り付けてください..."
-              style="width: 100%; min-height: 300px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+            <div class="textarea-wrapper">
+              <div id="lineNumbers" class="line-numbers"></div>
+              <textarea id="textMulti"
+                oninput="updateCharCount('textMulti', 'countMulti'); runMultiPreview(); updateNameButtons('textMulti'); updateLineNumbers()"
+                onscroll="syncScroll()"
+                placeholder="複数人の台本を貼り付けてください...">
+              </textarea>
+            </div>
             <div class="char-count" style="text-align: right; margin-top: 5px; color: #666;">
               文字数: <span id="countMulti">0</span>
             </div>
