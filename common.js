@@ -747,6 +747,7 @@ function clearData(type) {
     refreshAllCounts(type);
     updateCharCount('textExtractBefore', 'countExtractBefore');
     textArea.dispatchEvent(new Event('input'));
+    textAreaBefore.dispatchEvent(new Event('input'));
   }
   else if (type === 'fmt') {
     const textArea = document.getElementById('textFormat');
