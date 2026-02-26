@@ -132,6 +132,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
 });
 
+// 値を書き換えた後にこれを呼ぶと、自動保存が走る
+function triggerSave(el) {
+  const event = new Event('input', { bubbles: true });
+  el.dispatchEvent(event);
+}
+
 // ==========================================
 // 3. 共通ユーティリティ
 // ==========================================
@@ -277,6 +283,10 @@ function applyExtract() {
   area.value = lines.filter(l => l !== null).join('\n').trim();
   updateCharCount('textExtract', 'countExtract');
   //alert("完了しました");
+
+  //保存用
+  area.dispatchEvent(new Event('input'));
+  areabefore.dispatchEvent(new Event('input'));
 }
 
 function runPreview() {
@@ -1013,6 +1023,10 @@ function executeReplace() {
   const re = new RegExp(b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
   area.value = area.value.replace(re, a);
   updateCharCount('textExtract', 'countExtract');
+
+  //保存処理
+  area.dispatchEvent(new Event('input'));
+  areabefore.dispatchEvent(new Event('input'));
 }
 
 function shrinkBlankLines(id) {
@@ -1022,8 +1036,12 @@ function shrinkBlankLines(id) {
     let text = area.value;
     areabefore.value = text;
     updateCharCount('textExtractBefore', 'countExtractBefore');
+
+    //保存処理
+    areabefore.dispatchEvent(new Event('input'));
   }
   const a = document.getElementById(id); a.value = a.value.replace(/\n{3,}/g, '\n\n'); runPreview(); runMultiPreview();
+  a.dispatchEvent(new Event('input'));
 }
 
 /**
@@ -1049,6 +1067,10 @@ function removeAllBlankLines(targetId) {
   // 文字数カウントも更新しておく
   const countId = targetId === 'textExtract' ? 'countExtract' : 'countFormat';
   updateCharCount(targetId, countId);
+
+  //保存処理
+  area.dispatchEvent(new Event('input'));
+  areabefore.dispatchEvent(new Event('input'));
 }
 
 function updatePlotCharCount(textarea, displayId) {
