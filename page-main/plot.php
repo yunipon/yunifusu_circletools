@@ -75,8 +75,8 @@
         <textarea id="plotResult" style="height:400px; background:#f8f9fa; font-size:13px; line-height:1.5; border:1px solid #ddd; width: 100%;" readonly></textarea>
       </div>
     </div>
-    <?php include __DIR__ . '/../footer.php'; ?>
   </main>
+  <?php include __DIR__ . '/../footer.php'; ?>
 </body>
 
 </html>

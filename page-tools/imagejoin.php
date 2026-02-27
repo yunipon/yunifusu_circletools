@@ -8,7 +8,7 @@
       font-family: sans-serif;
       background-color: var(--bg-color);
       color: var(--text-color);
-      padding: 20px;
+      padding-top: 20px;
     }
 
     .tool-container {
@@ -106,6 +106,8 @@
       ※ 自動でリサイズし、ファイルサイズを2MB以下に抑えます。
     </div>
   </div>
+
+  <?php include __DIR__ . '/../footer.php'; ?>
 
   <script>
     const dropZone = document.getElementById('dropZone');
