@@ -8,14 +8,10 @@
         Ci-enで更新情報をチェック
       </a>
       <div class="x-timeline-container">
-        <a class="twitter-timeline"
-          href="https://twitter.com/nyu_nyu_fantasy"
-          data-height="600">
-          Tweets by nyu_nyu_fantasy
-        </a>
-
+        <a href="https://twitter.com/x?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-size="large" data-show-screen-name="false" data-show-count="false">Follow @x</a>
         <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
       </div>
+
     </div>
 
     <div class="footer-section dlsite-section">
