@@ -27,6 +27,13 @@
 
   <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
     <details open>
+      <summary class="section-title">サブツール</summary>
+      <a href="/page-tools/imagejoin.php" class="nav-item">ツールまとめ</a>
+    </details>
+  </nav>
+
+  <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
+    <details open>
       <summary class="section-title">ヘルプ</summary>
       <a href="/page-help/regex.php" class="nav-item">正規表現ガイド</a>
       <a href="/page-home/contact.php" class="nav-item">お問い合わせ</a>

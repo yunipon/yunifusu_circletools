@@ -1,0 +1,296 @@
+:root {
+  /* メインカラー：濃いネイビー（ヘッダーやメニュー用） */
+  --primary-color: #333f52;
+  /* アクセントカラー：明るい水色（ボタンやリンク用） */
+  --accent-color: #00a8e8;
+  /* 背景色：非常に薄いグレー（白に近い） */
+  --bg-color: #f4f7f9;
+  /* テキスト：真っ黒ではなく濃いグレー */
+  --text-color: #333333;
+  /* エディタ用フォントの定義 */
+  --font-editor: 'Consolas', 'Monaco', 'Courier New', 'BIZ UDゴシック', monospace;
+
+}
+
+/* 基本設定：すべての計算を「ボーダー込み」にする */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.main-content {
+  /* PCでの左メニュー分を確保 */
+  margin-left: 250px;
+  padding: 30px;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  /* 背景を少しグレーにするとカードが際立ちます */
+}
+
+/* コンテンツの内側に「最大幅用のラッパー」を作るか、
+   直接 main-content 内の要素を制限します */
+.container {
+  /* ★ここでお好みの最大幅を設定（800px〜1200pxが一般的） */
+  max-width: 1500px;
+  /* 左右中央寄せ */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ==========================================
+    PC用スタイル（769px以上：左固定）
+   ========================================== */
+@media (min-width: 769px) {
+
+  /* メインコンテンツを右にずらして被らないようにする */
+  .main-content {
+    margin-left: 250px;
+    margin-right: 0;
+    padding: 30px;
+  }
+}
+
+/* =================================================
+    スマホ・タブレット用レスポンシブ設定（769px以上：左固定）
+   ================================================= */
+/* スマホ表示（768px以下）の微調整 */
+@media (max-width: 768px) {
+
+  .main-content {
+    margin-left: 0;
+    padding: 60px 15px 20px;
+    /* 上はハンバーガーボタン分を空ける */
+  }
+
+  .container {
+    max-width: 100%;
+    /* スマホでは横幅いっぱい */
+  }
+}
+
+/* ==========================================
+    フッターの調整
+   ========================================== */
+
+footer {
+  /* PCではサイドメニューの幅だけ左を空ける */
+  margin-left: 250px;
+  clear: both;
+  /* 回り込みを強制解除 */
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  footer {
+    margin-left: 0;
+    /* スマホではリセット */
+    padding-bottom: 20px;
+  }
+}
+
+/* ==========================================
+    サイドメニュー設定
+   ========================================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -250px;
+  /* スマホでは右から出る */
+  width: 250px;
+  height: 100%;
+  background-color: var(--primary-color);
+  color: #ffffff;
+  z-index: 10000;
+  transition: 0.3s ease;
+  padding: 20px;
+  overflow-y: auto
+}
+
+/* メニューが開いた時のクラス */
+.sidebar.active {
+  right: 0;
+}
+
+/* 背景を暗くするオーバーレイ */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+/* メニュー内のヘッダー（タイトルの親要素） */
+.sidebar-header {
+  padding-right: 50px;
+  margin-bottom: 20px;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  /* 改行を防ぐ */
+  text-align: center;
+}
+
+/* サイドメニュー内のリンク用スタイル */
+.nav-link {
+  color: #cbd5e0;
+  text-decoration: none;
+  padding: 10px;
+  border-left: 4px solid transparent;
+  transition: 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: #425169;
+  color: #ffffff;
+  border-left: 4px solid var(--accent-color);
+}
+
+.nav-link.active {
+  font-weight: bold;
+}
+
+.sidebar h2 {
+  font-size: 1.1em;
+  margin-bottom: 25px;
+  color: #ffc107;
+  text-align: center;
+}
+
+.sidebar-logo {
+  padding: 30px 25px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  letter-spacing: 1px;
+  border-bottom: 1px solid #3e4f5f;
+}
+
+.section-title {
+  text-transform: uppercase;
+  color: #ffffff;
+  padding: 10px 15px;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.nav-item {
+  color: #adb5bd;
+  font-size: 0.75rem;
+  text-decoration: none;
+  padding: 10px 30px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* アイコンと文字の間隔 */
+}
+
+.nav-item:hover {
+  background: #495057;
+  color: white;
+}
+
+.nav-item.active {
+  background: #007bff;
+  color: white;
+}
+
+/* ==========================================
+    ハンバーガーメニュー
+   ========================================== */
+
+/* 通常時*/
+.hamburger-btn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 10001;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 5px;
+  background: var(--primary-color);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 通常時の三本線の色 */
+.hamburger-btn span {
+  display: block;
+  background: #ffffff;
+  width: 25px;
+  height: 3px;
+  transition: all 0.3s ease;
+}
+
+/* ★開いている時（JSでactiveクラスがついた時） */
+.hamburger-btn.active {
+  background: #ffffff;
+}
+
+.hamburger-btn.active span {
+  background: var(--primary-color);
+  /* 三本線をネイビーにする */
+}
+
+#sidebar summary {
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+}
+
+#sidebar details {
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+/* ==========================================
+    PC用スタイル（769px以上：左固定）
+   ========================================== */
+@media (min-width: 769px) {
+
+  .hamburger-btn,
+  .sidebar-overlay {
+    display: none;
+    /* ボタンと背景を隠す */
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* PCでは左に固定 */
+    right: auto;
+    width: 250px;
+    height: 100vh;
+  }
+
+  .sidebar-header {
+    padding-right: 0;
+    /* PCでは右ボタンがないので余白不要 */
+  }
+
+}
