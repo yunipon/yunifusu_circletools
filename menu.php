@@ -28,7 +28,7 @@
   <nav class="nav-menu" style="display: flex; flex-direction: column; gap: 10px;">
     <details open>
       <summary class="section-title">サブツール</summary>
-      <a href="/page-tools/imagejoin.php" class="nav-item">ツールまとめ</a>
+      <a href="/page-tools/imagejoin.php" class="nav-item">画像連結</a>
     </details>
   </nav>
 

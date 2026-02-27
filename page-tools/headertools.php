@@ -3,11 +3,9 @@
 
 <title><?php echo isset($pageTitle) ? $pageTitle . ' | 台本ツール' : '台本作成ツール'; ?></title>
 
-<link rel="stylesheet" href="style_tools.css">
 <link rel="stylesheet" href="../styleMenu.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-<script src="common_tools.js"></script>
 <script src="../common.js"></script>
 
 <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
