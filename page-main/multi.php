@@ -94,13 +94,18 @@
               文字数: <span id="countMulti">0</span>
             </div>
           </div>
-
+          <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <div id="multiDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">合計セリフ：0 文字</div>
+            <div id="characterBreakdown" style="font-size: 0.85em; color: #555; display:none; background: #fefefe; padding: 8px; border: 1px dashed #ddd;"></div>
+          </div>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <strong>台本チェック</strong>
           <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <span class="tooltip" data-tooltip="「ここから」と「ここまで」のペアが揃っているか確認します">
               <button class="btn-secondary" onclick="runScriptCheck()">始終チェック</button>
             </span>
           </div>
+          <textarea id="textCheck" placeholder="チェックの結果が出力されます"></textarea>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <button class="btn-primary" onclick="exportToWord()">Word出力</button>
@@ -110,11 +115,7 @@
             <button class="btn-primary" onclick="exportTextAreaToTxt('textMulti', '複数人整形')">txt出力</button>
             <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
           </div>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-          <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            <div id="multiDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px; border-radius: 6px;">合計セリフ：0 文字</div>
-            <div id="characterBreakdown" style="font-size: 0.85em; color: #555; display:none; background: #fefefe; padding: 8px; border: 1px dashed #ddd;"></div>
-          </div>
+
         </div>
       </div>
       <div class="editor-right">

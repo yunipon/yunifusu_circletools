@@ -739,11 +739,19 @@ function clearData(type) {
   // ユーザーに確認
   //if (!confirm("入力されたテキストとプレビューを消去しますか？")) {return;}
 
+  const checkArea = document.getElementById('textCheck');
+  if (checkArea) {
+    checkArea.value = "";
+    checkArea.style.color = "black"; // 文字色もデフォルト（黒）に戻しておく
+    checkArea.dispatchEvent(new Event('input'));
+  }
+
   if (type === 'extract') {
     const textArea = document.getElementById('textExtract');
     const textAreaBefore = document.getElementById('textExtractBefore');
     if (textArea) textArea.value = '';
     if (textAreaBefore) textAreaBefore.value = '';
+    textAreaBefore.style.color = "black";
     refreshAllCounts(type);
     updateCharCount('textExtractBefore', 'countExtractBefore');
     textArea.dispatchEvent(new Event('input'));
@@ -797,8 +805,7 @@ function clearData(type) {
 
 //テキストの取得
 function runScriptCheck() {
-
-  // 1. 今表示されているページの中で、対象になりそうなIDを全部探す
+  // 1. 対象のテキストエリアを探す
   const ids = ['textExtract', 'textFormat', 'textMulti'];
   let targetElement = null;
 
@@ -806,33 +813,47 @@ function runScriptCheck() {
     const el = document.getElementById(id);
     if (el) {
       targetElement = el;
-      break; // 見つかったらループ終了
+      break;
     }
   }
 
-  // 2. もしどのIDも見つからなければ終了
-  if (!targetElement) {
-    console.error("対象のテキストエリアが見つかりません");
+  // 結果出力先の textarea を取得
+  const outputArea = document.getElementById('textExtractBefore') || document.getElementById('textCheck');
+
+  if (!targetElement || !outputArea) {
+    console.error("入力元または出力先の要素が見つかりません");
     return;
   }
 
-  // 3. 値を取得（この時点で scriptText を用意）
   const scriptText = targetElement.value;
 
-  // 4. もし空っぽなら何もしない
-  if (!scriptText) {
-    alert("テキストを入力してください");
+  // 出力先がない場合のエラー回避
+  if (!outputArea) {
+    console.error("出力先の textarea (id='textCheck') が見つかりません");
     return;
   }
 
-  // 5. 関数でチェック
+  // 4. 空チェック（出力先に書き込む）
+  if (!scriptText.trim()) {
+    outputArea.value = "【エラー】テキストを入力してください。";
+    outputArea.style.color = "red"; // 任意：エラー時に文字色を変える
+    return;
+  }
+
+  // 5. 本体でチェックを実行
   const result = checkDelimitedSections(scriptText);
 
+  // 6. 結果の書き込み
   if (!result.isValid) {
-    alert("【構成エラー】\n" + result.errors.join('\n'));
+    // エラーがある場合
+    outputArea.value = "【構成エラー】\n" + result.errors.join('\n');
+    outputArea.style.color = "red";
   } else {
-    alert("チェック完了！「ここから・ここまで」のペアは完璧です。");
+    // 成功時
+    outputArea.value = "チェック完了！\n「ここから・ここまで」のペアは完璧です。";
+    outputArea.style.color = "blue"; // 任意：成功時に文字色を変える
   }
+  outputArea.dispatchEvent(new Event('input'));
 }
 
 //チェック関数の本体

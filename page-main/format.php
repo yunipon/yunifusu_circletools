@@ -76,27 +76,28 @@
                 </textarea>
               </div>
             </div>
-            <div class="char-count" style="font-size: 0.85rem; color: #666;">
+            <div class="char-count" style="font-size: 0.85rem; color: #666; margin: 5px 0px;">
               入力文字数: <span id="countFormat">0</span>
             </div>
+            <div id="formatDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border: 1px solid #e9ecef; min-width: 250px;">
+              <strong>セリフのみカウント：</strong><span id="dialogueCharCount" style="font-weight: bold; color: #2c3e50;">0</span> 文字
+              <small style="display: block; font-size: 0.8em; color: #999; margin-top: 2px;">
+                ※「①セリフのみ抽出」の保存済み条件を適用
+              </small>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             <strong>台本チェック</strong>
             <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
               <span class="tooltip" data-tooltip="「ここから」と「ここまで」のペアが揃っているか確認します">
                 <button class="btn-secondary" onclick="runScriptCheck()">始終チェック</button>
               </span>
             </div>
+            <textarea id="textCheck" placeholder="チェックの結果が出力されます"></textarea>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
               <button class="btn-primary" onclick="exportToWord()">Word出力</button>
               <button class="btn-primary" onclick="exportTextAreaToTxt('textFormat', '一人用整形')">txt出力</button>
               <button class="btn-danger" onclick="clearData('fmt')">データクリア</button>
-            </div>
-
-            <div id="formatDialogueCount" style="font-size: 0.9em; color: #666; background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border: 1px solid #e9ecef; min-width: 250px;">
-              <strong>セリフのみカウント：</strong><span id="dialogueCharCount" style="font-weight: bold; color: #2c3e50;">0</span> 文字
-              <small style="display: block; font-size: 0.8em; color: #999; margin-top: 2px;">
-                ※「①セリフのみ抽出」の保存済み条件を適用
-              </small>
             </div>
           </div>
         </div>
