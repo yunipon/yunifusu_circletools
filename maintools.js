@@ -2041,8 +2041,6 @@ async function exportToWord() {
   const singleArea = document.getElementById('previewArea');
   const textArea = document.getElementById('textExtract'); // セリフ抽出用
 
-  let isInCommentBlock = false;
-
   // 1. どのソースを出力するか決定
   if (multiArea && multiArea.offsetHeight > 0 && multiArea.innerHTML.trim() !== "") {
     preview = multiArea;
@@ -2052,23 +2050,32 @@ async function exportToWord() {
 
   let lines = [];
 
+  // --- 1. 事前チェック：台本全体にキャラ名定義があるか確認 ---
+  let scriptBody = "";
+  if (preview) {
+    scriptBody = preview.innerText;
+  } else if (textArea) {
+    scriptBody = textArea.value;
+  }
+
+  // 台本全体の中に「//名前：」という形式が含まれているか
+  const hasAnyHeroineDef = /^\/\/([^：: \t\n]+)[:：]/m.test(scriptBody);
+
+  let isInCommentBlock = false;
+  let hasMetHeroine = false; // これは「今その行以降か」の判定用
+
   // 2. プレビューエリア（HTML）がある場合の処理
   if (preview) {
     Array.from(preview.childNodes).forEach(node => {
-      if (node.nodeType === 1) {
-        const leafDivs = node.querySelectorAll('div');
-        if (leafDivs.length > 0) {
-          leafDivs.forEach(ldiv => {
-            if (ldiv.querySelector('div') === null) pushLine(ldiv);
-          });
-        } else {
-          pushLine(node);
-        }
-      } else if (node.nodeType === 3) {
-        const text = node.textContent.replace(/\u00A0/g, " ").trim();
+      if (node.nodeType === 1) { // <div>などの要素
+        pushLine(node);
+      } else if (node.nodeType === 3) { // 直接のテキスト
+        const text = node.textContent.trim();
         if (text === "" && node.textContent.includes('\n')) {
+          // 何もない改行だけのノード（空行として扱う）
           lines.push({ text: "", color: "000000", highlight: null });
         } else if (text !== "") {
+          // タグに囲まれていない文字があった場合
           lines.push({ text: text, color: "000000", highlight: null });
         }
       }
@@ -2087,8 +2094,10 @@ async function exportToWord() {
         const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
         const isTrackBorder = text.includes("＝＊＝") || text.includes("トラック") || text.includes("Track");
 
-        // インデント判定（isInCommentBlock が定義済みなのでエラーにならない）
-        if (!isHeroineName && !isTrackBorder && !isInCommentBlock && !text.includes("%%%")) {
+        // --- 条件をシンプルに修正 ---
+        // 1. 台本内にキャラ定義が1つでも存在する (hasAnyHeroineDef)
+        // 2. この行自体が除外対象（名前行、トラック行、コメント内）ではない
+        if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isInCommentBlock && !text.includes("%%%")) {
           text = "\t" + text;
         }
       }
@@ -2104,11 +2113,13 @@ async function exportToWord() {
 
   // 3. 【追加】プレビューがなく、テキストエリアに文字がある場合（セリフ抽出時など）
   else if (textArea && textArea.value.trim() !== "") {
-    let isInCommentTextArea = false; // ループの外で定義
+    let isInCommentTextArea = false;
 
+    // 事前チェックの結果 (hasAnyHeroineDef) が true の場合のみインデントを検討する
     textArea.value.split('\n').forEach(rawLine => {
       let text = rawLine.trim();
 
+      // コメントブロック判定
       if (text.includes("%%%")) {
         const count = (text.match(/%%%/g) || []).length;
         if (count === 1) isInCommentTextArea = !isInCommentTextArea;
@@ -2118,7 +2129,8 @@ async function exportToWord() {
         const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
         const isTrackBorder = text.includes("＝＊＝") || text.includes("トラック") || text.includes("Track");
 
-        if (!isHeroineName && !isTrackBorder && !isInCommentTextArea && !text.includes("%%%")) {
+        // 【改良】台本全体にキャラ名定義があり、かつ除外行ではない場合のみタブを挿入
+        if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isInCommentTextArea && !text.includes("%%%")) {
           text = "\t" + text;
         }
       }
