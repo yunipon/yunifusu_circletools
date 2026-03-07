@@ -772,8 +772,17 @@ function clearData(type) {
   else if (type === 'multi') {
     const textArea = document.getElementById('textMulti');
     const previewArea = document.getElementById('previewAreaMulti');
+
+    // メインテキストエリアとプレビューのクリア
     if (textArea) textArea.value = '';
     if (previewArea) previewArea.innerHTML = '';
+
+    // ヒロイン名入力欄をすべて空にする
+    const heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
+    heroineInputs.forEach(input => {
+      input.value = '';
+    });
+
     refreshAllCounts(type);
     if (typeof updateCharacterDialogueCounts === 'function') { updateCharacterDialogueCounts(); }
     textArea.dispatchEvent(new Event('input'));
@@ -918,6 +927,108 @@ function isLabelMatch(startLabel, endLabel) {
   // 「：上記」や末尾の「：」を無視して比較
   const normalize = (s) => s.replace(/：上記$/, '：').replace(/：$/, '');
   return normalize(startLabel) === normalize(endLabel);
+}
+
+/**
+ * 2. アドリブ抽出
+ */
+
+function extractAdlibCommands() {
+  const ids = ['textMulti', 'textFormat', 'textExtract'];
+  let targetElement = null;
+  let sourceId = "";
+
+  for (let id of ids) {
+    const el = document.getElementById(id);
+    if (el && el.value.trim() !== "") {
+      targetElement = el;
+      sourceId = id;
+      break;
+    }
+  }
+
+  const outputArea = document.getElementById('textExtractBefore') || document.getElementById('textCheck');
+  if (!targetElement || !outputArea) return;
+
+  // --- 入力欄のチェック ---
+  let heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
+  let orderedHeroineNames = Array.from(heroineInputs).map(i => i.value.trim()).filter(n => n !== "");
+
+  // ★改良：ヒロイン名が一つも入力されていない場合
+  if (sourceId === 'textMulti' && orderedHeroineNames.length === 0) {
+    // 1. 自動入力関数を実行
+    autoFillHeroineNames();
+
+    // 2. 補完された名前をすぐに再取得
+    heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
+    orderedHeroineNames = Array.from(heroineInputs).map(i => i.value.trim()).filter(n => n !== "");
+
+    // ユーザーに優しく通知（オプション：不要なら消してもOK）
+    console.log("キャラ名が空だったため、自動補完（キャラ1...）を適用しました。");
+  }
+
+  const scriptText = targetElement.value;
+  const lines = scriptText.split('\n');
+  const adlibRegex = /＊[^(\n]*?(秒|回)[^\n]*/g;
+
+  let resultText = "";
+
+  if (sourceId === 'textMulti') {
+    let currentHeroine = "共通/未特定";
+    let adlibsByHeroine = {};
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
+      if (nameDefMatch) {
+        currentHeroine = nameDefMatch[1].trim();
+        return;
+      }
+
+      const matches = line.match(adlibRegex);
+      if (matches) {
+        if (!adlibsByHeroine[currentHeroine]) adlibsByHeroine[currentHeroine] = [];
+        matches.forEach(m => adlibsByHeroine[currentHeroine].push(m.trim()));
+      }
+    });
+
+    // --- 修正：入力欄の順番（orderedHeroineNames）に従って出力を作る ---
+
+    // 1. まず「共通/未特定」があれば最初に出す
+    if (adlibsByHeroine["共通/未特定"]) {
+      resultText += `【共通/未特定】\n` + adlibsByHeroine["共通/未特定"].join('\n') + '\n\n';
+    }
+
+    // 2. 入力欄に並んでいる名前の順に、抽出したデータを結合する
+    orderedHeroineNames.forEach(name => {
+      if (adlibsByHeroine[name]) {
+        resultText += `【${name}】\n` + adlibsByHeroine[name].join('\n') + '\n\n';
+      }
+    });
+
+  } else {
+    let allMatches = [];
+    lines.forEach(line => {
+      const matches = line.match(adlibRegex);
+      if (matches) {
+        matches.forEach(m => allMatches.push(m.trim()));
+      }
+    });
+    resultText = allMatches.join('\n');
+  }
+
+  // （抽出ループが終わった後の出力部分）
+  let headerNote = "";
+  if (sourceId === 'textMulti') {
+    headerNote = `【自動判定】キャラ名（${orderedHeroineNames.join('、')}）で抽出しました。\n`;
+  }
+
+  outputArea.value = resultText
+    ? `=== アドリブ抽出結果 ===\n${headerNote}\n` + resultText.trim()
+    : "アドリブ指示（＊〜秒/回）は見つかりませんでした。";
+
+  outputArea.style.color = "black";
+  outputArea.dispatchEvent(new Event('input'));
 }
 
 // ==========================================
@@ -1273,13 +1384,36 @@ function debugColorExport() {
   });
 }
 
+//ツール使用関数
 async function exportAllHeroinesToWord() {
   const textarea = document.getElementById('textMulti');
+  const outputArea = document.getElementById('textCheck'); // 通知用のエリア
   if (!textarea || textarea.value.trim() === "") return alert("入力欄にテキストがありません。");
 
+  // --- 0. 名前未入力チェックと自動補完 ---
+  let heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
+  let heroineNames = [...heroineInputs].map(i => i.value.trim()).filter(n => n !== "");
+
+  if (heroineNames.length === 0) {
+    // 自動補完を実行
+    autoFillHeroineNames();
+
+    // 補完後の名前を再取得
+    heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
+    heroineNames = [...heroineInputs].map(i => i.value.trim()).filter(n => n !== "");
+
+    // 3. 補完結果を箇条書きで textCheck に出力
+    if (outputArea) {
+      const nameList = heroineNames.map(name => `・ ${name}`).join('\n');
+      outputArea.value = `【お知らせ】キャラ名が未入力だったため、以下の名前で自動補完してWordを生成しました。\n\n${nameList}`;
+      outputArea.style.color = "red";
+    }
+  } else {
+    // 正常な場合は以前のメッセージを消すか色を戻す（任意）
+    if (outputArea) outputArea.style.color = "black";
+  }
+
   // --- 1. 設定データの取得と初期化 ---
-  const heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
-  const heroineNames = [...heroineInputs].map(i => i.value.trim()).filter(n => n !== "");
   const commentRule = typeof formatRules !== 'undefined' ? formatRules.find(r => r.pattern === 'format_comment' && r.active) : null;
 
   // Word用にカラーコードを変換（#FFFFFF -> FFFFFF）

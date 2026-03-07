@@ -103,7 +103,7 @@
           <div class="box" style="padding-top: 15px;">
             <textarea id="textExtractBefore"
               oninput="updateCharCount('textExtractBefore', 'countExtractBefore')"
-              placeholder="整形実行前の台本が出力されます。"
+              placeholder="整形実行前の台本、チェックの結果が出力されます"
               style="width: 100%; min-height: 300px;"></textarea>
             </textarea>
             <div class="char-count">
