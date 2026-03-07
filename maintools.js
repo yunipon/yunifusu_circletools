@@ -972,7 +972,14 @@ function analyzeDialogueData(inputText) {
 function updateFormatDialogueCount() {
   const input = document.getElementById('textFormat').value;
   const display = document.getElementById('formatDialogueCount');
-  if (!input || !display) return;
+  // display要素がない時だけ中断する（inputが空でも処理を続行する）
+  if (!display) return;
+
+  // inputが空の場合は、解析せずに「0 文字」にする
+  if (!input || input.trim() === "") {
+    display.innerText = `セリフ：0 文字`;
+    return;
+  }
 
   const stats = analyzeDialogueData(input);
   display.innerText = `セリフ：${stats.total} 文字`;
