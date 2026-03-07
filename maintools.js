@@ -1130,6 +1130,301 @@ function renderHeroineInputs() {
 function addHeroineInput() { if (heroineCount < 5) { heroineCount++; renderHeroineInputs(); } }
 
 // ==========================================
+// 複数ヒロイン設定
+// キャラ毎の台本出力
+// ==========================================
+
+//デバッグ用です。普段は使用しない。
+function debugColorExport() {
+  const textarea = document.getElementById('textMulti');
+  if (!textarea || textarea.value.trim() === "") return console.error("入力がありません");
+
+  const heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
+  const heroineNames = [...heroineInputs].map(i => i.value.trim()).filter(n => n !== "");
+  const commentRule = typeof formatRules !== 'undefined' ? formatRules.find(r => r.pattern === 'format_comment' && r.active) : null;
+
+  // コメント処理済みのテキスト作成
+  let rawText = textarea.value;
+  if (commentRule) {
+    rawText = rawText.replace(/%%%[\s\S]*?%%%/g, (match) => {
+      return match.split('\n').map(l => `__C_L__${l}`).join('\n');
+    });
+  }
+  const allLines = rawText.split(/\n/);
+
+  console.log("=== カラー出力シミュレーション開始 ===");
+
+  heroineNames.forEach((targetHeroine, hIdx) => {
+    console.group(`■ 対象: ${targetHeroine} の判定`);
+    let isActiveFlag = false;
+    let currentLineHeroineIdx = -1;
+
+    allLines.forEach((line, index) => {
+      let isCommentLine = line.startsWith('__C_L__');
+      let displayLine = isCommentLine ? line.replace('__C_L__', '') : line;
+      let trimmed = displayLine.trim();
+      let appliedColor = "Black";
+
+      // --- A. 出力対象判定 (フィルタリング) ---
+
+      let shouldOutput = false;
+      let reason = "";
+
+      // 1. コメントブロック内は最優先で全員出力
+      if (isCommentLine) {
+        shouldOutput = true;
+        reason = "コメントブロック";
+      }
+
+      // 2. 共通項目 (トラック, ※)
+      if (!shouldOutput && (trimmed.includes("トラック") || trimmed.includes("Track") || trimmed.includes("※"))) {
+        shouldOutput = true;
+        reason = "共通項目";
+      }
+
+      // 3. 【最重要】ループタグ判定
+      // ここを「!shouldOutput」より先に、独立してチェックします
+      let loopMatch = trimmed.match(/[（(]([^｜|]+)[｜|]ループ\s*[：:]/);
+      if (loopMatch) {
+        const loopCharName = loopMatch[1].trim();
+        if (loopCharName === targetHeroine) {
+          shouldOutput = true;
+          reason = "自分のループタグ";
+        } else {
+          // ★ここで「他人のループタグ」だと確定したら、以降のセリフ判定に行かせない
+          return;
+        }
+      }
+
+      // 4. ヒロイン切り替え (//名前：)
+      let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
+      if (nameDefMatch) {
+        const foundName = nameDefMatch[1].trim();
+        if (foundName === targetHeroine) {
+          isActiveFlag = true;
+          shouldOutput = true;
+          reason = "フラグON";
+        } else if (heroineNames.includes(foundName)) {
+          isActiveFlag = false;
+          // 他人の名前行自体は出力しないのでここで return
+          return;
+        }
+      }
+
+      // 5. 通常セリフ（フラグONのときだけ通す）
+      if (!shouldOutput) {
+        if (isActiveFlag && trimmed !== "") {
+          shouldOutput = true;
+          reason = "セリフ(ON中)";
+        } else {
+          // フラグOFFなら捨てる
+          return;
+        }
+      }
+
+      // 2. スタイル判定（出力対象の場合のみ色を特定）
+      if (shouldOutput) {
+        let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
+        if (nameDefMatch) currentLineHeroineIdx = heroineNames.indexOf(nameDefMatch[1].trim());
+
+        if (isCommentLine) {
+          appliedColor = commentRule?.fgColor || "Gray";
+        } else {
+          let rule = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
+          if (rule) {
+            const isHeroineRule = heroineTargetLabels.includes(rule.label);
+            appliedColor = (isHeroineRule && currentLineHeroineIdx !== -1)
+              ? heroineColorPairs[currentLineHeroineIdx].fg
+              : rule.fgColor;
+          }
+        }
+      }
+
+      // 出力対象、または「他人のフラグ切り替え行」のみログ表示
+      if (shouldOutput || reason.includes("他人のフラグ")) {
+        const status = shouldOutput ? "○" : "×";
+        console.log(
+          `${String(index + 1).padStart(3)} [${status}] ${reason.padEnd(12)} | 色: ${appliedColor.padEnd(8)} | ${displayLine}`
+        );
+      }
+    });
+    console.groupEnd();
+  });
+}
+
+async function exportAllHeroinesToWord() {
+  const textarea = document.getElementById('textMulti');
+  if (!textarea || textarea.value.trim() === "") return alert("入力欄にテキストがありません。");
+
+  // --- 1. 設定データの取得と初期化 ---
+  const heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
+  const heroineNames = [...heroineInputs].map(i => i.value.trim()).filter(n => n !== "");
+  const commentRule = typeof formatRules !== 'undefined' ? formatRules.find(r => r.pattern === 'format_comment' && r.active) : null;
+
+  // Word用にカラーコードを変換（#FFFFFF -> FFFFFF）
+  const cleanHex = (hex) => (hex || "#000000").replace('#', '');
+
+  // --- 2. コメントブロックの事前マーク処理 ---
+  let rawText = textarea.value;
+  if (commentRule) {
+    rawText = rawText.replace(/%%%[\s\S]*?%%%/g, (match) => {
+      return match.split('\n').map(l => `__C_L__${l}`).join('\n');
+    });
+  }
+  const allLines = rawText.split(/\n/);
+
+  // --- 3. ヒロインごとのメインループ ---
+  for (let hIdx = 0; hIdx < heroineNames.length; hIdx++) {
+    const targetHeroine = heroineNames[hIdx];
+    const filteredLines = [];
+    let isActiveFlag = false;         // 出力対象かどうかのフラグ
+    let currentLineHeroineIdx = -1;  // 現在のセクションが誰のものか（色判定用）
+
+    allLines.forEach(line => {
+      const isCommentLine = line.startsWith('__C_L__');
+      const displayLine = isCommentLine ? line.replace('__C_L__', '') : line;
+      const trimmed = displayLine.trim();
+
+      // --- A. フィルタリング（出力するかどうかの判定） ---
+      let shouldOutput = false;
+
+      // ① コメントブロック内（全員出力）
+      if (isCommentLine) {
+        shouldOutput = true;
+      }
+      // ② 共通項目（全員出力）
+      else if (trimmed.includes("トラック") || trimmed.includes("Track")) {
+        shouldOutput = true;
+      }
+      // ③ ループタグ（自分の名前なら出す、他人なら即座に破棄）
+      else {
+        const loopMatch = trimmed.match(/[（(]([^｜|]+)[｜|]ループ\s*[：:]/);
+        if (loopMatch) {
+          if (loopMatch[1].trim() === targetHeroine) {
+            shouldOutput = true;
+          } else {
+            return; // 他人のループタグはここで終了
+          }
+        }
+
+        // ④ ヒロイン切り替え（//名前：）
+        const nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
+        if (nameDefMatch) {
+          const foundName = nameDefMatch[1].trim();
+          const foundIdx = heroineNames.indexOf(foundName);
+          if (foundName === targetHeroine) {
+            isActiveFlag = true;
+            shouldOutput = true;
+            currentLineHeroineIdx = foundIdx;
+          } else if (foundIdx !== -1) {
+            isActiveFlag = false;
+            currentLineHeroineIdx = foundIdx;
+            return; // 他人の名前行自体は出さない
+          }
+        }
+
+        // ⑤ 通常セリフ（フラグがONの時だけ出す）
+        if (!shouldOutput) {
+          if (isActiveFlag) {
+            // 自分の番なら、空行（trimmed === ""）であっても出力する
+            shouldOutput = true;
+          } else {
+            // 自分の番でない、かつ共通項目でもない空行はここで破棄
+            return;
+          }
+        }
+      }
+
+      // --- B. スタイリング（色の決定） ---
+      let lineStyle = { text: displayLine, color: "000000", bold: false, bg: null };
+
+      if (isCommentLine) {
+        lineStyle.color = cleanHex(commentRule?.fgColor);
+      } else {
+        const rule = defaultFormat.find(r => r.active && r.pattern && new RegExp(r.pattern).test(trimmed));
+
+        if (rule) {
+          const isHeroineRule = heroineTargetLabels.includes(rule.label);
+
+          if (isHeroineRule && currentLineHeroineIdx !== -1) {
+            const colors = heroineColorPairs[currentLineHeroineIdx];
+            const setting = heroineTargetSettings.find(s => s.label === rule.label);
+            const displayType = setting ? setting.type : 'normal';
+
+            lineStyle.color = cleanHex(colors.fg);
+
+            // ★ここが重要！displayType が 'bg' の時だけでなく、
+            // ループタグ判定（判定B）の時も背景色をセットするようにします
+            if (displayType === 'bg') {
+              lineStyle.bg = cleanHex(colors.bg);
+            }
+            if (displayType === 'bold') {
+              lineStyle.bold = true;
+            }
+          } else {
+            lineStyle.color = cleanHex(rule.fgColor);
+          }
+        }
+
+        // 特別対応：ループタグ行の背景色（プレビューと同じ挙動にする）
+        const loopMatch = trimmed.match(/[（(]([^｜|]+)[｜|]ループ\s*[：:]/);
+        if (loopMatch) {
+          const loopHeroIdx = heroineNames.indexOf(loopMatch[1].trim());
+          if (loopHeroIdx !== -1) {
+            lineStyle.bg = cleanHex(heroineColorPairs[loopHeroIdx].bg);
+            lineStyle.color = cleanHex(heroineColorPairs[loopHeroIdx].fg);
+          }
+        }
+      }
+      filteredLines.push(lineStyle);
+    });
+
+    // --- 4. Wordファイル生成の実行 ---
+    if (filteredLines.length > 0) {
+      await generateWordFile(targetHeroine, filteredLines);
+    }
+  }
+}
+
+// Word生成サブ関数
+async function generateWordFile(heroineName, lines) {
+  const { Document, Packer, Paragraph, TextRun } = docx;
+
+  const doc = new Document({
+    sections: [{
+      properties: {
+        page: { margin: { top: 1701, bottom: 1701, left: 1701, right: 1701 } }
+      },
+      children: lines.map(line => {
+        return new Paragraph({
+          spacing: {
+            line: 400,
+            lineRule: "atLeast" // 高さを維持しつつエラーを回避する安全な設定
+          },
+          children: [
+            new TextRun({
+              text: line.text || "",
+              color: line.color,
+              bold: line.bold,
+              shading: line.bg ? {
+                type: "clear",
+                color: "auto",
+                fill: line.bg,
+              } : undefined,
+              size: 22,
+              font: { eastAsia: "Yu Gothic" },
+            }),
+          ],
+        });
+      }),
+    }],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, `台本_${heroineName}.docx`);
+}
+
+// ==========================================
 // プロット作成　入力ページ
 // ==========================================
 

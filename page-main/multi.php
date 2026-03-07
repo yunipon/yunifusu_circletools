@@ -78,7 +78,10 @@
       <div class="editor-left">
         <div class="card">
           <div class="box">
-            <h4>台本入力</h4>
+            <h4>台本入力
+              <div style="font-size: x-small; color: red; margin-top: 5px;">【注意】「//」はキャラ名以外に使用しないでください！！</div>
+            </h4>
+
             <div class="textarea-wrapper">
               <div id="lineNumbers" class="line-numbers"></div>
               <textarea id="textMulti"
@@ -101,6 +104,9 @@
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <button class="btn-primary" onclick="exportToWord()">Word出力</button>
+            <span class="tooltip" data-tooltip="上の「ヒロイン名設定」で全キャラの名前を設定してください。">
+              <button class="btn-primary" onclick="exportAllHeroinesToWord()">キャラ別Word出力</button>
+            </span>
             <button class="btn-primary" onclick="exportTextAreaToTxt('textMulti', '複数人整形')">txt出力</button>
             <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
           </div>
