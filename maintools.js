@@ -2154,9 +2154,23 @@ async function exportToWord() {
           spacing: { line: 480, before: 0, after: 0 },
           // 【修正ポイント2】空白行なら空のchildrenを返し、
           // 文字がある場合のみTextRunを生成する。これで余計なスペースが入らない
-          children: isBlank ? [] : [
-            new TextRun({
-              text: line.text,
+          children: isBlank ? [] : (() => {
+            const runs = [];
+
+            // 1. タブが含まれているかチェック
+            if (line.text.startsWith("\t")) {
+              // 先頭のタブだけを背景色なしで追加
+              runs.push(new TextRun({
+                text: "\t",
+                size: 22,
+                font: { eastAsia: "Yu Mincho", hint: "eastAsia" },
+              }));
+            }
+
+            // 2. 本文を追加（タブを除いた残り）
+            const contentText = line.text.replace(/^\t/, "");
+            runs.push(new TextRun({
+              text: contentText,
               color: line.color,
               bold: line.bold,
               shading: line.highlight ? {
@@ -2166,8 +2180,10 @@ async function exportToWord() {
               } : undefined,
               size: 22,
               font: { eastAsia: "Yu Mincho", hint: "eastAsia" },
-            }),
-          ],
+            }));
+
+            return runs;
+          })(),
         });
       }),
     }],
