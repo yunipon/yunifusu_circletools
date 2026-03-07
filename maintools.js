@@ -2041,6 +2041,8 @@ async function exportToWord() {
   const singleArea = document.getElementById('previewArea');
   const textArea = document.getElementById('textExtract'); // セリフ抽出用
 
+  let isInCommentBlock = false;
+
   // 1. どのソースを出力するか決定
   if (multiArea && multiArea.offsetHeight > 0 && multiArea.innerHTML.trim() !== "") {
     preview = multiArea;
@@ -2074,6 +2076,23 @@ async function exportToWord() {
 
     function pushLine(el) {
       let text = el.innerText.replace(/\u00A0/g, " ").trim();
+
+      // %%% 判定
+      if (text.includes("%%%")) {
+        const count = (text.match(/%%%/g) || []).length;
+        if (count === 1) isInCommentBlock = !isInCommentBlock;
+      }
+
+      if (text !== "") {
+        const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
+        const isTrackBorder = text.includes("＝＊＝") || text.includes("トラック") || text.includes("Track");
+
+        // インデント判定（isInCommentBlock が定義済みなのでエラーにならない）
+        if (!isHeroineName && !isTrackBorder && !isInCommentBlock && !text.includes("%%%")) {
+          text = "\t" + text;
+        }
+      }
+
       lines.push({
         text: text,
         color: rgbToHex(el.style.color) || "000000",
@@ -2082,13 +2101,31 @@ async function exportToWord() {
       });
     }
   }
+
   // 3. 【追加】プレビューがなく、テキストエリアに文字がある場合（セリフ抽出時など）
   else if (textArea && textArea.value.trim() !== "") {
-    // テキストエリアの各行をループで回して lines に追加
+    let isInCommentTextArea = false; // ループの外で定義
+
     textArea.value.split('\n').forEach(rawLine => {
+      let text = rawLine.trim();
+
+      if (text.includes("%%%")) {
+        const count = (text.match(/%%%/g) || []).length;
+        if (count === 1) isInCommentTextArea = !isInCommentTextArea;
+      }
+
+      if (text !== "") {
+        const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
+        const isTrackBorder = text.includes("＝＊＝") || text.includes("トラック") || text.includes("Track");
+
+        if (!isHeroineName && !isTrackBorder && !isInCommentTextArea && !text.includes("%%%")) {
+          text = "\t" + text;
+        }
+      }
+
       lines.push({
-        text: rawLine.trim(),
-        color: "000000", // テキストエリアは装飾がないので黒固定
+        text: text,
+        color: "000000",
         highlight: null
       });
     });
