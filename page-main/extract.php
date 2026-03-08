@@ -99,7 +99,10 @@
             <button class="btn-primary" onclick="applyExtract()">セリフのみ抽出</button>
             <button class="btn-primary" onclick="shrinkBlankLines('textExtract')">空行を1行に整理</button>
             <button class="btn-primary" onclick="removeAllBlankLines('textExtract')">空白改行完全削除</button>
-            <button class="btn-primary" onclick="exportToWord()">Word出力</button>
+            <button class="btn-primary" onclick="exportWordHorizontal()">Word出力</button>
+            <span class="tooltip" data-tooltip="「゛」をずらして出力するものです。出力データを手動で縦書きの書式にしてください。">
+              <button class="btn-primary" onclick="exportWordVertical()">縦書き用Word</button>
+            </span>
             <button class="btn-primary" onclick="exportTextAreaToTxt('textExtract', 'セリフ抽出')">txt出力</button>
             <button class="btn-danger" onclick="clearData('extract')">データクリア</button>
           </div>
