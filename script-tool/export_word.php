@@ -1,9 +1,10 @@
 <?php
-
 require __DIR__ . '/vendor/autoload.php';
 
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
+
+$html = $_POST['html'] ?? '';
 
 $phpWord = new PhpWord();
 
@@ -11,12 +12,11 @@ $section = $phpWord->addSection([
   'textDirection' => 'tbRl'
 ]);
 
-$section->addText("縦書きテストです");
+\PhpOffice\PhpWord\Shared\Html::addHtml($section, $html);
 
 header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-header("Content-Disposition: attachment; filename=test.docx");
+header("Content-Disposition: attachment; filename=vertical_script.docx");
 
-$writer = IOFactory::createWriter($phpWord, 'Word2007');
-$writer->save("php://output");
-
+$objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+$objWriter->save("php://output");
 exit;

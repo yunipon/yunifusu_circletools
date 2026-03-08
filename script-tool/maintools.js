@@ -2234,13 +2234,20 @@ async function exportWordVertical() {
     body: "html=" + encodeURIComponent(html)
   });
 
+  if (!res.ok) {
+    alert("Word生成エラー");
+    return;
+  }
+
   const blob = await res.blob();
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = "縦書き台本.docx";
+  document.body.appendChild(a);
   a.click();
+  a.remove();
 }
 
 /**
