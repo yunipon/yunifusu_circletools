@@ -1262,6 +1262,10 @@ function addHeroineInput() { if (heroineCount < 5) { heroineCount++; renderHeroi
 
 //ツール使用関数
 async function exportAllHeroinesToWord() {
+  // --- A. ラジオボタンの状態を取得 ---
+  const wordMode = document.querySelector('input[name="wordMode"]:checked').value;
+  const isVerticalMode = (wordMode === 'v');
+
   const textarea = document.getElementById('textMulti');
   const outputArea = document.getElementById('textCheck'); // 通知用のエリア
   if (!textarea || textarea.value.trim() === "") return alert("入力欄にテキストがありません。");
@@ -1412,13 +1416,13 @@ async function exportAllHeroinesToWord() {
 
     // --- 4. Wordファイル生成の実行 ---
     if (filteredLines.length > 0) {
-      await generateWordFile(targetHeroine, filteredLines);
+      await generateWordFile(targetHeroine, filteredLines, isVerticalMode);
     }
   }
 }
 
 // Word生成サブ関数
-async function generateWordFile(heroineName, lines) {
+async function generateWordFile(heroineName, lines, isVertical = false) {
   const { Document, Packer, Paragraph, TextRun } = docx;
 
   const doc = new Document({
@@ -1427,6 +1431,12 @@ async function generateWordFile(heroineName, lines) {
         page: { margin: { top: 1701, bottom: 1701, left: 1701, right: 1701 } }
       },
       children: lines.map(line => {
+        // --- 縦書きモードなら濁点をずらす ---
+        let processedText = line.text || "";
+        if (isVertical && processedText !== "") {
+          processedText = fixVoicedSoundMark(processedText);
+        }
+
         return new Paragraph({
           spacing: {
             line: 400,
@@ -1434,7 +1444,7 @@ async function generateWordFile(heroineName, lines) {
           },
           children: [
             new TextRun({
-              text: line.text || "",
+              text: processedText,
               color: line.color,
               bold: line.bold,
               shading: line.bg ? {
@@ -1452,7 +1462,9 @@ async function generateWordFile(heroineName, lines) {
   });
 
   const blob = await Packer.toBlob(doc);
-  saveAs(blob, `台本_${heroineName}.docx`);
+  // ファイル名にもモードを付記すると親切です
+  const suffix = isVertical ? "_縦書き用" : "";
+  saveAs(blob, `台本_${heroineName}${suffix}.docx`);
 }
 
 // ==========================================
@@ -2105,7 +2117,7 @@ async function generateDocx(lines, useFix, fileNamePrefix) {
               runs.push(new TextRun({
                 text: "\t",
                 size: 22,
-                font: { eastAsia: "Yu Mincho" },
+                font: { eastAsia: "Yu Gothic" },
               }));
             }
 
@@ -2120,7 +2132,7 @@ async function generateDocx(lines, useFix, fileNamePrefix) {
                 fill: line.highlight,
               } : undefined,
               size: 22,
-              font: { eastAsia: "Yu Mincho" },
+              font: { eastAsia: "Yu Gothic" },
             }));
             return runs;
           })(),
