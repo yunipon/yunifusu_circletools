@@ -1047,11 +1047,8 @@ function analyzeDialogueData(inputText) {
   // 1. カッコ統一 (applyExtractと同じ)
   text = text.replace(/\(/g, "（").replace(/\)/g, "）");
 
-  // 2. コメント削除 (index 0 のルール)
-  const commentRule = extractRules[0];
-  if (commentRule && commentRule.pattern === 'delete_comment' && commentRule.active) {
-    text = text.replace(/%%%[\s\S]*?%%%/g, "");
-  }
+  // 2. コメントブロックの完全削除 (%%%...%%%)
+  text = text.replace(/%%%[\s\S]*?%%%/g, "");
 
   const lines = text.split('\n');
   const stats = { total: 0, byCharacter: {} };
@@ -1061,33 +1058,30 @@ function analyzeDialogueData(inputText) {
     let newLine = line.trim();
     if (!newLine) return;
 
-    // 話者判定（//名前：）はカウントに含めず、ターゲットを切り替えるだけ
+    // 話者判定（//名前：）
     const nameMatch = newLine.match(/^\/\/(.*?)[:：]/);
     if (nameMatch) {
       currentName = nameMatch[1].trim();
       return;
     }
 
-    // 3. extractRulesを順番に適用して文字を削る
-    extractRules.forEach((rule, index) => {
-      if (index === 0 || !rule.active || !rule.pattern || rule.isSpecial) return;
-      if (newLine === "") return;
+    // 3. defaultExtractを順番に適用して文字を削る
+    defaultExtract.forEach((rule) => {
+      if (!rule.active || !rule.pattern) return;
 
       try {
         const re = new RegExp(rule.pattern, 'g');
-        if (rule.pattern.startsWith('^')) {
-          // 行頭一致なら行ごと消す
-          if (re.test(newLine)) newLine = "";
-        } else {
-          // それ以外は該当箇所を空文字に置換
-          newLine = newLine.replace(re, '');
-        }
-      } catch (e) { }
+        // Extractルールなので、見つけたら「空文字」に置換（消去）
+        newLine = newLine.replace(re, '');
+      } catch (e) {
+        console.error("Regex error in defaultExtract:", e);
+      }
     });
 
     // 4. 生き残った文字をカウント
-    if (newLine.trim() !== "") {
-      const len = newLine.trim().length;
+    const finalTrimmed = newLine.trim();
+    if (finalTrimmed !== "") {
+      const len = finalTrimmed.length;
       stats.total += len;
       stats.byCharacter[currentName] = (stats.byCharacter[currentName] || 0) + len;
     }
