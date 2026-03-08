@@ -119,14 +119,11 @@ window.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('heroineInputs')) renderHeroineInputs();
   renderAllRules();
 
-  //文字数の更新
-  refreshAllCounts();
-
   // 初期プレビュー実行
   if (document.getElementById('textFormat')) runPreview();
   if (document.getElementById('textMulti')) runMultiPreview();
 
-  //行数表示実行
+  //文字数と行数表示実行
   updateLineNumbers();
   refreshAllCounts();
 
@@ -147,7 +144,12 @@ function escapeHtml(s) {
 
 function updateCharCount(id, cid) {
   const target = document.getElementById(id);
-  if (target) document.getElementById(cid).innerText = target.value.replace(/\n/g, "").length.toLocaleString();
+  const display = document.getElementById(cid);
+  if (target && display) {
+    // \s は改行だけでなく、全角・半角スペースもすべて削除します
+    const pureText = target.value.replace(/\s/g, "");
+    display.innerText = pureText.length.toLocaleString();
+  }
 }
 
 function getStyle(r) {
@@ -155,27 +157,24 @@ function getStyle(r) {
   return `background-color:${r.bgColor === 'none' ? 'transparent' : r.bgColor}; color:${r.fgColor}; font-weight:${r.bold ? 'bold' : 'normal'}; font-size:11pt;`;
 }
 
-/**
- * 指定した種類の文字数を更新する（引数がない場合は全更新）
- * @param {string} type - 'extract', 'fmt', 'multi'
- */
-function refreshAllCounts(type) {
-  const map = {
-    'extract': { text: 'textExtract', display: 'countExtract' },
-    'fmt': { text: 'textFormat', display: 'countFormat' },
-    'multi': { text: 'textMulti', display: 'countMulti' }
-  };
+// リロード時の末尾で、全カウントを確実に「最新ルール」で叩き直す
+function refreshAllCounts() {
+  // 現在のページにあるテキストエリアと、表示先のIDをマッピング
+  const countMaps = [
+    { areaId: 'textExtract', displayId: 'countExtract' }, // ①抽出ページ
+    { areaId: 'textExtractBefore', displayId: 'countExtractBefore' }, // ①抽出ページ結果欄
+    { areaId: 'textFormat', displayId: 'countFormat' }, // ②整形ページ
+    { areaId: 'textMulti', displayId: 'countMulti' }  // ③複数ヒロインページ
+  ];
 
-  // typeが指定されていればその一つだけ、なければ全部をループで処理
-  const keys = type ? [type] : Object.keys(map);
+  countMaps.forEach(map => {
+    const textarea = document.getElementById(map.areaId);
+    const display = document.getElementById(map.displayId);
 
-  keys.forEach(key => {
-    const config = map[key];
-    const textarea = document.getElementById(config.text);
-    const display = document.getElementById(config.display);
-
+    // 両方の要素が存在する場合のみ実行
     if (textarea && display) {
-      display.innerText = textarea.value.length;
+      // 共通のカウント関数を呼び出す（引数の名前に注意！）
+      updateCharCount(map.areaId, map.displayId);
     }
   });
 }
@@ -239,7 +238,7 @@ function syncScroll() {
 // ==========================================
 // 4. セリフ抽出・整形ロジック
 // ==========================================
-function applyExtract() {
+function applyExtract(rules) {
   const area = document.getElementById('textExtract');
   const areabefore = document.getElementById('textExtractBefore');
   if (!area || !area.value) return;
@@ -251,7 +250,7 @@ function applyExtract() {
   // 全体に対する一括カッコ統一（基本処理）
   text = text.replace(/\(/g, "（").replace(/\)/g, "）");
 
-  const commentRule = extractRules[0];
+  const commentRule = rules[0];
   if (commentRule && commentRule.pattern === 'delete_comment' && commentRule.active) {
     text = text.replace(/%%%[\s\S]*?%%%/g, "");
   }
@@ -261,7 +260,7 @@ function applyExtract() {
     // まずは前後の不要な空白だけ消す（装飾ライン判定のため）
     let newLine = line.trim();
 
-    extractRules.forEach((rule, index) => {
+    rules.forEach((rule, index) => {
       // 1番目(コメント削除)と非アクティブ、特殊ルールはスキップ
       if (index === 0 || !rule.active || !rule.pattern || rule.isSpecial) return;
       if (newLine === "") return; // 既に空行ならスキップ
@@ -1175,6 +1174,39 @@ function shrinkBlankLines(id) {
 }
 
 /**
+ * 同梱用台本データまとめて処理
+ */
+
+const Bundlingrules = [
+  { label: 'コメント行削除（%%% ~ %%% ）', pattern: 'delete_comment', active: true, isSpecial: true },
+  { label: 'ト書き行削除', pattern: '^\\s*(◆|■|※|◇|□|＊).*', active: true },
+  { label: 'ト書き行削除', pattern: '^\\s*(SE|SE).*', active: true },
+  { label: '【】内削除', pattern: '【[^】]*】', active: true },
+  { label: '()内削除', pattern: '[（\\(][^）\\)]*[）\\)]', active: true },
+  { label: '《》内削除', pattern: '《[^》]*》', active: true },
+  { label: 'スペース削除（文章の途中のスペースも削除）', pattern: '[ 　]', active: true }
+];
+
+function makeincluded() {
+
+  // テキストエリアの最初の文字列を保持しておく
+  const area = document.getElementById('textExtract');
+  const areabefore = document.getElementById('textExtractBefore');
+  if (!area || !area.value) return;
+  let text = area.value;
+
+  // セリフ出力と空白行詰め関数を順番に回す
+  applyExtract(Bundlingrules)
+  shrinkBlankLines('textExtract')
+
+  // 変形前台本をbeforeエリアに出力&文字数再カウント&inputイベント処理
+  areabefore.value = text;
+  updateCharCount('textExtractBefore', 'countExtractBefore');
+  areabefore.dispatchEvent(new Event('input'));
+
+}
+
+/**
  * 指定されたtextarea内の空白行をすべて削除して詰める
  */
 function removeAllBlankLines(targetId) {
@@ -1927,7 +1959,7 @@ function parseAndFillPlot(text) {
     i++;
   }
 
-  if (typeof refreshAllCounts === 'function') refreshAllCounts();
+  refreshAllCounts();
   alert("データをクリアし、取り込みを完了しました。");
 }
 
