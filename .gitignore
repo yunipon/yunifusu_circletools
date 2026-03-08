@@ -1,5 +1,6 @@
 # 特定のフォルダをまるごと除外
 0000exclusion/
+script-tool/vendor/
 
 # 特定のファイルを除外
 # config.php
@@ -7,5 +8,5 @@
 .user.ini
 
 # 特定の拡張子をすべて除外
-# *.log
+*.log
 # *.zip
