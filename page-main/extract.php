@@ -99,13 +99,15 @@
             <label><input type="radio" name="wordMode" value="h" checked> 通常（横書き）</label>
             <label style="margin-left: 10px;"><input type="radio" name="wordMode" value="v"> 縦書き用（濁点ずらし）</label>
           </div>
-          <button class="btn-primary" onclick="handleWordExport()">Word出力</button>
+          <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <button class="btn-primary" onclick="handleExport('word')">Word出力</button>
+            <button class="btn-primary" onclick="handleExport('txt')">txt出力</button>
+          </div>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
             <button class="btn-primary" onclick="applyExtract()">セリフのみ抽出</button>
             <button class="btn-primary" onclick="shrinkBlankLines('textExtract')">空行を1行に整理</button>
             <button class="btn-primary" onclick="removeAllBlankLines('textExtract')">空白改行完全削除</button>
-            <button class="btn-primary" onclick="exportTextAreaToTxt('textExtract', 'セリフ抽出')">txt出力</button>
             <button class="btn-danger" onclick="clearData('extract')">データクリア</button>
           </div>
 

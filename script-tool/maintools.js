@@ -2035,6 +2035,24 @@ function importPlotText(input) {
 // 7. Word / Text 出力機能 (ブラウザ完結型)
 // ==========================================
 
+// 判定して適切な関数を呼ぶラッパー
+async function handleExport(type) {
+  const mode = document.querySelector('input[name="wordMode"]:checked').value;
+  const isVertical = (mode === 'v');
+
+  if (type === 'word') {
+    if (isVertical) {
+      await exportWordVertical();
+    } else {
+      await exportWordHorizontal();
+    }
+  } else if (type === 'txt') {
+    // 自動検知モードで実行
+    exportTextAreaToTxt(isVertical);
+  }
+}
+
+
 // 共通：画面からデータを解析して配列で返す
 async function getParsedScriptLines() {
   let preview = null;
@@ -2156,25 +2174,7 @@ function rgbToHex(rgb) {
   }).join('').toUpperCase();
 }
 
-// 判定して適切な関数を呼ぶラッパー
-async function handleWordExport() {
-  const mode = document.querySelector('input[name="wordMode"]:checked').value;
-
-  if (mode === 'v') {
-    await exportWordVertical(); // 縦書き用（濁点ずらし版）
-  } else {
-    await exportWordHorizontal();       // 既存の横書き版
-  }
-}
-
 // 共通部品：濁点ずらし
-function fixVoicedSoundMark(text) {
-  if (!text) return "";
-  let normalized = text.replace(/ﾞ/g, '゛');
-  return normalized.replace(/(.)(゛)/g, '$2$1');
-}
-
-// 濁点を一文字前にずらすJS関数
 function fixVoicedSoundMark(text) {
   if (!text) return "";
   let normalized = text.replace(/ﾞ/g, '゛');
@@ -2259,35 +2259,56 @@ async function generateDocx(lines, useFix, fileNamePrefix) {
 
 /**
  * テキストエリアの内容を.txtファイルとして保存する
- * @param {string} textAreaId - 取得対象のテキストエリアのID
- * @param {string} fileNamePrefix - 保存ファイル名の接頭辞
  */
-function exportTextAreaToTxt(textAreaId, fileNamePrefix = "script") {
-  const textArea = document.getElementById(textAreaId);
-  if (!textArea || !textArea.value.trim()) {
-    alert("保存する内容がありません。");
+/**
+ * 開いている（または内容がある）テキストエリアを自動判別して保存する
+ */
+function exportTextAreaToTxt(isVertical = false) {
+  // 取得候補のIDを優先順位順に並べる
+  const targetIds = ['textExtract', 'textMulti', 'textFormat'];
+  let targetArea = null;
+  let activeId = "";
+
+  // 1. 表示されており、かつ中身があるテキストエリアを探す
+  for (const id of targetIds) {
+    const el = document.getElementById(id);
+    if (el && el.offsetHeight > 0 && el.value.trim() !== "") {
+      targetArea = el;
+      activeId = id;
+      break;
+    }
+  }
+
+  if (!targetArea) {
+    alert("保存する内容が見つかりません。");
     return;
   }
 
-  // ファイル名を作成（例：台本整形_20260225.txt）
-  //const timestamp = new Date().toISOString().replace(/[:\-]|\..*/g, "");
-  //const fileName = `${fileNamePrefix}_${timestamp}.txt`;
+  // 2. 内容の取得と濁点処理
+  let finalContent = targetArea.value;
+  if (isVertical) {
+    finalContent = finalContent
+      .split('\n')
+      .map(line => fixVoicedSoundMark(line))
+      .join('\n');
+  }
 
-  const fileName = `${fileNamePrefix}.txt`;
+  // 3. IDに基づいたファイル名prefixの決定（お好みで調整してください）
+  const prefixMap = {
+    'textExtract': '台本',
+    'textMulti': '台本',
+    'textFormat': '台本'
+  };
+  const fileNamePrefix = prefixMap[activeId] || "script";
+  const fileName = isVertical ? `${fileNamePrefix}_縦書き用.txt` : `${fileNamePrefix}.txt`;
 
-  // テキストをBlob（データの塊）に変換
-  const blob = new Blob([textArea.value], { type: "text/plain" });
-
-  // ダウンロード用のリンクを生成
+  // 4. ダウンロード処理
+  const blob = new Blob([finalContent], { type: "text/plain" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = fileName;
-
-  // リンクをクリックさせてダウンロード開始
   document.body.appendChild(link);
   link.click();
-
-  // 後片付け
   document.body.removeChild(link);
   URL.revokeObjectURL(link.href);
 }
