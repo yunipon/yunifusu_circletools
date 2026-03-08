@@ -122,6 +122,7 @@
           </div>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
             <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
           </div>
 

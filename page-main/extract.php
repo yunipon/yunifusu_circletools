@@ -107,6 +107,7 @@
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
             <button class="btn-primary" onclick="applyExtract()">セリフのみ抽出</button>
             <button class="btn-primary" onclick="shrinkBlankLines('textExtract')">空行を1行に整理</button>
+            <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
             <button class="btn-primary" onclick="removeAllBlankLines('textExtract')">空白改行完全削除</button>
             <button class="btn-danger" onclick="clearData('extract')">データクリア</button>
           </div>

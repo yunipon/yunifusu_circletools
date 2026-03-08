@@ -1232,6 +1232,75 @@ function updatePlotCharCount(textarea, displayId) {
 }
 
 // ==========================================
+// 空白行を追加する
+// ==========================================
+
+/**
+ * 違う種類の記号や指示の間に空行を追加する
+ */
+function addLineBreaksBetweenTypes() {
+  const ids = ['textExtract', 'textFormat', 'textMulti'];
+  let targetArea = null;
+
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el && el.offsetHeight > 0) {
+      targetArea = el;
+      break;
+    }
+  }
+
+  if (!targetArea || !targetArea.value.trim()) return;
+
+  const lines = targetArea.value.split('\n');
+  const result = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    result.push(lines[i]);
+
+    if (i < lines.length - 1) {
+      // 外側で定義した共通の getLineType を呼び出す
+      const currentType = getLineType(lines[i]);
+      const nextType = getLineType(lines[i + 1]);
+
+      if (currentType !== 'empty' && nextType !== 'empty' && currentType !== nextType) {
+        result.push('');
+      }
+    }
+  }
+
+  // 連続した空行を1行にまとめる（仕上がりが綺麗になります）
+  targetArea.value = result.join('\n').replace(/\n{3,}/g, '\n\n');
+  targetArea.dispatchEvent(new Event('input'));
+}
+
+/**
+ * 【共通ルール】行頭の記号の種類を判定する
+ */
+const getLineType = (line) => {
+  const trimmed = line.trim();
+  if (!trimmed) return 'empty';
+
+  if (trimmed.startsWith('//')) return 'name';
+  if (trimmed.startsWith('【')) return 'label';
+  if (trimmed.startsWith('※')) return 'comp';
+  if (trimmed.startsWith('%%%')) return 'comme';
+  if (trimmed.startsWith('＊')) return 'ad';
+
+  // ◆ と ■ を同じ種類 'se' としてグループ化
+  if (trimmed.startsWith('◆') || trimmed.startsWith('■')) return 'se';
+
+  // ◇ と □ を同じ種類 'instruction' としてグループ化
+  if (trimmed.startsWith('◇') || trimmed.startsWith('□')) {
+    return 'instruction';
+  }
+
+  if (trimmed.startsWith('（') || trimmed.startsWith('(')) return 'direction';
+
+  return 'dialogue'; // どれにも当てはまらなければセリフ
+};
+
+// ==========================================
 // 複数ヒロイン設定
 // キャラ名が変更したら都度プレビューを更新する
 // ==========================================
