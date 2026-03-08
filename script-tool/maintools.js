@@ -868,30 +868,24 @@ function runScriptCheck() {
 //チェック関数の本体
 function checkDelimitedSections(text) {
   const lines = text.split('\n');
-  const stack = [];
+  let openSections = []; // スタックではなく、現在開いているセクションの配列
   const errors = [];
 
-  // 仕様①：拡張された記号リスト（行頭判定用）
-  // ( ) （ ） ◆ ◇ 【 】 [ ] ■ □ ※ ＊ 《 》
-  // 正規表現内では特殊な意味を持つ記号（[, ], (, )）を \ でエスケープしています
   const indicatorRegex = /^[（(◆◇【\[■□※＊《()（）[\]】》]/;
 
   lines.forEach((line, index) => {
     const trimmedLine = line.trim();
     const rowNum = index + 1;
 
-    // 行頭に指定記号がない場合はセリフ・地の文としてスルー
-    if (!indicatorRegex.test(trimmedLine)) {
-      return;
-    }
+    if (!indicatorRegex.test(trimmedLine)) return;
 
     // 「ここから」判定
     if (trimmedLine.includes('ここから')) {
-      // ラベル抽出時、比較の邪魔になる記号をすべて除去
       let label = trimmedLine.split('ここから')[0]
         .replace(/[()（）◆◇■□【】\[\]※＊《》]/g, '')
         .trim();
-      stack.push({ label, line: rowNum, fullText: trimmedLine });
+      // 開いているリストに追加
+      openSections.push({ label, line: rowNum, fullText: trimmedLine });
     }
     // 「ここまで」判定
     else if (trimmedLine.includes('ここまで')) {
@@ -899,25 +893,22 @@ function checkDelimitedSections(text) {
         .replace(/[()（）◆◇■□【】\[\]※＊《》]/g, '')
         .trim();
 
-      if (stack.length === 0) {
-        errors.push(`行 ${rowNum}: 「ここから」がないのに「${trimmedLine}」があります。`);
-        return;
-      }
+      // 現在開いているリストの中から、ラベルが一致するものを探す（後ろから探すのが安全）
+      const foundIndex = openSections.findLastIndex(item => isLabelMatch(item.label, endLabel));
 
-      const lastStart = stack.pop();
-
-      // 仕様② & ③ の判定
-      if (!isLabelMatch(lastStart.label, endLabel)) {
-        errors.push(`行 ${rowNum}: ラベルが一致しません。\n  開始(${lastStart.line}行目): "${lastStart.fullText}"\n  終了(${rowNum}行目): "${trimmedLine}"`);
+      if (foundIndex === -1) {
+        errors.push(`行 ${rowNum}: 「ここから」がないか、ラベルが不一致な「${trimmedLine}」があります。`);
+      } else {
+        // 一致するものが見つかったら、その要素だけを削除（交差を許容）
+        openSections.splice(foundIndex, 1);
       }
     }
   });
 
   // 閉じ忘れチェック
-  while (stack.length > 0) {
-    const unclosed = stack.pop();
+  openSections.forEach(unclosed => {
     errors.push(`行 ${unclosed.line}: 「${unclosed.fullText}」が閉じられていません。`);
-  }
+  });
 
   return { isValid: errors.length === 0, errors };
 }
@@ -925,10 +916,15 @@ function checkDelimitedSections(text) {
 function isLabelMatch(startLabel, endLabel) {
   // 仕様③：「ループ：上記」対応
   // 「：上記」や末尾の「：」を無視して比較
-  const normalize = (s) => s.replace(/：上記$/, '：').replace(/：$/, '');
+  const normalize = (s) => {
+    return s
+      .replace(/上記/g, '') // 「上記」という文字をどこにあっても消す
+      .replace(/[：:]/g, '') // 全角・半角のコロンを消す
+      .trim();              // 前後の空白を消す
+  };
+
   return normalize(startLabel) === normalize(endLabel);
 }
-
 /**
  * 2. アドリブ抽出
  */
