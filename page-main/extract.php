@@ -89,6 +89,10 @@
             <span class="tooltip" data-tooltip="「ここから」と「ここまで」のペアが揃っているか確認します">
               <button class="btn-secondary" onclick="runScriptCheck()">始終チェック</button>
             </span>
+            </span>
+            <span class="tooltip" data-tooltip="「＊」から始まるアドリブ指示を抽出します">
+              <button class="btn-secondary" onclick="extractAdlibCommands()">「＊」抽出</button>
+            </span>
           </div>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">

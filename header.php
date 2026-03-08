@@ -1,3 +1,7 @@
+<?php
+require __DIR__ . '/script-tool/vendor/autoload.php';
+?>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -7,8 +11,8 @@
 <link rel="stylesheet" href="../styleMenu.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-<script src="../common.js"></script>
-<script src="../maintools.js"></script>
+<script src="../script-tool/common.js"></script>
+<script src="../script-tool/maintools.js"></script>
 
 <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>

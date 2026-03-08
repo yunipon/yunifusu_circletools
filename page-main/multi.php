@@ -115,6 +115,9 @@
             <span class="tooltip" data-tooltip="上の「ヒロイン名設定」で全キャラの名前を設定してください。">
               <button class="btn-primary" onclick="exportAllHeroinesToWord()">キャラ別Word出力</button>
             </span>
+            <span class="tooltip" data-tooltip="テスト中　うまく起動しません">
+              <button class="btn-primary" onclick="exportWordVertical()">縦書きWord出力</button>
+            </span>
             <button class="btn-primary" onclick="exportTextAreaToTxt('textMulti', '複数人整形')">txt出力</button>
             <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
           </div>
