@@ -2035,189 +2035,6 @@ function importPlotText(input) {
 // 7. Word / Text 出力機能 (ブラウザ完結型)
 // ==========================================
 
-async function exportToWord() {
-  let preview = null;
-  const multiArea = document.getElementById('previewAreaMulti');
-  const singleArea = document.getElementById('previewArea');
-  const textArea = document.getElementById('textExtract'); // セリフ抽出用
-
-  // 1. どのソースを出力するか決定
-  if (multiArea && multiArea.offsetHeight > 0 && multiArea.innerHTML.trim() !== "") {
-    preview = multiArea;
-  } else if (singleArea && singleArea.offsetHeight > 0 && singleArea.innerHTML.trim() !== "") {
-    preview = singleArea;
-  }
-
-  let lines = [];
-
-  // --- 1. 事前チェック：台本全体にキャラ名定義があるか確認 ---
-  let scriptBody = "";
-  if (preview) {
-    scriptBody = preview.innerText;
-  } else if (textArea) {
-    scriptBody = textArea.value;
-  }
-
-  // 台本全体の中に「//名前：」という形式が含まれているか
-  const hasAnyHeroineDef = /^\/\/([^：: \t\n]+)[:：]/m.test(scriptBody);
-
-  let isInCommentBlock = false;
-  let hasMetHeroine = false; // これは「今その行以降か」の判定用
-
-  // 2. プレビューエリア（HTML）がある場合の処理
-  if (preview) {
-    Array.from(preview.childNodes).forEach(node => {
-      if (node.nodeType === 1) { // <div>などの要素
-        pushLine(node);
-      } else if (node.nodeType === 3) { // 直接のテキスト
-        const text = node.textContent.trim();
-        if (text === "" && node.textContent.includes('\n')) {
-          // 何もない改行だけのノード（空行として扱う）
-          lines.push({ text: "", color: "000000", highlight: null });
-        } else if (text !== "") {
-          // タグに囲まれていない文字があった場合
-          lines.push({ text: text, color: "000000", highlight: null });
-        }
-      }
-    });
-
-    function pushLine(el) {
-      let text = el.innerText.replace(/\u00A0/g, " ").trim();
-
-      // %%% 判定
-      if (text.includes("%%%")) {
-        const count = (text.match(/%%%/g) || []).length;
-        if (count === 1) isInCommentBlock = !isInCommentBlock;
-      }
-
-      if (text !== "") {
-        const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
-        const isTrackBorder = text.includes("＝＊＝") || text.includes("トラック") || text.includes("Track");
-
-        // --- 条件をシンプルに修正 ---
-        // 1. 台本内にキャラ定義が1つでも存在する (hasAnyHeroineDef)
-        // 2. この行自体が除外対象（名前行、トラック行、コメント内）ではない
-        if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isInCommentBlock && !text.includes("%%%")) {
-          text = "\t" + text;
-        }
-      }
-
-      lines.push({
-        text: text,
-        color: rgbToHex(el.style.color) || "000000",
-        highlight: rgbToHex(el.style.backgroundColor) || null,
-        bold: el.style.fontWeight === "bold" || el.style.fontWeight >= 700
-      });
-    }
-  }
-
-  // 3. 【追加】プレビューがなく、テキストエリアに文字がある場合（セリフ抽出時など）
-  else if (textArea && textArea.value.trim() !== "") {
-    let isInCommentTextArea = false;
-
-    // 事前チェックの結果 (hasAnyHeroineDef) が true の場合のみインデントを検討する
-    textArea.value.split('\n').forEach(rawLine => {
-      let text = rawLine.trim();
-
-      // コメントブロック判定
-      if (text.includes("%%%")) {
-        const count = (text.match(/%%%/g) || []).length;
-        if (count === 1) isInCommentTextArea = !isInCommentTextArea;
-      }
-
-      if (text !== "") {
-        const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
-        const isTrackBorder = text.includes("＝＊＝") || text.includes("トラック") || text.includes("Track");
-
-        // 【改良】台本全体にキャラ名定義があり、かつ除外行ではない場合のみタブを挿入
-        if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isInCommentTextArea && !text.includes("%%%")) {
-          text = "\t" + text;
-        }
-      }
-
-      lines.push({
-        text: text,
-        color: "000000",
-        highlight: null
-      });
-    });
-  }
-
-  if (lines.length === 0) return alert("出力する内容がありません。");
-
-  const { Document, Packer, Paragraph, TextRun } = docx;
-
-  const doc = new Document({
-    sections: [{
-      properties: {
-        page: {
-          margin: {
-            top: 1985, // 35.01mm
-            bottom: 1701, // 30mm
-            left: 1701, // 30mm
-            right: 1701, // 30mm
-          },
-        },
-      },
-      children: lines.map(line => {
-        const isBlank = !line.text || line.text === "";
-
-        return new Paragraph({
-          spacing: { line: 480, before: 0, after: 0 },
-          // 【修正ポイント2】空白行なら空のchildrenを返し、
-          // 文字がある場合のみTextRunを生成する。これで余計なスペースが入らない
-          children: isBlank ? [] : (() => {
-            const runs = [];
-
-            // 1. タブが含まれているかチェック
-            if (line.text.startsWith("\t")) {
-              // 先頭のタブだけを背景色なしで追加
-              runs.push(new TextRun({
-                text: "\t",
-                size: 22,
-                font: { eastAsia: "Yu Mincho", hint: "eastAsia" },
-              }));
-            }
-
-            // 2. 本文を追加（タブを除いた残り）
-            const contentText = line.text.replace(/^\t/, "");
-            runs.push(new TextRun({
-              text: contentText,
-              color: line.color,
-              bold: line.bold,
-              shading: line.highlight ? {
-                type: docx.ShadingType.CLEAR,
-                color: "auto",
-                fill: line.highlight,
-              } : undefined,
-              size: 22,
-              font: { eastAsia: "Yu Mincho", hint: "eastAsia" },
-            }));
-
-            return runs;
-          })(),
-        });
-      }),
-    }],
-  });
-
-  const blob = await Packer.toBlob(doc);
-  saveAs(blob, `台本出力_${new Date().getTime()}.docx`);
-}
-
-function rgbToHex(rgb) {
-  if (!rgb || rgb === 'rgba(0, 0, 0, 0)' || rgb === 'transparent') return null;
-  const res = rgb.match(/\d+/g);
-  if (!res) return null;
-  return res.slice(0, 3).map(x => {
-    const hex = parseInt(x).toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  }).join('').toUpperCase();
-}
-
-//=====================================
-//　Word縦書き出力
-//=====================================
 // 共通：画面からデータを解析して配列で返す
 async function getParsedScriptLines() {
   let preview = null;
@@ -2327,6 +2144,34 @@ async function getParsedScriptLines() {
 
   if (lines.length === 0) return alert("出力する内容がありません。");
   return lines;
+}
+
+function rgbToHex(rgb) {
+  if (!rgb || rgb === 'rgba(0, 0, 0, 0)' || rgb === 'transparent') return null;
+  const res = rgb.match(/\d+/g);
+  if (!res) return null;
+  return res.slice(0, 3).map(x => {
+    const hex = parseInt(x).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('').toUpperCase();
+}
+
+// 判定して適切な関数を呼ぶラッパー
+async function handleWordExport() {
+  const mode = document.querySelector('input[name="wordMode"]:checked').value;
+
+  if (mode === 'v') {
+    await exportWordVertical(); // 縦書き用（濁点ずらし版）
+  } else {
+    await exportWordHorizontal();       // 既存の横書き版
+  }
+}
+
+// 共通部品：濁点ずらし
+function fixVoicedSoundMark(text) {
+  if (!text) return "";
+  let normalized = text.replace(/ﾞ/g, '゛');
+  return normalized.replace(/(.)(゛)/g, '$2$1');
 }
 
 // 濁点を一文字前にずらすJS関数

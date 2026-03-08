@@ -109,14 +109,15 @@
             </span>
           </div>
           <textarea id="textCheck" placeholder="チェックの結果が出力されます"></textarea>
+          <div style="margin: 10px 0; font-size: 14px;">
+            <label><input type="radio" name="wordMode" value="h" checked> 通常（横書き）</label>
+            <label style="margin-left: 10px;"><input type="radio" name="wordMode" value="v"> 縦書き用（濁点ずらし）</label>
+          </div>
+          <button class="btn-primary" onclick="handleWordExport()">Word出力</button>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
           <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-            <button class="btn-primary" onclick="exportWordHorizontal()">Word出力</button>
             <span class="tooltip" data-tooltip="上の「ヒロイン名設定」で全キャラの名前を設定してください。">
               <button class="btn-primary" onclick="exportAllHeroinesToWord()">キャラ別Word出力</button>
-            </span>
-            <span class="tooltip" data-tooltip="「゛」をずらして出力するものです。出力データを手動で縦書きの書式にしてください。">
-              <button class="btn-primary" onclick="exportWordVertical()">縦書き用Word</button>
             </span>
             <button class="btn-primary" onclick="exportTextAreaToTxt('textMulti', '複数人整形')">txt出力</button>
             <button class="btn-danger" onclick="clearData('multi')">データクリア</button>
