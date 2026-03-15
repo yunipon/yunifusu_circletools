@@ -22,7 +22,7 @@
 
   <div class="footer-bottom">
     <div class="footer-links">
-      <a href="/page-help/privacy.php" style="color: #ccc; text-decoration: none; font-size: 11px;">プライバシーポリシー</a>
+      <a href="/page-help/privacy.php" style="color: #ccc; text-decoration: none; font-size: 11px;">プライバシーポリシー・免責事項</a>
     </div>
     <div class="copyright" style="padding: 10px;">
       &copy; 2026 yunifusu. All Rights Reserved.
