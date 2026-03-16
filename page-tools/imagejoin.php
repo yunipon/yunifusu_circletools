@@ -90,7 +90,7 @@
   <?php include __DIR__ . '/../menu.php'; ?>
 
   <div class="tool-container">
-    <h2>縦長画像連結ツール</h2>
+    <h2>複数画像連結ツール</h2>
 
     <div class="upload-area" id="dropZone">
       <p>画像をここにドラッグ＆ドロップ<br>またはクリックで選択</p>

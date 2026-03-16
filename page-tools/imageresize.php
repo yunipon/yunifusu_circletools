@@ -123,7 +123,8 @@
   <?php include __DIR__ . '/../menu.php'; ?>
 
   <div class="tool-container">
-    <h2>画像一括リサイズ（JPEG保存）</h2>
+    <h2>画像一括リサイズ&トリミング（JPEG保存）</h2>
+    <div style="font-size: small; margin-bottom: 10px;">アップロード後に各画像を500×500pxの正方形にトリミングもできます💡</div>
 
     <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 20px;">
       <label><input type="radio" name="sizeSelect" value="small" checked onchange="updateTargetSize()"> 560×420</label>

@@ -31,7 +31,7 @@
       </div>
     </div>
     <details class="card" open>
-      <summary style="margin-bottom: 10px; font-weight: bold; color: #2c3e50; font-size: 0.9rem; background: white;">📋 クイックコピー</summary>
+      <summary style="margin-bottom: 10px; font-weight: bold; color: #2c3e50; font-size: 0.9rem; background: white;">📋 クイックコピー（ここに出ているものを使用すると綺麗に色分けできます。）</summary>
       <div id="copyPalette" style="display: flex; flex-wrap: wrap; gap: 8px;">
         <button class="btn-copy btn-symbol" onclick="copyToClipboard('゛')">゛</button>
         <button class="btn-copy btn-symbol" onclick="copyToClipboard('♡')">♡</button>
@@ -130,8 +130,49 @@
       </div>
       <div class="editor-right">
         <div class="card">
-          <h4>プレビュー（既定の書式設定で固定しています）</h4>
+          <h4>プレビュー（規定の書式設定で固定しています）</h4>
           <div id="previewAreaMulti" class="preview-box"></div>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+          <h4>文章ルールサンプル</h4>
+          <div>
+            <p style="color: #000000;  font-weight: bold;">＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝</p>
+            <p style="color: #000000;  font-weight: bold;">トラック</p>
+            <p style="color: #000000;  font-weight: bold;">＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝</p>
+            <p style="color: #666666;">%%%
+            <p style="color: #666666;">ここはメモ欄です　←灰色の文字</p>
+            <p style="color: #666666;">ここに記載しているものはセリフのみ抽出のツールでまとめて削除されます。</p>
+            <p style="color: #666666;">%%%</p>
+            <p style="background-color: #E0E0E0; color: #000000;">◆SE：　ここから/ここまで　←灰色ハイライト</p>
+            <p style="color: #000000;">◆SE方向：　←距離感や方向など、演出上特別指定したいものがあれば（希望は通らない可能性もあります）　←無地</p>
+            <p style="background-color: #E0E0E0; color: #000000;">■編集：　ここから/ここまで　←SEと同じ色になります（黒文字+灰色ハイライト）</p>
+            <p style="background-color: #FFFF00; color: #000000;">【同時：　　ここから/ここまで】　←黄色ハイライト</p>
+            <p style="color: #000000;">※補足：特記事項・間を開ける指示とか　←無地</p>
+            <p style="color: #000000;">《状況：》　←無地</p>
+            <p style="color: #E50000; font-weight: bold;">//キャラ名：　話者の指定　←キャラ文字色</p>
+            <p style="color: #E50000; font-weight: bold;">◇音声：方向　距離　（ささやきの場合　有声/無声）　トラックの最初＆位置移動の時のみ　←キャラ文字色</p>
+            <p style="color: #E50000; font-weight: bold;">□演技：　　（ここから/ここまで）範囲指定はしてもしなくてもOK　←キャラ文字色</p>
+            <p style="color: #E50000; font-weight: bold;">＊　〜〜〜　秒/回　←キャラ文字色</p>
+            <p style="background-color: #FFDADA; color: #E50000;">（キャラ名｜ループ：　ここから）←各キャラの文字色&ハイライトになります）</p>
+            <p style="color: #E50000;">セリフ：　←キャラ文字色</p>
+            <p style="color: #000000;">()：補足　ふりがな、行為名（フェラ）　とか　←無地</p>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+          <div>
+            <p style="color: #000000;  font-weight: bold;">⚠️複数人台本のキャラ色の切り替え</p>
+            <p style="color: #E50000; font-weight: bold;">//キャラ名A：</p>
+            <p style="color: #E50000;">が出てきたらその行以降は「キャラA」の指示として認識されます。</p>
+            <p>&nbsp;</p>
+            <p style="color: #E50000;">↑空白行や</p>
+            <p style="background-color: #E0E0E0; color: #000000;">◆SE：　などの</p>
+            <p style="color: #E50000;">ト書き指示などが途中に挟まっても大丈夫。</p>
+            <p style="color: #0000FF; font-weight: bold;">//キャラ名B：</p>
+            <p style="color: #0000FF;">が出てきた段階で切り替わります。</p>
+            <p style="color: #000000;  font-weight: bold;">＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝</p>
+            <p style="color: #0000FF;">【例外】</p>
+            <p style="background-color: #FFDADA; color: #E50000;">（キャラA｜ループ：〇〇　ここから/ここまで）</p>
+            <p style="color: #0000FF;">のみ例外的に単一行でキャラクター判定を行います。</p>
+          </div>
         </div>
       </div>
     </div>
