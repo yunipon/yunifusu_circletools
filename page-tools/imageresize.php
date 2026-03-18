@@ -121,49 +121,49 @@
 
 <body>
   <?php include __DIR__ . '/../menu.php'; ?>
+  <main class="main-content">
+    <div class="tool-container">
+      <h2>画像一括リサイズ&トリミング（JPEG保存）</h2>
+      <div style="font-size: small; margin-bottom: 10px;">アップロード後に各画像を500×500pxの正方形にトリミングもできます💡</div>
 
-  <div class="tool-container">
-    <h2>画像一括リサイズ&トリミング（JPEG保存）</h2>
-    <div style="font-size: small; margin-bottom: 10px;">アップロード後に各画像を500×500pxの正方形にトリミングもできます💡</div>
-
-    <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 20px;">
-      <label><input type="radio" name="sizeSelect" value="small" checked onchange="updateTargetSize()"> 560×420</label>
-      <label><input type="radio" name="sizeSelect" value="large" onchange="updateTargetSize()"> 1600×1200</label>
-      <?php //<label><input type="radio" name="sizeSelect" value="square" onchange="updateTargetSize()"> 500×500 (位置調整)</label> 
-      ?>
-    </div>
-
-    <div class="upload-area" id="dropZone">
-      <p id="dropText">画像をここにドラッグ＆ドロップ（最大10枚）<br>またはクリックで選択</p>
-      <input type="file" id="imageInput" accept="image/*" multiple style="display:none;">
-    </div>
-
-    <div id="squareAdjustArea" style="display:none; margin-bottom: 30px; padding: 20px; border: 2px solid var(--accent-color); border-radius: 12px; background: #f0f8ff;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h3 style="margin: 0; font-size: 16px;">正方形トリミング: <span id="editingFileName" style="font-weight: normal;"></span></h3>
-        <button onclick="closeSquareEditor()" style="background:none; border:none; cursor:pointer; color:#666;">✖ 閉じる</button>
+      <div style="margin-bottom: 20px; display: flex; justify-content: center; gap: 20px;">
+        <label><input type="radio" name="sizeSelect" value="small" checked onchange="updateTargetSize()"> 560×420</label>
+        <label><input type="radio" name="sizeSelect" value="large" onchange="updateTargetSize()"> 1600×1200</label>
+        <?php //<label><input type="radio" name="sizeSelect" value="square" onchange="updateTargetSize()"> 500×500 (位置調整)</label> 
+        ?>
       </div>
 
-      <div style="margin: 10px auto; width: 500px; display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 12px;">縮小</span>
-        <input type="range" id="zoomRange" min="1" max="3" step="0.01" value="1" style="flex: 1;">
-        <span style="font-size: 12px;">拡大</span>
+      <div class="upload-area" id="dropZone">
+        <p id="dropText">画像をここにドラッグ＆ドロップ（最大10枚）<br>またはクリックで選択</p>
+        <input type="file" id="imageInput" accept="image/*" multiple style="display:none;">
       </div>
 
-      <div id="cropWindow" style="width: 500px; height: 500px; margin: 0 auto; overflow: hidden; border: 1px solid #ccc; position: relative; cursor: move; background: #ddd;">
-        <img id="cropImg" style="position: absolute; top: 0; left: 0; max-width: none;">
+      <div id="squareAdjustArea" style="display:none; margin-bottom: 30px; padding: 20px; border: 2px solid var(--accent-color); border-radius: 12px; background: #f0f8ff;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="margin: 0; font-size: 16px;">正方形トリミング: <span id="editingFileName" style="font-weight: normal;"></span></h3>
+          <button onclick="closeSquareEditor()" style="background:none; border:none; cursor:pointer; color:#666;">✖ 閉じる</button>
+        </div>
+
+        <div style="margin: 10px auto; width: 500px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 12px;">縮小</span>
+          <input type="range" id="zoomRange" min="1" max="3" step="0.01" value="1" style="flex: 1;">
+          <span style="font-size: 12px;">拡大</span>
+        </div>
+
+        <div id="cropWindow" style="width: 500px; height: 500px; margin: 0 auto; overflow: hidden; border: 1px solid #ccc; position: relative; cursor: move; background: #ddd;">
+          <img id="cropImg" style="position: absolute; top: 0; left: 0; max-width: none;">
+        </div>
+        <button id="processBtn" onclick="downloadSquareImage()" style="margin-top:15px; width: 500px; background-color: var(--primary-color);">この位置で正方形保存（500×500 px）</button>
       </div>
-      <button id="processBtn" onclick="downloadSquareImage()" style="margin-top:15px; width: 500px; background-color: var(--primary-color);">この位置で正方形保存（500×500 px）</button>
+
+      <div id="status"></div>
+
+      <div id="previewArea" class="preview-container">
+        <button id="processBtn" onclick="downloadAllImages()" style="margin-bottom:20px;">すべての画像を保存</button>
+        <div id="canvasContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+      </div>
     </div>
-
-    <div id="status"></div>
-
-    <div id="previewArea" class="preview-container">
-      <button id="processBtn" onclick="downloadAllImages()" style="margin-bottom:20px;">すべての画像を保存</button>
-      <div id="canvasContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
-    </div>
-  </div>
-
+  </main>
   <?php include __DIR__ . '/../footer.php'; ?>
 
   <script>

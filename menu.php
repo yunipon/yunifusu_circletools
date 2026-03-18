@@ -30,6 +30,7 @@
       <summary class="section-title">サブツール</summary>
       <a href="/page-tools/imagejoin.php" class="nav-item">画像連結</a>
       <a href="/page-tools/imageresize.php" class="nav-item">画像リサイズ&トリミング</a>
+      <a href="/page-tools/graffiti.php" class="nav-item">画像らくがき</a>
       <a href="/page-tools/bpmtest.php" class="nav-item">BPMスピードテスト</a>
     </details>
   </nav>

@@ -88,25 +88,25 @@
 
 <body>
   <?php include __DIR__ . '/../menu.php'; ?>
+  <main class="main-content">
+    <div class="tool-container">
+      <h2>複数画像連結ツール</h2>
 
-  <div class="tool-container">
-    <h2>複数画像連結ツール</h2>
+      <div class="upload-area" id="dropZone">
+        <p>画像をここにドラッグ＆ドロップ<br>またはクリックで選択</p>
+        <input type="file" id="imageInput" multiple accept="image/*" style="display:none;">
+      </div>
 
-    <div class="upload-area" id="dropZone">
-      <p>画像をここにドラッグ＆ドロップ<br>またはクリックで選択</p>
-      <input type="file" id="imageInput" multiple accept="image/*" style="display:none;">
+      <button id="processBtn" onclick="processImages()">画像を連結して保存</button>
+
+      <div id="status"></div>
+
+      <div class="note">
+        ※ すべての画像を同じ横幅に調整し、縦に連結します。<br>
+        ※ 自動でリサイズし、ファイルサイズを2MB以下に抑えます。
+      </div>
     </div>
-
-    <button id="processBtn" onclick="processImages()">画像を連結して保存</button>
-
-    <div id="status"></div>
-
-    <div class="note">
-      ※ すべての画像を同じ横幅に調整し、縦に連結します。<br>
-      ※ 自動でリサイズし、ファイルサイズを2MB以下に抑えます。
-    </div>
-  </div>
-
+  </main>
   <?php include __DIR__ . '/../footer.php'; ?>
 
   <script>
