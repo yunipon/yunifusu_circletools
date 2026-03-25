@@ -133,7 +133,9 @@
           <h4>プレビュー（規定の書式設定で固定しています）</h4>
           <div id="previewAreaMulti" class="preview-box"></div>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-          <h4>文章ルールサンプル</h4>
+          <h4>文章ルールサンプル　
+            <a href="https://docs.google.com/document/d/1b_lHI0iIr8ZJAqy_hhZRsqsbeL9PVfbV2v_C87LZ10o/edit?usp=sharing" target="_blank">記載例はこちら</a>
+          </h4>
           <div>
             <p style="color: #000000;  font-weight: bold;">＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝</p>
             <p style="color: #000000;  font-weight: bold;">トラック</p>
