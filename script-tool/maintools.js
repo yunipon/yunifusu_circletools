@@ -1238,6 +1238,7 @@ function removeAllBlankLines(targetId) {
 /**
  * 指定されたtextarea内の空白行（空または空白のみの行）を削除（改行は保持）
  */
+
 function removeBlankLinesOnly(targetId, displayAreaId = null) {
   const area = document.getElementById(targetId);
   if (!area || !area.value) return;
