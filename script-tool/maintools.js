@@ -1235,6 +1235,39 @@ function removeAllBlankLines(targetId) {
   areabefore.dispatchEvent(new Event('input'));
 }
 
+/**
+ * 指定されたtextarea内の空白行（空または空白のみの行）を削除（改行は保持）
+ */
+function removeBlankLinesOnly(targetId, displayAreaId = null) {
+  const area = document.getElementById(targetId);
+  if (!area || !area.value) return;
+
+  // 1. 行単位に分割
+  const lines = area.value.split('\n');
+
+  // 2. 空白行（空文字列、または空白のみ）を削除
+  const filteredLines = lines.filter(line => line.trim() !== '');
+
+  // 3. 改行で再結合
+  const result = filteredLines.join('\n');
+  area.value = result;
+
+  // 4. 文字数カウントを更新（targetIdに対応するカウント表示IDを自動判定）
+  const countIdMap = {
+    'textExtract': 'countExtract',
+    'textExtractBefore': 'countExtractBefore',
+    'textFormat': 'countFormat',
+    'textMulti': 'countMulti'
+  };
+  const countId = countIdMap[targetId] || displayAreaId;
+  if (countId) {
+    updateCharCount(targetId, countId);
+  }
+
+  // 5. 自動保存実行
+  area.dispatchEvent(new Event('input'));
+}
+
 function updatePlotCharCount(textarea, displayId) {
   const display = document.getElementById(displayId);
   if (display) {
