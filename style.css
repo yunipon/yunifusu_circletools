@@ -587,6 +587,11 @@ textarea {
 }
 
 .preview-box {
+  /*
+  全角計算37文字で改行されるように最大幅を設定
+  Wordの遊ゴシック11ptが全角あが38文字入る横幅であるため。
+  */
+  max-width: 580px;
   background: #fff;
   border: 1px solid #ddd;
   padding: 15px;
