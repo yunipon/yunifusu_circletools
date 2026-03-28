@@ -1692,12 +1692,11 @@ function addPlotTrack() {
   div.style = "border-left-color: #e67e22; margin-bottom: 15px;";
 
   div.innerHTML = `
-    <div style="margin-bottom: 10px;">
-      <strong class="track-number">
-        Track ${String(currentCount).padStart(2, '0')}
-      </strong>
+    <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <label style="white-space: nowrap;">Track番号 <span style="color: red;">*</span></label>
+      <input type="text" class="p-t-num" value="${String(currentCount).padStart(2, '0')}" placeholder="01" style="width: 70px; box-sizing: border-box;" required>
       <label>タイトル <span style="color: red;">*</span></label>
-      <input type="text" class="p-t-title" placeholder="トラックタイトル" style="width: 100%; margin-top: 5px; box-sizing: border-box;" required>
+      <input type="text" class="p-t-title" placeholder="トラックタイトル" style="flex: 1 1 auto; min-width: 180px; margin-top: 5px; box-sizing: border-box;" required>
     </div>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
@@ -1727,6 +1726,19 @@ function addPlotTrack() {
     </button>
   `;
   container.appendChild(div);
+}
+
+function reindexTracks() {
+  const tracks = document.querySelectorAll('#plot-tracks .plot-track-item');
+  tracks.forEach((t, i) => {
+    const numberInput = t.querySelector('.p-t-num');
+    if (numberInput) {
+      const val = numberInput.value.trim();
+      if (!val) {
+        numberInput.value = String(i + 1).padStart(2, '0');
+      }
+    }
+  });
 }
 
 // ==========================================
@@ -1799,7 +1811,13 @@ function generatePlotText() {
     const tTitle = t.querySelector('.p-t-title')?.value.trim();
     if (!tTitle) return; // タイトルがないトラックはスキップ
 
-    const num = String(i + 1).padStart(2, '0');
+    let num = t.querySelector('.p-t-num')?.value.trim();
+    if (!num) {
+      num = String(i + 1).padStart(2, '0');
+    } else if (/^\d+$/.test(num)) {
+      num = String(Number(num)).padStart(2, '0');
+    }
+    // 非数字文字列はそのまま維持（アルファベットや記号も可）
     const tPlay = t.querySelector('.p-t-play')?.value.trim();
     const tChars = t.querySelector('.p-t-chars')?.value.trim();
     const tLen = t.querySelector('.p-t-len')?.value.trim();
@@ -1968,12 +1986,13 @@ function parseAndFillPlot(text) {
     else if (line.startsWith('・Track')) {
       addPlotTrack();
       const card = document.querySelector('#plot-tracks .plot-track-item:last-child');
-      const trackRegex = /Track\d+：(.*?)(?:（(.*?)）)?(?:\s*＜(.*?)＞)?$/;
+      const trackRegex = /Track([^：]+)：(.*?)(?:（(.*?)）)?(?:\s*＜(.*?)＞)?$/;
       const match = line.match(trackRegex);
       if (match) {
-        card.querySelector('.p-t-title').value = match[1]?.trim() || '';
-        card.querySelector('.p-t-play').value = match[2]?.trim() || '';
-        card.querySelector('.p-t-chars').value = match[3]?.trim() || '';
+        card.querySelector('.p-t-num').value = match[1]?.trim() || '';
+        card.querySelector('.p-t-title').value = match[2]?.trim() || '';
+        card.querySelector('.p-t-play').value = match[3]?.trim() || '';
+        card.querySelector('.p-t-chars').value = match[4]?.trim() || '';
       }
 
       let k = i + 1;
