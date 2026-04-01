@@ -1352,6 +1352,7 @@ const getLineType = (line) => {
   if (trimmed.startsWith('※')) return 'comp';
   if (trimmed.startsWith('%%%')) return 'comme';
   if (trimmed.startsWith('＊')) return 'ad';
+  if (trimmed.startsWith('《')) return 'situation';
 
   // ◆ と ■ を同じ種類 'se' としてグループ化
   if (trimmed.startsWith('◆') || trimmed.startsWith('■')) return 'se';
