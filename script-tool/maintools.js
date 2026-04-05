@@ -1526,6 +1526,15 @@ function renderHeroineInputs() {
 
 function addHeroineInput() { if (heroineCount < 10) { heroineCount++; renderHeroineInputs(); } }
 
+function clearHeroineNames() {
+  const inputs = document.querySelectorAll('#heroineInputs .heroine-name');
+  inputs.forEach((input) => {
+    input.value = "";
+    triggerSave(input);
+  });
+  runMultiPreview();
+}
+
 // ==========================================
 // 複数ヒロイン設定
 // キャラ毎の台本出力

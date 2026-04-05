@@ -28,6 +28,11 @@
           <span class="material-symbols-outlined" style="font-size: 1.2rem;">person_search</span>
           本文から名前を取得
         </button>
+
+        <button type="button" onclick="clearHeroineNames()" class="btn-danger" style="margin: 0; display: flex; align-items: center; gap: 4px; height: 100%;">
+          ヒロイン名をクリア
+        </button>
+
       </div>
     </div>
     <details class="card" open>
