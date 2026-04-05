@@ -21,7 +21,7 @@
       <div id="heroineInputs" class="heroine-grid"></div>
       <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
         <button type="button" id="addHeroineBtn" class="btn-primary" onclick="addHeroineInput()" style="margin: 0;">
-          + 人数を追加 (最5名)
+          + 人数を追加 (最大10名)
         </button>
 
         <button type="button" onclick="autoFillHeroineNames()" class="btn-secondary" style="margin: 0; display: flex; align-items: center; gap: 4px; height: 100%;">

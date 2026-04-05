@@ -1,11 +1,30 @@
 // ==========================================
 // 1. グローバル設定・定数
 // ==========================================
-const heroineColors = ["#E50000", "#0000FF", "#008000", "#8A2BE2", "#D2691E"];
+const heroineColors = [
+  "#E50000", // 赤
+  "#0000FF", // 青
+  "#008000", // 緑
+  "#8A2BE2", // 紫
+  "#D2691E", // 茶
+  "#FF1493", // ピンク
+  "#00CED1", // ターコイズ
+  "#FFD700", // ゴールド
+  "#FF8C00", // オレンジ
+  "#2F4F4F"  // ダークグレー
+];
+
 const heroineColorPairs = [
-  { fg: "#E50000", bg: "#FFDADA" }, { fg: "#0000FF", bg: "#D1F5FF" },
-  { fg: "#008000", bg: "#D1FFD1" }, { fg: "#8A2BE2", bg: "#E6D1FF" },
-  { fg: "#D2691E", bg: "#F5E0D1" }, { fg: "#666666", bg: "#E0E0E0" }
+  { fg: "#E50000", bg: "#FFDADA" },
+  { fg: "#0000FF", bg: "#D1F5FF" },
+  { fg: "#008000", bg: "#D1FFD1" },
+  { fg: "#8A2BE2", bg: "#E6D1FF" },
+  { fg: "#D2691E", bg: "#F5E0D1" },
+  { fg: "#FF1493", bg: "#FFD6EC" },
+  { fg: "#00CED1", bg: "#D6F7F9" },
+  { fg: "#FFD700", bg: "#FFF5CC" },
+  { fg: "#FF8C00", bg: "#FFE5CC" },
+  { fg: "#2F4F4F", bg: "#DDE5E5" }
 ];
 
 let extractRules = [], formatRules = [], multiRules = [];
@@ -477,7 +496,7 @@ function autoFillHeroineNames() {
     if (name && !matches.includes(name)) {
       matches.push(name);
     }
-    if (matches.length >= 5) break;
+    if (matches.length >= 10) break;
   }
 
   // 入力欄を取得してセット
@@ -1496,7 +1515,7 @@ function renderHeroineInputs() {
   }
 }
 
-function addHeroineInput() { if (heroineCount < 5) { heroineCount++; renderHeroineInputs(); } }
+function addHeroineInput() { if (heroineCount < 10) { heroineCount++; renderHeroineInputs(); } }
 
 // ==========================================
 // 複数ヒロイン設定
