@@ -26,7 +26,7 @@ const defaultExtract = [
 
 const defaultFormat = [
   { label: 'トラック装飾の削除', pattern: '^＝＊＝.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
-  { label: 'コメント｜%%% ~ %%%', pattern: 'format_comment', active: true, bgColor: 'none', fgColor: '#666666', bold: false, fontSize: '11', isSpecial: true },
+  { label: 'コメント｜%%% ~ %%%', pattern: 'format_comment', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11', isSpecial: true },
   { label: 'トラック名｜トラック or Track or ＴＲＡＣＫ', pattern: '^(トラック|Track|ＴＲＡＣＫ)', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: 'SE指示｜◆SE：〇〇　ここから/ここまで', pattern: '^◆SE：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
   { label: 'SE指示方向｜◆SE方向：｜必要であれば使用', pattern: '^◆SE方向：.*', active: true, bgColor: 'none', fgColor: '#000000', bold: false, fontSize: '11' },
