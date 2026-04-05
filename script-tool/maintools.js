@@ -1135,6 +1135,117 @@ function updateCharacterDialogueCounts() {
   }
 }
 
+function formatNumberWithComma(value) {
+  return Number(value).toLocaleString('ja-JP');
+}
+
+function formatPercent(part, total) {
+  if (!total) return '0%';
+  const percent = (part / total) * 100;
+  return `${percent.toFixed(1).replace(/\.0$/, '')}%`;
+}
+
+function parseTrackTitle(line, index) {
+  const cleaned = line.replace(/＝＊＝/g, '').replace(/[\s　]+/g, ' ').trim();
+  const match = cleaned.match(/(トラック|ＴＲＡＣＫ|Track)(.*)/i);
+  if (!match) {
+    return `トラック${String(index).padStart(2, '0')}`;
+  }
+
+  const suffix = match[2].trim();
+  if (!suffix) {
+    return `トラック${String(index).padStart(2, '0')}`;
+  }
+
+  return `${match[1]}${suffix}`;
+}
+
+function extractTrackSections(inputText) {
+  const lines = inputText.split(/\r?\n/);
+  const trackPattern = /^(トラック|ＴＲＡＣＫ|Track)/i;
+  const sections = [];
+  let current = null;
+  let trackIndex = 0;
+  let isInCommentBlock = false;
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (trimmed.includes('%%%')) {
+      const count = (trimmed.match(/%%%/g) || []).length;
+      if (count % 2 === 1) {
+        isInCommentBlock = !isInCommentBlock;
+      }
+    }
+
+    if (!isInCommentBlock && trackPattern.test(trimmed)) {
+      trackIndex += 1;
+      if (current) {
+        sections.push(current);
+      }
+      current = {
+        title: parseTrackTitle(trimmed, trackIndex),
+        text: ''
+      };
+      return;
+    }
+
+    if (current) {
+      current.text += `${line}\n`;
+    }
+  });
+
+  if (current) {
+    sections.push(current);
+  }
+
+  if (sections.length === 0) {
+    sections.push({ title: 'トラック01', text: inputText });
+  }
+
+  return sections;
+}
+
+function countCharactersByTrack() {
+  const textareaIds = ['textFormat', 'textMulti'];
+  let textarea = null;
+  for (const id of textareaIds) {
+    const el = document.getElementById(id);
+    if (el && el.value.trim() !== '') {
+      textarea = el;
+      break;
+    }
+  }
+
+  if (!textarea) {
+    alert('台本を入力してください。');
+    return;
+  }
+
+  const outputArea = document.getElementById('textCheck');
+  if (!outputArea) return;
+
+  const inputText = textarea.value;
+  const overallStats = analyzeDialogueData(inputText);
+  const sections = extractTrackSections(inputText);
+  let result = '';
+  let cumulativeTotal = 0;
+
+  sections.forEach((section) => {
+    const sectionStats = analyzeDialogueData(section.text);
+    const names = Object.keys(sectionStats.byCharacter).sort((a, b) => sectionStats.byCharacter[b] - sectionStats.byCharacter[a]);
+    cumulativeTotal += sectionStats.total;
+
+    const characterParts = names.length > 0
+      ? names.map(name => `${name}:${formatNumberWithComma(sectionStats.byCharacter[name])}`).join(' ')
+      : 'なし';
+
+    result += `※${section.title}｜${formatNumberWithComma(sectionStats.total)}文字（${formatPercent(sectionStats.total, overallStats.total)}）｜${characterParts}｜累計:${formatNumberWithComma(cumulativeTotal)}/${formatNumberWithComma(overallStats.total)}（${formatPercent(cumulativeTotal, overallStats.total)}）\n`;
+  });
+
+  outputArea.value = result.trim();
+  outputArea.dispatchEvent(new Event('input'));
+}
+
 // ==========================================
 // セリフカウント詳細
 // ==========================================

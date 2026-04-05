@@ -95,6 +95,9 @@
               <span class="tooltip" data-tooltip="「＊」から始まるアドリブ指示を抽出します">
                 <button class="btn-secondary" onclick="extractAdlibCommands()">「＊」抽出</button>
               </span>
+              <span class="tooltip" data-tooltip="各トラックのセリフ文字数の内訳を表示します。">
+                <button class="btn-secondary" onclick="countCharactersByTrack()">文字数詳細</button>
+              </span>
             </div>
             <textarea id="textCheck" placeholder="チェックの結果が出力されます"></textarea>
             <div style="margin: 10px 0; font-size: 14px;">
