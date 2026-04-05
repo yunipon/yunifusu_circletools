@@ -1258,16 +1258,35 @@ function countCharactersByTrack() {
   let result = '';
   let cumulativeTotal = 0;
 
+  // heroineInputs から順番を取得
+  let heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
+  let orderedHeroineNames = Array.from(heroineInputs).map(i => i.value.trim()).filter(n => n !== "");
+
+  // 全体の統計を最初に追加
+  const allOverallNames = Object.keys(overallStats.byCharacter);
+  const orderedOverallNames = orderedHeroineNames.filter(name => allOverallNames.includes(name));
+  const remainingOverallNames = allOverallNames.filter(name => !orderedHeroineNames.includes(name)).sort((a, b) => overallStats.byCharacter[b] - overallStats.byCharacter[a]);
+  const overallNames = [...orderedOverallNames, ...remainingOverallNames];
+  const overallCharacterParts = overallNames.length > 0
+    ? overallNames.map(name => `${name}：${formatNumberWithComma(overallStats.byCharacter[name])}`).join('｜')
+    : 'なし';
+  result += `・全体｜${formatNumberWithComma(overallStats.total)}文字\n　${overallCharacterParts}\n\n`;
+
   sections.forEach((section) => {
     const sectionStats = analyzeDialogueData(section.text);
-    const names = Object.keys(sectionStats.byCharacter).sort((a, b) => sectionStats.byCharacter[b] - sectionStats.byCharacter[a]);
+    const allNames = Object.keys(sectionStats.byCharacter);
+    const orderedNames = orderedHeroineNames.filter(name => allNames.includes(name));
+    const remainingNames = allNames.filter(name => !orderedHeroineNames.includes(name)).sort((a, b) => sectionStats.byCharacter[b] - sectionStats.byCharacter[a]);
+    const names = [...orderedNames, ...remainingNames];
     cumulativeTotal += sectionStats.total;
 
     const characterParts = names.length > 0
-      ? names.map(name => `${name}:${formatNumberWithComma(sectionStats.byCharacter[name])}`).join(' ')
+      ? names.map(name => `${name}：${formatNumberWithComma(sectionStats.byCharacter[name])}`).join('｜')
       : 'なし';
 
-    result += `${section.title}｜${formatNumberWithComma(sectionStats.total)}文字（${formatPercent(sectionStats.total, overallStats.total)}）｜${characterParts}｜累計:${formatNumberWithComma(cumulativeTotal)}/${formatNumberWithComma(overallStats.total)}（${formatPercent(cumulativeTotal, overallStats.total)}）\n`;
+    //result += `・${section.title}｜${formatNumberWithComma(sectionStats.total)}文字（${formatPercent(sectionStats.total, overallStats.total)}）｜累計:${formatNumberWithComma(cumulativeTotal)}（${formatPercent(cumulativeTotal, overallStats.total)}）\n　→${characterParts}\n`;
+
+    result += `・${section.title}｜${formatNumberWithComma(sectionStats.total)}文字｜累計:${formatNumberWithComma(cumulativeTotal)}（${formatPercent(cumulativeTotal, overallStats.total)}）→${characterParts}\n`;
   });
 
   outputArea.value = result.trim();
