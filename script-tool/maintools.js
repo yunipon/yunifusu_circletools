@@ -1286,7 +1286,7 @@ function countCharactersByTrack() {
 
     //result += `・${section.title}｜${formatNumberWithComma(sectionStats.total)}文字（${formatPercent(sectionStats.total, overallStats.total)}）｜累計:${formatNumberWithComma(cumulativeTotal)}（${formatPercent(cumulativeTotal, overallStats.total)}）\n　→${characterParts}\n`;
 
-    result += `・${section.title}｜${formatNumberWithComma(sectionStats.total)}文字｜累計:${formatNumberWithComma(cumulativeTotal)}（${formatPercent(cumulativeTotal, overallStats.total)}）→${characterParts}\n`;
+    result += `・${section.title}｜${formatNumberWithComma(sectionStats.total)}文字｜累計：${formatNumberWithComma(cumulativeTotal)}（${formatPercent(cumulativeTotal, overallStats.total)}）→${characterParts}\n`;
   });
 
   outputArea.value = result.trim();
