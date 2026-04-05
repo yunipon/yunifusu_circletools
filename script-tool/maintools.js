@@ -1239,7 +1239,7 @@ function countCharactersByTrack() {
       ? names.map(name => `${name}:${formatNumberWithComma(sectionStats.byCharacter[name])}`).join(' ')
       : 'なし';
 
-    result += `※${section.title}｜${formatNumberWithComma(sectionStats.total)}文字（${formatPercent(sectionStats.total, overallStats.total)}）｜${characterParts}｜累計:${formatNumberWithComma(cumulativeTotal)}/${formatNumberWithComma(overallStats.total)}（${formatPercent(cumulativeTotal, overallStats.total)}）\n`;
+    result += `${section.title}｜${formatNumberWithComma(sectionStats.total)}文字（${formatPercent(sectionStats.total, overallStats.total)}）｜${characterParts}｜累計:${formatNumberWithComma(cumulativeTotal)}/${formatNumberWithComma(overallStats.total)}（${formatPercent(cumulativeTotal, overallStats.total)}）\n`;
   });
 
   outputArea.value = result.trim();
