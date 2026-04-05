@@ -499,8 +499,17 @@ function autoFillHeroineNames() {
     if (matches.length >= 10) break;
   }
 
+  // 3人以上なら必要な入力欄を増やす
+  const neededInputs = Math.min(matches.length, 10);
+  let inputs = document.querySelectorAll('.heroine-name');
+  if (neededInputs >= 3) {
+    while (inputs.length < neededInputs && heroineCount < 10) {
+      addHeroineInput();
+      inputs = document.querySelectorAll('.heroine-name');
+    }
+  }
+
   // 入力欄を取得してセット
-  const inputs = document.querySelectorAll('.heroine-name');
   inputs.forEach((input, i) => {
     if (matches[i]) {
       input.value = matches[i];
