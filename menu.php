@@ -32,6 +32,7 @@
       <a href="/page-tools/imageresize.php" class="nav-item">画像リサイズ&トリミング</a>
       <a href="/page-tools/graffiti.php" class="nav-item">画像らくがき</a>
       <a href="/page-tools/bpmtest.php" class="nav-item">BPMスピードテスト</a>
+      <a href="/page-tools/dltextbhecker.php" class="nav-item">DLスマホ表示チェック</a>
     </details>
   </nav>
 
