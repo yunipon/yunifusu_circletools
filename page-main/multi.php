@@ -164,7 +164,8 @@
             <p style="color: #E50000; font-weight: bold;">□演技：　　（ここから/ここまで）範囲指定はしてもしなくてもOK　←キャラ文字色</p>
             <p style="color: #E50000; font-weight: bold;">＊　〜〜〜　秒/回　←キャラ文字色</p>
             <p style="background-color: #FFDADA; color: #E50000;">（キャラ名｜ループ：　ここから）←各キャラの文字色&ハイライトになります）</p>
-            <p style="color: #E50000;">セリフ：　←キャラ文字色</p>
+            <p style="color: #E50000;">セリフ　←キャラ文字色</p>
+            <p style="color: #E50000;">[]　←キャラ文字色 [PU]ぷるん　など、キャラ文字色で補足したい時用</p>
             <p style="color: #000000;">()：補足　ふりがな、行為名（フェラ）　とか　←無地</p>
           </div>
 

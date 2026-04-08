@@ -40,6 +40,7 @@ const defaultExtract = [
   { label: '【】内削除', pattern: '【[^】]*】', active: true },
   { label: '()内削除', pattern: '[（\\(][^）\\)]*[）\\)]', active: true },
   { label: '《》内削除', pattern: '《[^》]*》', active: true },
+  { label: '[]内削除', pattern: '\\[[^\\]]*\\]', active: true },
   { label: 'スペース削除（文章の途中のスペースも削除）', pattern: '[ 　]', active: true }
 ];
 
