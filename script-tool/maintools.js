@@ -485,7 +485,7 @@ function runMultiPreview() {
 /**
  * 本文から名前を抽出して設定欄にセットする
  */
-function autoFillHeroineNames() {
+function autoFillHeroineNames(updatePreview = true) {
   const text = document.getElementById('textMulti')?.value || "";
   // 修正した名前抽出ロジック：//名前：形式
   const regex = /\/\/([^：: \t\n]+)[:：]/g;
@@ -518,7 +518,9 @@ function autoFillHeroineNames() {
   });
 
   // セットした後にプレビューを更新
-  runMultiPreview();
+  if (updatePreview) {
+    runMultiPreview();
+  }
 }
 
 // ==========================================
@@ -981,7 +983,7 @@ function extractAdlibCommands() {
   // ★改良：ヒロイン名が一つも入力されていない場合
   if (sourceId === 'textMulti' && orderedHeroineNames.length === 0) {
     // 1. 自動入力関数を実行
-    autoFillHeroineNames();
+    autoFillHeroineNames(false);
 
     // 2. 補完された名前をすぐに再取得
     heroineInputs = document.querySelectorAll('#heroineInputs .heroine-name');
@@ -994,12 +996,15 @@ function extractAdlibCommands() {
   const scriptText = targetElement.value;
   const lines = scriptText.split('\n');
   const adlibRegex = /＊[^(\n]*?(秒|回)[^\n]*/g;
+  const additionalAdlibRegex = /^＊(?!.*(?:秒|回)).*$/gm;
 
   let resultText = "";
+  let additionalResultText = "";
 
   if (sourceId === 'textMulti') {
     let currentHeroine = "共通/未特定";
     let adlibsByHeroine = {};
+    let additionalAdlibsByHeroine = {};
 
     lines.forEach(line => {
       const trimmed = line.trim();
@@ -1013,6 +1018,12 @@ function extractAdlibCommands() {
       if (matches) {
         if (!adlibsByHeroine[currentHeroine]) adlibsByHeroine[currentHeroine] = [];
         matches.forEach(m => adlibsByHeroine[currentHeroine].push(m.trim()));
+      }
+
+      const additionalMatches = line.match(additionalAdlibRegex);
+      if (additionalMatches) {
+        if (!additionalAdlibsByHeroine[currentHeroine]) additionalAdlibsByHeroine[currentHeroine] = [];
+        additionalMatches.forEach(m => additionalAdlibsByHeroine[currentHeroine].push(m.trim()));
       }
     });
 
@@ -1030,26 +1041,42 @@ function extractAdlibCommands() {
       }
     });
 
+    // 追加アドリブのフォーマット
+    if (additionalAdlibsByHeroine["共通/未特定"]) {
+      additionalResultText += `【共通/未特定】\n` + additionalAdlibsByHeroine["共通/未特定"].join('\n') + '\n\n';
+    }
+    orderedHeroineNames.forEach(name => {
+      if (additionalAdlibsByHeroine[name]) {
+        additionalResultText += `【${name}】\n` + additionalAdlibsByHeroine[name].join('\n') + '\n\n';
+      }
+    });
+
   } else {
     let allMatches = [];
+    let additionalAllMatches = [];
     lines.forEach(line => {
       const matches = line.match(adlibRegex);
       if (matches) {
         matches.forEach(m => allMatches.push(m.trim()));
       }
+      const additionalMatches = line.match(additionalAdlibRegex);
+      if (additionalMatches) {
+        additionalMatches.forEach(m => additionalAllMatches.push(m.trim()));
+      }
     });
     resultText = allMatches.join('\n');
+    additionalResultText = additionalAllMatches.join('\n');
   }
 
   // （抽出ループが終わった後の出力部分）
   let headerNote = "";
   if (sourceId === 'textMulti') {
-    headerNote = `【自動判定】キャラ名（${orderedHeroineNames.join('、')}）で抽出しました。\n`;
+    headerNote = `キャラ名（${orderedHeroineNames.join('、')}）で抽出しました。\n`;
   }
 
   outputArea.value = resultText
-    ? `=== アドリブ抽出結果 ===\n${headerNote}\n` + resultText.trim()
-    : "アドリブ指示（＊〜秒/回）は見つかりませんでした。";
+    ? `=== アドリブ抽出結果 ===\n${headerNote}\n` + resultText.trim() + (additionalResultText ? `\n\n=== その他＊マーク抽出結果 (秒/回なし) ===\n` + additionalResultText.trim() : '')
+    : "アドリブ指示（＊〜秒/回）は見つかりませんでした。" + (additionalResultText ? `\n\n=== その他＊マーク抽出結果 (秒/回なし) ===\n` + additionalResultText.trim() : '');
 
   outputArea.style.color = "black";
   outputArea.dispatchEvent(new Event('input'));
