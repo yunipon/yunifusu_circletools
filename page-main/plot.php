@@ -23,6 +23,13 @@
         <input type="text" id="p-title" class="replace-input" style="width:100%; margin-bottom:15px;" required>
 
         <div style="position:relative;">
+          <label>■作品の通称を10文字以内で表すと？</label>
+          <small style="font-size: 0.8em; color: #888; display: block; margin-bottom: 5px;">短い文で作品か判別できたら嬉しいなって…（作品の特徴を書いてみてね）</small>
+          <input type="text" id="p-short-title" class="replace-input" style="width:100%; margin-bottom:15px;" maxlength="10" oninput="updatePlotCharCount(this, 'p-short-title-cnt')" placeholder="例：元勇者のおばさん">
+          <div class="char-count" id="p-short-title-cnt">0</div>
+        </div>
+
+        <div style="position:relative;">
           <label>■あらすじ <span style="color:red;">* (200〜210字)</span></label>
           <textarea id="p-summary" oninput="updatePlotCharCount(this, 'p-summary-cnt')" required></textarea>
           <div class="char-count" id="p-summary-cnt">0</div>

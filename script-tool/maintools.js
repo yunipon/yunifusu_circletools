@@ -1906,6 +1906,7 @@ function generatePlotText() {
 
   // 基本情報
   addSection('タイトル（仮）', 'p-title');
+  addSection('10文字以内で作品を表すと？', 'p-short-title');
   addSection('あらすじ', 'p-summary');
   addSection('長めのあらすじ', 'p-summary-long');
 
@@ -2019,6 +2020,10 @@ function parseAndFillPlot(text) {
     if (line.includes('■タイトル')) {
       const data = getSectionContent(lines, i);
       document.getElementById('p-title').value = data.content;
+      i = data.lastIndex;
+    } else if (line.includes('■10文字以内で作品を表すと？')) {
+      const data = getSectionContent(lines, i);
+      document.getElementById('p-short-title').value = data.content;
       i = data.lastIndex;
     } else if (line.includes('■あらすじ')) {
       const data = getSectionContent(lines, i);
