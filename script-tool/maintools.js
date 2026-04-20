@@ -1668,6 +1668,7 @@ async function exportAllHeroinesToWord() {
     const filteredLines = [];
     let isActiveFlag = false;
     let isInCommentBlock = false;  // コメントブロック内フラグ
+    let shouldOutputNextLine = false;  // 【同時　ここから】直後の1行を全員出力するフラグ
 
     lines.forEach(line => {
       const trimmed = line.text.trim();
@@ -1679,7 +1680,20 @@ async function exportAllHeroinesToWord() {
         if (count === 1) isInCommentBlock = !isInCommentBlock;  // %%% の開始・終了を切り替え
         shouldOutput = true;
       }
-      // ①② コメントブロック内の行（%%%と%%%の間の全て - 全員出力）
+      // ① 同時指示ブロックマーカー：【同時　ここから】（マーカー行は全員出力、直後の1行も全員出力）
+      else if (trimmed.includes("【同時") && trimmed.includes("ここから")) {
+        shouldOutputNextLine = true;
+        shouldOutput = true;
+      }
+      else if (trimmed.includes("【同時") && trimmed.includes("ここまで")) {
+        shouldOutput = true;
+      }
+      // ①② 【同時　ここから】直後の1行（全員出力）
+      else if (shouldOutputNextLine) {
+        shouldOutput = true;
+        shouldOutputNextLine = false;
+      }
+      // ①③ コメントブロック内の行（%%%と%%%の間の全て - 全員出力）
       else if (isInCommentBlock) {
         shouldOutput = true;
       }
