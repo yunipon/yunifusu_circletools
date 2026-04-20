@@ -1455,6 +1455,42 @@ function removeBlankLinesOnly(targetId, displayAreaId = null) {
   area.dispatchEvent(new Event('input'));
 }
 
+//===========================================//
+// 行頭空白削除
+// 行頭のスペースやタブを削除して詰める（改行は保持）
+//===========================================//
+
+function removeLeadingSpaces(targetId, displayAreaId = null) {
+  const area = document.getElementById(targetId);
+  if (!area || area.value === undefined) return;
+
+  const originalText = area.value;
+  const lines = originalText.split('\n');
+  const trimmedLines = lines.map(line => line.replace(/^[ \t]+/, ''));
+  area.value = trimmedLines.join('\n');
+
+  if (targetId === 'textExtract') {
+    const beforeArea = document.getElementById('textExtractBefore');
+    if (beforeArea) {
+      beforeArea.value = originalText;
+      updateCharCount('textExtractBefore', 'countExtractBefore');
+      beforeArea.dispatchEvent(new Event('input'));
+    }
+  }
+
+  const countIdMap = {
+    'textExtract': 'countExtract',
+    'textFormat': 'countFormat',
+    'textMulti': 'countMulti'
+  };
+  const countId = countIdMap[targetId] || displayAreaId;
+  if (countId) {
+    updateCharCount(targetId, countId);
+  }
+
+  area.dispatchEvent(new Event('input'));
+}
+
 function updatePlotCharCount(textarea, displayId) {
   const display = document.getElementById(displayId);
   if (display) {

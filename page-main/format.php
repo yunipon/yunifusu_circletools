@@ -112,6 +112,7 @@
             <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
               <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
               <button class="btn-primary" onclick="removeBlankLinesOnly('textFormat')">空白行削除</button>
+              <button class="btn-primary" onclick="removeLeadingSpaces('textFormat')">行頭空白削除</button>
               <button class="btn-danger" onclick="clearData('fmt')">データクリア</button>
             </div>
           </div>
