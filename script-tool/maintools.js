@@ -1667,13 +1667,20 @@ async function exportAllHeroinesToWord() {
     const targetHeroine = heroineNames[hIdx];
     const filteredLines = [];
     let isActiveFlag = false;
+    let isInCommentBlock = false;  // コメントブロック内フラグ
 
     lines.forEach(line => {
       const trimmed = line.text.trim();
       let shouldOutput = false;
 
-      // ① コメントブロック内（全員出力）
+      // ① コメント行マーカーの処理
       if (line.text.includes("%%%")) {
+        const count = (line.text.match(/%%%/g) || []).length;
+        if (count === 1) isInCommentBlock = !isInCommentBlock;  // %%% の開始・終了を切り替え
+        shouldOutput = true;
+      }
+      // ①② コメントブロック内の行（%%%と%%%の間の全て - 全員出力）
+      else if (isInCommentBlock) {
         shouldOutput = true;
       }
       // ② 共通項目（全員出力）
