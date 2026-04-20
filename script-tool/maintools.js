@@ -1569,7 +1569,7 @@ const getLineType = (line) => {
   const trimmed = line.trim();
   if (!trimmed) return 'empty';
 
-  if (trimmed.startsWith('//')) return 'name';
+  //if (trimmed.startsWith('//')) return 'name';
   if (trimmed.startsWith('【')) return 'label';
   if (trimmed.startsWith('※')) return 'comp';
   if (trimmed.startsWith('%%%')) return 'comme';
@@ -1579,8 +1579,8 @@ const getLineType = (line) => {
   // ◆ と ■ を同じ種類 'se' としてグループ化
   if (trimmed.startsWith('◆') || trimmed.startsWith('■')) return 'se';
 
-  // ◇ と □ を同じ種類 'instruction' としてグループ化
-  if (trimmed.startsWith('◇') || trimmed.startsWith('□')) {
+  // // と ◇ と □ を同じ種類 'instruction' としてグループ化
+  if (trimmed.startsWith('//') || trimmed.startsWith('◇') || trimmed.startsWith('□')) {
     return 'instruction';
   }
 
@@ -1593,7 +1593,6 @@ const getLineType = (line) => {
 // 複数ヒロイン設定
 // キャラ名が変更したら都度プレビューを更新する
 // ==========================================
-
 
 function renderHeroineInputs() {
   const container = document.getElementById('heroineInputs');
