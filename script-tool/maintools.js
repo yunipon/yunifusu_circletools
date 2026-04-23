@@ -955,6 +955,45 @@ function isLabelMatch(startLabel, endLabel) {
 
   return normalize(startLabel) === normalize(endLabel);
 }
+
+/**
+ * ヘルパー関数：数字を正規化（全角→半角）
+ */
+function normalizeNumber(str) {
+  if (!str) return 0;
+  
+  // 全角数字を半角に変換
+  str = str.replace(/０/g, '0').replace(/１/g, '1').replace(/２/g, '2')
+           .replace(/３/g, '3').replace(/４/g, '4').replace(/５/g, '5')
+           .replace(/６/g, '6').replace(/７/g, '7').replace(/８/g, '8')
+           .replace(/９/g, '9');
+  
+  return parseInt(str) || 0;
+}
+
+/**
+ * ヘルパー関数：アドリブから秒数と回数を抽出
+ */
+function parseAdlibStats(adlibText) {
+  let seconds = 0;
+  let count = 0;
+  let hasKanji = /[〇零一壱二弐三参四肆五伍六陸七漆八捌九玖十拾百千]/.test(adlibText);
+  
+  // 秒数を抽出（例：「＊赤●　5秒」「＊青●　３秒」など）
+  const secondsMatch = adlibText.match(/(\d+)秒/);
+  if (secondsMatch) {
+    seconds = normalizeNumber(secondsMatch[1]);
+  }
+  
+  // 回数を抽出（例：「＊赤●　3回」「＊青●　５回」など）
+  const countMatch = adlibText.match(/(\d+)回/);
+  if (countMatch) {
+    count = normalizeNumber(countMatch[1]);
+  }
+  
+  return { seconds, count, hasKanji };
+}
+
 /**
  * 2. アドリブ抽出
  */
@@ -1000,11 +1039,13 @@ function extractAdlibCommands() {
 
   let resultText = "";
   let additionalResultText = "";
+  let hasKanjiDigit = false;
 
   if (sourceId === 'textMulti') {
     let currentHeroine = "共通/未特定";
     let adlibsByHeroine = {};
     let additionalAdlibsByHeroine = {};
+    let adlibStatsByHeroine = {}; // 秒数と回数を集計するオブジェクト
 
     lines.forEach(line => {
       const trimmed = line.trim();
@@ -1017,7 +1058,20 @@ function extractAdlibCommands() {
       const matches = line.match(adlibRegex);
       if (matches) {
         if (!adlibsByHeroine[currentHeroine]) adlibsByHeroine[currentHeroine] = [];
-        matches.forEach(m => adlibsByHeroine[currentHeroine].push(m.trim()));
+        if (!adlibStatsByHeroine[currentHeroine]) adlibStatsByHeroine[currentHeroine] = { totalSeconds: 0, totalCount: 0 };
+        
+        matches.forEach(m => {
+          const trimmedM = m.trim();
+          adlibsByHeroine[currentHeroine].push(trimmedM);
+          
+          // 秒数と回数を抽出して集計
+          const stats = parseAdlibStats(trimmedM);
+          adlibStatsByHeroine[currentHeroine].totalSeconds += stats.seconds;
+          adlibStatsByHeroine[currentHeroine].totalCount += stats.count;
+          if (stats.hasKanji) {
+            hasKanjiDigit = true;
+          }
+        });
       }
 
       const additionalMatches = line.match(additionalAdlibRegex);
@@ -1031,13 +1085,23 @@ function extractAdlibCommands() {
 
     // 1. まず「共通/未特定」があれば最初に出す
     if (adlibsByHeroine["共通/未特定"]) {
-      resultText += `【共通/未特定】\n` + adlibsByHeroine["共通/未特定"].join('\n') + '\n\n';
+      const stats = adlibStatsByHeroine["共通/未特定"] || { totalSeconds: 0, totalCount: 0 };
+      let headerText = `【共通/未特定】`;
+      if (stats.totalSeconds > 0 || stats.totalCount > 0) {
+        headerText += `　合計：${stats.totalSeconds}秒、${stats.totalCount}回`;
+      }
+      resultText += headerText + '\n' + adlibsByHeroine["共通/未特定"].join('\n') + '\n\n';
     }
 
     // 2. 入力欄に並んでいる名前の順に、抽出したデータを結合する
     orderedHeroineNames.forEach(name => {
       if (adlibsByHeroine[name]) {
-        resultText += `【${name}】\n` + adlibsByHeroine[name].join('\n') + '\n\n';
+        const stats = adlibStatsByHeroine[name] || { totalSeconds: 0, totalCount: 0 };
+        let headerText = `【${name}】`;
+        if (stats.totalSeconds > 0 || stats.totalCount > 0) {
+          headerText += `　合計：${stats.totalSeconds}秒、${stats.totalCount}回`;
+        }
+        resultText += headerText + '\n' + adlibsByHeroine[name].join('\n') + '\n\n';
       }
     });
 
@@ -1054,17 +1118,34 @@ function extractAdlibCommands() {
   } else {
     let allMatches = [];
     let additionalAllMatches = [];
+    let totalStats = { totalSeconds: 0, totalCount: 0 };
+    
     lines.forEach(line => {
       const matches = line.match(adlibRegex);
       if (matches) {
-        matches.forEach(m => allMatches.push(m.trim()));
+        matches.forEach(m => {
+          const trimmedM = m.trim();
+          allMatches.push(trimmedM);
+          
+          // 秒数と回数を抽出して集計
+          const stats = parseAdlibStats(trimmedM);
+          totalStats.totalSeconds += stats.seconds;
+          totalStats.totalCount += stats.count;
+        });
       }
       const additionalMatches = line.match(additionalAdlibRegex);
       if (additionalMatches) {
         additionalMatches.forEach(m => additionalAllMatches.push(m.trim()));
       }
     });
-    resultText = allMatches.join('\n');
+    
+    // 合計情報を追加
+    let summaryText = '';
+    if (totalStats.totalSeconds > 0 || totalStats.totalCount > 0) {
+      summaryText = `【合計】${totalStats.totalSeconds}秒、${totalStats.totalCount}回\n\n`;
+    }
+    
+    resultText = summaryText + allMatches.join('\n');
     additionalResultText = additionalAllMatches.join('\n');
   }
 
@@ -1072,6 +1153,9 @@ function extractAdlibCommands() {
   let headerNote = "";
   if (sourceId === 'textMulti') {
     headerNote = `キャラ名（${orderedHeroineNames.join('、')}）で抽出しました。\n`;
+    if (hasKanjiDigit) {
+      headerNote += `\n※※※※※※※※※※※※※※※※※※\n🚨 漢数字が混在しています 🚨\n⚠️ 漢数字は合計できません ⚠️\n※※※※※※※※※※※※※※※※※※\n`;
+    }
   }
 
   outputArea.value = resultText
