@@ -33,7 +33,7 @@ let heroineCount = 3;
 // デフォルトルール定義
 const defaultExtract = [
   { label: 'コメント行削除（%%% ~ %%% ）', pattern: 'delete_comment', active: true, isSpecial: true },
-  { label: 'トラック装飾の削除', pattern: '^＝＊＝.*', active: true },
+  { label: 'トラック装飾の削除', pattern: '^＝＝＝.*', active: true },
   { label: 'トラック名の削除', pattern: '^(トラック|Track|ＴＲＡＣＫ|TRACK).*', active: true },
   { label: 'ト書き行削除', pattern: '^\\s*(◆|■|※|//|◇|□|＊).*', active: true },
   { label: 'ト書き行削除', pattern: '^\\s*(SE|SE).*', active: true },
@@ -45,7 +45,7 @@ const defaultExtract = [
 ];
 
 const defaultFormat = [
-  { label: 'トラック装飾の削除', pattern: '^＝＊＝.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
+  { label: 'トラック装飾の削除', pattern: '^＝＝＝.*', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: 'コメント｜%%% ~ %%%', pattern: 'format_comment', active: true, bgColor: 'none', fgColor: '#666666', bold: false, fontSize: '11', isSpecial: true },
   { label: 'トラック名｜トラック or Track or ＴＲＡＣＫ', pattern: '^(トラック|Track|ＴＲＡＣＫ)', active: true, bgColor: 'none', fgColor: '#000000', bold: true, fontSize: '11' },
   { label: 'SE指示｜◆SE：〇〇　ここから/ここまで', pattern: '^◆SE：.*', active: true, bgColor: '#E0E0E0', fgColor: '#000000', bold: false, fontSize: '11' },
@@ -1286,7 +1286,7 @@ function formatPercent(part, total) {
 }
 
 function parseTrackTitle(line, index) {
-  const cleaned = line.replace(/＝＊＝/g, '').replace(/[\s　]+/g, ' ').trim();
+  const cleaned = line.replace(/＝＝＝/g, '').replace(/[\s　]+/g, ' ').trim();
   const match = cleaned.match(/(トラック|ＴＲＡＣＫ|Track)(.*)/i);
   if (!match) {
     return `トラック${String(index).padStart(2, '0')}`;
@@ -1782,7 +1782,7 @@ async function exportAllHeroinesToWord() {
         shouldOutput = true;
       }
       // ② 共通項目（全員出力）
-      else if (trimmed.includes("トラック") || trimmed.includes("Track") || trimmed.includes("＝＊＝") || trimmed.match(/[（(]([^｜|]+)[｜|]ループ\s*[：:]/)) {
+      else if (trimmed.includes("トラック") || trimmed.includes("Track") || trimmed.includes("＝＝＝") || trimmed.match(/[（(]([^｜|]+)[｜|]ループ\s*[：:]/)) {
         shouldOutput = true;
       }
       // ③ ヒロイン切り替え（//名前：）
@@ -2439,7 +2439,7 @@ function getParsedScriptLines(textareaElement = null) {
 
       if (text !== "") {
         const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
-        const isTrackBorder = text.includes("＝＊＝") || text.includes("トラック") || text.includes("Track");
+        const isTrackBorder = text.includes("＝＝＝") || text.includes("トラック") || text.includes("Track");
 
         // --- 条件をシンプルに修正 ---
         // 1. 台本内にキャラ定義が1つでも存在する (hasAnyHeroineDef)
@@ -2474,7 +2474,7 @@ function getParsedScriptLines(textareaElement = null) {
 
       if (text !== "") {
         const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
-        const isTrackBorder = text.includes("＝＊＝") || text.includes("トラック") || text.includes("Track");
+        const isTrackBorder = text.includes("＝＝＝") || text.includes("トラック") || text.includes("Track");
 
         // 【改良】台本全体にキャラ名定義があり、かつ除外行ではない場合のみタブを挿入
         if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isInCommentTextArea && !text.includes("%%%")) {

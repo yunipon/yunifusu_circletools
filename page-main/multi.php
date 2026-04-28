@@ -42,7 +42,7 @@
         <button class="btn-copy btn-symbol" onclick="copyToClipboard('♡')">♡</button>
 
         <button class="btn-copy" onclick="copyToClipboard('%%%')">%%%</button>
-        <button class="btn-copy" onclick="copyToClipboard('＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝\nトラック\n＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝')">トラック+装飾</button>
+        <button class="btn-copy" onclick="copyToClipboard('＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝\nトラック\n＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝')">トラック+装飾</button>
         <button class="btn-copy" onclick="copyToClipboard('トラック')">トラック</button>
         <button class="btn-copy" onclick="copyToClipboard('◆SE：')">◆SE：</button>
         <button class="btn-copy" onclick="copyToClipboard('◆SE：　ここから')">◆SE：始</button>
@@ -147,9 +147,9 @@
             <a href="https://docs.google.com/document/d/1b_lHI0iIr8ZJAqy_hhZRsqsbeL9PVfbV2v_C87LZ10o/edit?usp=sharing" target="_blank">記載例はこちら</a>
           </h4>
           <div>
-            <p style="color: #000000;  font-weight: bold;">＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝</p>
+            <p style="color: #000000;  font-weight: bold;">＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
             <p style="color: #000000;  font-weight: bold;">トラック</p>
-            <p style="color: #000000;  font-weight: bold;">＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝</p>
+            <p style="color: #000000;  font-weight: bold;">＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
             <p style="color: #666666;">%%%
             <p style="color: #666666;">ここはメモ欄です　←灰色の文字</p>
             <p style="color: #666666;">ここに記載しているものはセリフのみ抽出のツールでまとめて削除されます。</p>
@@ -181,7 +181,7 @@
             <p style="color: #E50000;">ト書き指示などが途中に挟まっても大丈夫。</p>
             <p style="color: #0000FF; font-weight: bold;">//キャラ名B：</p>
             <p style="color: #0000FF;">が出てきた段階で切り替わります。</p>
-            <p style="color: #000000;  font-weight: bold;">＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝</p>
+            <p style="color: #000000;  font-weight: bold;">＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
             <p style="color: #0000FF;">【例外】</p>
             <p style="background-color: #FFDADA; color: #E50000;">（キャラA｜ループ：〇〇　ここから/ここまで）</p>
             <p style="color: #0000FF;">のみ例外的に単一行でキャラクター判定を行います。</p>

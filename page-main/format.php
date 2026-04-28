@@ -23,7 +23,7 @@
           <button class="btn-copy btn-symbol" onclick="copyToClipboard('♡')">♡</button>
 
           <button class="btn-copy" onclick="copyToClipboard('%%%')">%%%</button>
-          <button class="btn-copy" onclick="copyToClipboard('＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝\nトラック\n＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝＝＊＝')">トラック+装飾</button>
+          <button class="btn-copy" onclick="copyToClipboard('＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝\nトラック\n＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝')">トラック+装飾</button>
           <button class="btn-copy" onclick="copyToClipboard('トラック')">トラック</button>
           <button class="btn-copy" onclick="copyToClipboard('◆SE：')">◆SE：</button>
           <button class="btn-copy" onclick="copyToClipboard('◆SE：　ここから')">◆SE：始</button>
