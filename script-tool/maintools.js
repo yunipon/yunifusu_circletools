@@ -980,13 +980,13 @@ function parseAdlibStats(adlibText) {
   let hasKanji = /[〇零一壱二弐三参四肆五伍六陸七漆八捌九玖十拾百千]/.test(adlibText);
   
   // 秒数を抽出（例：「＊赤●　5秒」「＊青●　３秒」など）
-  const secondsMatch = adlibText.match(/(\d+)秒/);
+  const secondsMatch = adlibText.match(/([0-9０-９]+)秒/);
   if (secondsMatch) {
     seconds = normalizeNumber(secondsMatch[1]);
   }
-  
+
   // 回数を抽出（例：「＊赤●　3回」「＊青●　５回」など）
-  const countMatch = adlibText.match(/(\d+)回/);
+  const countMatch = adlibText.match(/([0-9０-９]+)回/);
   if (countMatch) {
     count = normalizeNumber(countMatch[1]);
   }
