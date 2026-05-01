@@ -260,8 +260,6 @@
       const color = colorPicker.value;
 
       if (isEraser) {
-        // 消しゴム機能：元の画像の一部を描き戻す（Destination-outではなく元の画像を再描画）
-        // ※正確には「描き込み」を消すために、該当箇所に元の画像を重ねる
         ctx.save();
         ctx.beginPath();
         ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -271,21 +269,80 @@
         return;
       }
 
-      // スプレー描画
-      const density = size * 20;
       const r = parseInt(color.slice(1, 3), 16);
       const g = parseInt(color.slice(3, 5), 16);
       const b = parseInt(color.slice(5, 7), 16);
-      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity * 0.4})`; // 濃度調整
 
+      // ふわっとした全体グロー
+      const glowGrad = ctx.createRadialGradient(x, y, 0, x, y, size);
+      glowGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${opacity * 0.12})`);
+      glowGrad.addColorStop(0.6, `rgba(${r}, ${g}, ${b}, ${opacity * 0.04})`);
+      glowGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ふわふわ粒子（中心寄りのガウス分布）
+      const density = size * 5;
       for (let i = 0; i < density; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const radius = Math.random() * size;
-        const pX = x + Math.cos(angle) * radius;
-        const pY = y + Math.sin(angle) * radius;
+        // 3サンプル平均で中心に集まる分布を近似
+        const dist = ((Math.random() + Math.random() + Math.random()) / 3) * size;
+        const pX = x + Math.cos(angle) * dist;
+        const pY = y + Math.sin(angle) * dist;
+        const pRadius = Math.random() * 4 + 0.5;
+        const pOpacity = opacity * 0.35 * (1 - (dist / size) * 0.6) * (0.3 + Math.random() * 0.7);
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${pOpacity})`;
         ctx.beginPath();
-        ctx.arc(pX, pY, Math.random() * 2 + 0.5, 0, Math.PI * 2);
+        ctx.arc(pX, pY, pRadius, 0, Math.PI * 2);
         ctx.fill();
+      }
+
+      // キラキラ十字スパーク
+      const sparkCount = Math.max(2, Math.floor(size * 0.12));
+      for (let i = 0; i < sparkCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * size * 0.85;
+        const pX = x + Math.cos(angle) * dist;
+        const pY = y + Math.sin(angle) * dist;
+        const sparkLen = Math.random() * size * 0.1 + size * 0.04;
+        const sparkOpacity = opacity * (0.7 + Math.random() * 0.3);
+        const br = Math.min(255, r + 80);
+        const bg = Math.min(255, g + 80);
+        const bb = Math.min(255, b + 80);
+
+        ctx.save();
+        ctx.translate(pX, pY);
+        ctx.rotate(Math.random() * Math.PI / 4);
+        ctx.shadowBlur = sparkLen * 2;
+        ctx.shadowColor = `rgba(${br}, ${bg}, ${bb}, ${sparkOpacity * 0.8})`;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${sparkOpacity})`;
+        ctx.lineCap = 'round';
+
+        // 縦横の十字
+        ctx.lineWidth = sparkLen * 0.12;
+        ctx.beginPath();
+        ctx.moveTo(0, -sparkLen);
+        ctx.lineTo(0, sparkLen);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-sparkLen, 0);
+        ctx.lineTo(sparkLen, 0);
+        ctx.stroke();
+
+        // 斜めの細い輝き
+        ctx.lineWidth = sparkLen * 0.06;
+        ctx.beginPath();
+        ctx.moveTo(-sparkLen * 0.55, -sparkLen * 0.55);
+        ctx.lineTo(sparkLen * 0.55, sparkLen * 0.55);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(sparkLen * 0.55, -sparkLen * 0.55);
+        ctx.lineTo(-sparkLen * 0.55, sparkLen * 0.55);
+        ctx.stroke();
+
+        ctx.restore();
       }
     }
 
