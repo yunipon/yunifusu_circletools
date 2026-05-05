@@ -1,4 +1,41 @@
 /* ==========================================
+   アップデート情報
+   ========================================== */
+.news-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.news-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.date {
+  color: #888;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.badge-new {
+  display: inline-block;
+  background: var(--accent-color);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* ==========================================
    1. 基本設定（PC・デスクトップ基準）
    ========================================== */
 .editor-container {
@@ -25,18 +62,20 @@
   /* 余計な余白なし */
 }
 
-.editor-left,
+.editor-left {
+  flex: 1;
+  min-width: 0;
+}
+
 .editor-right {
   flex: 1;
-  /* これで均等（50%ずつ）になります */
   min-width: 0;
-  /* テキストエリアの突き抜け防止 */
 }
 
 /* 右側もスクロールについてくるように設定 */
 .editor-right {
   position: sticky;
-  top: 20px;
+  top: calc(var(--nav-height) + 20px);
 }
 
 /* ==========================================
@@ -98,7 +137,7 @@
   left: 0;
   transform: none;
   padding: 8px 12px;
-  background-color: var(--primary-color);
+  background-color: #222;
   color: #fff;
   font-size: 12px;
   border-radius: 6px;
@@ -118,7 +157,7 @@
   transform: translateX(-50%);
   border-width: 8px 8px 0 8px;
   border-style: solid;
-  border-color: var(--primary-color) transparent transparent transparent;
+  border-color: #222 transparent transparent transparent;
   opacity: 0;
   visibility: hidden;
   z-index: 10;

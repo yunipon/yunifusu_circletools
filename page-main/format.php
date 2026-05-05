@@ -62,11 +62,13 @@
       <div class="editor-container">
         <div class="editor-left">
           <div class="card">
-            <div class="editor-pane" style="flex: 1;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <label style="font-weight: bold; color: #2c3e50;">台本入力</label>
-              </div>
 
+            <!-- ① 台本入力 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label style="font-weight: bold; color: #2c3e50;">台本入力</label>
+              <button class="btn-danger" onclick="clearData('fmt')" style="padding: 4px 10px; font-size: 0.8rem;">データクリア</button>
+            </div>
+            <div class="editor-pane" style="flex: 1;">
               <div class="textarea-wrapper">
                 <div id="lineNumbers" class="line-numbers"></div>
                 <textarea id="textFormat"
@@ -85,12 +87,43 @@
                 ※「①セリフのみ抽出」の保存済み条件を適用
               </small>
             </div>
+
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-            <strong>台本チェック</strong>
+
+            <!-- ② テキスト整形 -->
+            <strong>テキスト整形</strong>
+            <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
+              <span class="tooltip" data-tooltip="ト書きとセリフの間など、種類が変わる行の間に空行を挿入します">
+                <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
+              </span>
+              <span class="tooltip" data-tooltip="空白のみの行を削除します（セリフ間の完全な空行を取り除きます）">
+                <button class="btn-primary" onclick="removeBlankLinesOnly('textFormat')">空白行削除</button>
+              </span>
+              <span class="tooltip" data-tooltip="各行の先頭にある半角・全角スペースやタブを削除します">
+                <button class="btn-primary" onclick="removeLeadingSpaces('textFormat')">行頭空白削除</button>
+              </span>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+            <!-- ③ 出力 -->
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; font-size: 14px; margin-bottom: 10px;">
+              <strong>出力</strong>
+              <label><input type="radio" name="wordMode" value="h" checked> 通常（横書き）</label>
+              <label><input type="radio" name="wordMode" value="v"> 縦書き用（濁点ずらし）</label>
+            </div>
             <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+              <button class="btn-primary" onclick="handleExport('word')">Word出力</button>
+              <button class="btn-primary" onclick="handleExport('txt')">txt出力</button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+            <!-- ④ 台本チェック -->
+            <strong>台本チェック</strong>
+            <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
               <span class="tooltip" data-tooltip="「ここから」と「ここまで」のペアが揃っているか確認します">
                 <button class="btn-secondary" onclick="runScriptCheck()">始終チェック</button>
-              </span>
               </span>
               <span class="tooltip" data-tooltip="「＊」から始まるアドリブ指示を抽出します">
                 <button class="btn-secondary" onclick="extractAdlibCommands()">「＊」抽出</button>
@@ -100,21 +133,7 @@
               </span>
             </div>
             <textarea id="textCheck" placeholder="チェックの結果が出力されます"></textarea>
-            <div style="margin: 10px 0; font-size: 14px;">
-              <label><input type="radio" name="wordMode" value="h" checked> 通常（横書き）</label>
-              <label style="margin-left: 10px;"><input type="radio" name="wordMode" value="v"> 縦書き用（濁点ずらし）</label>
-            </div>
-            <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-              <button class="btn-primary" onclick="handleExport('word')">Word出力</button>
-              <button class="btn-primary" onclick="handleExport('txt')">txt出力</button>
-            </div>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-            <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
-              <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
-              <button class="btn-primary" onclick="removeBlankLinesOnly('textFormat')">空白行削除</button>
-              <button class="btn-primary" onclick="removeLeadingSpaces('textFormat')">行頭空白削除</button>
-              <button class="btn-danger" onclick="clearData('fmt')">データクリア</button>
-            </div>
+
           </div>
         </div>
         <div class="editor-right">

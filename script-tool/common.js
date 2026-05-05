@@ -1,36 +1,50 @@
 // ==========================================
-// 9. サイドバー
+// 9. 上部ナビゲーション
 // ==========================================
 
 window.addEventListener('DOMContentLoaded', () => {
   const menuToggle = document.getElementById('menu-toggle');
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebar-overlay');
+  const topNavMenu = document.getElementById('top-nav-menu');
 
-  if (menuToggle && sidebar && overlay) {
-    // ボタンをクリックしたら開閉
-    menuToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
-      overlay.classList.toggle('active');
-      menuToggle.classList.toggle('active');
-    });
+  function closeAllDropdowns() {
+    document.querySelectorAll('.top-nav-dropdown-content').forEach(d => d.classList.remove('active'));
+    document.querySelectorAll('.top-nav-dropdown-btn').forEach(b => b.classList.remove('active'));
+  }
 
-    // 背景（オーバーレイ）をクリックしたら閉じる
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('active');
-      overlay.classList.remove('active');
-      menuToggle.classList.remove('active');
-    });
-
-    // メニュー内のリンクをクリックしたら閉じる（スマホ対策）
-    sidebar.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-        menuToggle.classList.remove('active');
-      });
+  // ハンバーガーボタン（スマホ）
+  if (menuToggle && topNavMenu) {
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = topNavMenu.classList.toggle('active');
+      menuToggle.classList.toggle('active', isOpen);
+      if (!isOpen) closeAllDropdowns();
     });
   }
+
+  // ドロップダウンボタン（スマホのみクリックで開閉）
+  document.querySelectorAll('.top-nav-dropdown-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const isMobile = window.getComputedStyle(menuToggle).display !== 'none';
+      if (!isMobile) return;
+      e.stopPropagation();
+      const content = btn.closest('.top-nav-dropdown').querySelector('.top-nav-dropdown-content');
+      const isActive = content.classList.contains('active');
+      closeAllDropdowns();
+      if (!isActive) {
+        content.classList.add('active');
+        btn.classList.add('active');
+      }
+    });
+  });
+
+  // 外側クリックで全て閉じる（スマホのみ）
+  document.addEventListener('click', () => {
+    const isMobile = menuToggle && window.getComputedStyle(menuToggle).display !== 'none';
+    if (!isMobile) return;
+    topNavMenu?.classList.remove('active');
+    menuToggle?.classList.remove('active');
+    closeAllDropdowns();
+  });
 });
 
 

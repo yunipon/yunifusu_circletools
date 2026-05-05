@@ -20,6 +20,8 @@
     <section class="news-section card">
       <h2>📢 アップデート情報</h2>
       <ul class="news-list">
+        <li><span class="date">2026.05.05</span><span class="badge-new">NEW</span> メニューを上部ナビゲーションバーに変更しました。</li>
+        <li><span class="date">2026.05.05</span><span class="badge-new">NEW</span> メインツールのボタン配置を整理しました。</li>
         <li><span class="date">2026.02.17</span> ポータルサイトを公開しました。</li>
       </ul>
     </section>

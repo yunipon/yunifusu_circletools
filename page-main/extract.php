@@ -62,6 +62,8 @@
         </details>
 
         <div class="card">
+
+          <!-- 文字列置換 -->
           <strong>文字列置換</strong>
           <div class="replace-section" style="gap: 10px; align-items: center;">
             <input type="text" id="replaceBefore" class="replace-input" placeholder="置換前">
@@ -71,62 +73,80 @@
           </div>
 
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-          <strong>出力</strong>
-          <div style="margin: 10px 0; font-size: 14px;">
-            <label><input type="radio" name="wordMode" value="h" checked> 通常（横書き）</label>
-            <label style="margin-left: 10px;"><input type="radio" name="wordMode" value="v"> 縦書き用（濁点ずらし）</label>
+
+          <!-- ① 台本入力 -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h4 style="margin: 0;">台本貼り付け</h4>
+            <button class="btn-danger" onclick="clearData('extract')" style="padding: 4px 10px; font-size: 0.8rem;">データクリア</button>
           </div>
-          <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+          <div class="textarea-wrapper">
+            <div id="lineNumbers" class="line-numbers"></div>
+            <textarea id="textExtract"
+              oninput="updateCharCount('textExtract', 'countExtract'); updateNameButtons('textExtract'); updateLineNumbers()"
+              onscroll="syncScroll()"
+              placeholder="台本を貼り付けてください...">
+              </textarea>
+          </div>
+          <div class="char-count">
+            文字数: <span id="countExtract">0</span>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+          <!-- ② テキスト整形 -->
+          <strong>テキスト整形</strong>
+          <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <span class="tooltip" data-tooltip="右の削除ルール設定に基づいてト書きなどを削除し、セリフのみを残します">
+              <button class="btn-primary" onclick="applyExtract(extractRules)">セリフのみ抽出</button>
+            </span>
+            <span class="tooltip" data-tooltip="ト書きを削除し、空白行を調整して同梱テキスト用に整形します">
+              <button class="btn-primary" onclick="makeincluded()">同梱用</button>
+            </span>
+            <span class="tooltip" data-tooltip="各行の先頭にある半角・全角スペースやタブを削除します">
+              <button class="btn-primary" onclick="removeLeadingSpaces('textExtract')">行頭空白削除</button>
+            </span>
+            <span class="tooltip" data-tooltip="ト書きとセリフの間など、種類が変わる行の間に空行を挿入します">
+              <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
+            </span>
+            <span class="tooltip" data-tooltip="空白のみの行を削除します（セリフ間の完全な空行を取り除きます）">
+              <button class="btn-primary" onclick="removeBlankLinesOnly('textExtract')">空白行削除</button>
+            </span>
+            <span class="tooltip" data-tooltip="空行・改行をすべて完全に削除します（空白行削除より強力）">
+              <button class="btn-primary" onclick="removeAllBlankLines('textExtract')">空白改行完全削除</button>
+            </span>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+          <!-- ③ 出力 -->
+          <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; font-size: 14px; margin-bottom: 10px;">
+            <strong>出力</strong>
+            <label><input type="radio" name="wordMode" value="h" checked> 通常（横書き）</label>
+            <label><input type="radio" name="wordMode" value="v"> 縦書き用（濁点ずらし）</label>
+          </div>
+          <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <button class="btn-primary" onclick="handleExport('word')">Word出力</button>
             <button class="btn-primary" onclick="handleExport('txt')">txt出力</button>
           </div>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-          <strong>台本処理</strong>
-          <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
-            <button class="btn-primary" onclick="applyExtract(extractRules)">セリフのみ抽出</button>
-            <button class="btn-danger" onclick="clearData('extract')">データクリア</button>
-          </div>
 
-          <div class="box">
-            <h4>台本貼り付け</h4>
-            <div class="textarea-wrapper">
-              <div id="lineNumbers" class="line-numbers"></div>
-              <textarea id="textExtract"
-                oninput="updateCharCount('textExtract', 'countExtract'); updateNameButtons('textExtract'); updateLineNumbers()"
-                onscroll="syncScroll()"
-                placeholder="台本を貼り付けてください...">
-                </textarea>
-            </div>
-            <div class="char-count">
-              文字数: <span id="countExtract">0</span>
-            </div>
-          </div>
-          <div class="btn-group" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
-            <button class="btn-primary" onclick="makeincluded()">同梱用</button>
-            <button class="btn-primary" onclick="removeLeadingSpaces('textExtract')">行頭空白削除</button>
-            <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
-            <button class="btn-primary" onclick="removeBlankLinesOnly('textExtract')">空白行削除</button>
-            <button class="btn-primary" onclick="removeAllBlankLines('textExtract')">空白改行完全削除</button>
-          </div>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+          <!-- ④ 台本チェック -->
           <strong>台本チェック</strong>
-          <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+          <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <span class="tooltip" data-tooltip="「ここから」と「ここまで」のペアが揃っているか確認します">
               <button class="btn-secondary" onclick="runScriptCheck()">始終チェック</button>
-            </span>
             </span>
             <span class="tooltip" data-tooltip="「＊」から始まるアドリブ指示を抽出します">
               <button class="btn-secondary" onclick="extractAdlibCommands()">「＊」抽出</button>
             </span>
           </div>
-
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-          <strong>整形前台本とチェック結果の出力</strong>
-          <div class="box" style="padding-top: 15px;">
+          <div style="padding-top: 15px;">
+            <p style="font-size: 0.78rem; color: #888; margin: 0 0 6px 0;">※ テキスト整形ボタンを実行すると、整形前の元テキストがここに自動転記されます。チェック結果もここに出力されます。</p>
             <textarea id="textExtractBefore"
               oninput="updateCharCount('textExtractBefore', 'countExtractBefore')"
               placeholder="整形実行前の台本、チェックの結果が出力されます"
               style="width: 100%; min-height: 300px;"></textarea>
-            </textarea>
             <div class="char-count">
               文字数: <span id="countExtractBefore">0</span>
             </div>
