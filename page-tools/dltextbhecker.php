@@ -173,7 +173,7 @@
 
   <div class="main-content">
 
-    <h2>DLsiteスマホ表示改行確認</h2>
+    <h2>スマホ表示改行確認</h2>
     <p>⚠️スマホで確認することは想定していません。</p>
 
     <div class="dlsite-checker-container">
@@ -184,6 +184,7 @@
         <label for="dlsite-input">紹介文テキスト入力</label>
         <textarea id="dlsite-input" placeholder="実機のCSSを反映したプレビューです..."></textarea>
         <div class="char-count">現在：<span id="char-num">0</span> 文字</div>
+        <small>※DLsiteの表示に対応しています。</small>
       </div>
 
       <div class="checker-preview-section">
