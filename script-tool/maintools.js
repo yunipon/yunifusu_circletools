@@ -1550,7 +1550,7 @@ function removeLeadingSpaces(targetId, displayAreaId = null) {
 
   const originalText = area.value;
   const lines = originalText.split('\n');
-  const trimmedLines = lines.map(line => line.replace(/^[ \t]+/, ''));
+  const trimmedLines = lines.map(line => line.replace(/^[ \t　]+/, ''));
   area.value = trimmedLines.join('\n');
 
   if (targetId === 'textExtract') {
