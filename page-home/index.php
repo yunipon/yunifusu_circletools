@@ -20,8 +20,8 @@
     <section class="news-section card">
       <h2>📢 アップデート情報</h2>
       <ul class="news-list">
-        <li><span class="date">2026.05.05</span><span class="badge-new">NEW</span> メニューを上部ナビゲーションバーに変更しました。</li>
-        <li><span class="date">2026.05.05</span><span class="badge-new">NEW</span> メインツールのボタン配置を整理しました。</li>
+        <li><span class="date">2026.05.05</span> メニューを上部ナビゲーションバーに変更しました。</li>
+        <li><span class="date">2026.05.05</span>メインツールのボタン配置を整理しました。</li>
         <li><span class="date">2026.02.17</span> ポータルサイトを公開しました。</li>
       </ul>
     </section>
@@ -51,6 +51,41 @@
         <p>アイデアを形にする土台作り。構成案からキャラ設定、トラックリストまでを一括管理し、創作を加速させます。</p>
       </a>
     </div>
+
+    <section class="sub-tools-section">
+      <h2>サブツール</h2>
+      <div class="menu-grid">
+        <a href="/page-tools/imagejoin.php" class="card tool-card">
+          <div class="card-icon" style="background: #e8f5e9; color: #43a047;">🖼️</div>
+          <h3>複数画像連結</h3>
+          <p>複数の画像を縦に並べて1枚に連結して2MB以下で保存します。縦デザインの紹介画像の連結に。</p>
+        </a>
+
+        <a href="/page-tools/imageresize.php" class="card tool-card">
+          <div class="card-icon" style="background: #e3f2fd; color: #1e88e5;">📐</div>
+          <h3>画像リサイズ&amp;トリミング</h3>
+          <p>画像を指定サイズに一括リサイズ・トリミングしてJPEG保存します。DLsite等への入稿素材の調整に。</p>
+        </a>
+
+        <a href="/page-tools/graffiti.php" class="card tool-card">
+          <div class="card-icon" style="background: #fff8e1; color: #f9a825;">✏️</div>
+          <h3>落書きツール</h3>
+          <p>ブラウザ上でフリーハンド描画ができる簡易キャンバス。SNS投稿で一部を隠したい場合に。</p>
+        </a>
+
+        <a href="/page-tools/bpmtest.php" class="card tool-card">
+          <div class="card-icon" style="background: #fce4ec; color: #e53935;">🎵</div>
+          <h3>BPMスピード確認</h3>
+          <p>タップでBPMを計測し、音楽のテンポを素早く確認します。BGMのテンポ合わせや演出のリズム確認に。</p>
+        </a>
+
+        <a href="/page-tools/dltextbhecker.php" class="card tool-card">
+          <div class="card-icon" style="background: #ede7f6; color: #7b1fa2;">📱</div>
+          <h3>スマホ表示改行確認</h3>
+          <p>DLsiteのスマホ画面での改行位置をシミュレート。作品説明文の見え方を投稿前に確認できます。</p>
+        </a>
+      </div>
+    </section>
 
   </main>
   <?php include __DIR__ . '/../footer.php'; ?>
