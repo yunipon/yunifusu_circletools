@@ -114,6 +114,22 @@
     const fileInput = document.getElementById('imageInput');
     const status = document.getElementById('status');
 
+    // 画像を取り込む順序を保持する配列
+    let imageList = [];
+
+    function addFilesToList(fileList) {
+      const arr = Array.from(fileList || []);
+      arr.forEach(f => imageList.push(f));
+      // inputをクリアして同じファイルを再選択できるようにする
+      try { fileInput.value = ''; } catch (e) {}
+      updateFileStatus();
+    }
+
+    function clearList() {
+      imageList = [];
+      updateFileStatus();
+    }
+
     // 1. エリアをクリックしたらファイル選択を開く
     dropZone.addEventListener('click', () => fileInput.click());
 
@@ -127,50 +143,45 @@
       dropZone.classList.remove('dragover');
     });
 
-    // 3. ドロップされた時の処理
+    // 3. ドロップされた時の処理（追加として扱う）
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('dragover');
 
-      // ファイルをinputにセット
-      fileInput.files = e.dataTransfer.files;
-
-      // 【重要】即実行せず、何枚選ばれたか表示するだけにする
-      updateFileStatus();
+      addFilesToList(e.dataTransfer.files);
     });
 
-    // 4. 普通にファイル選択された時の処理
+    // 4. 普通にファイル選択された時の処理（追加として扱う）
     fileInput.addEventListener('change', () => {
-      // 【重要】即実行せず、何枚選ばれたか表示するだけにする
-      updateFileStatus();
+      addFilesToList(fileInput.files);
     });
 
     // ファイルの選択状況を画面に出す関数
     function updateFileStatus() {
-      const count = fileInput.files.length;
+      const count = imageList.length;
       if (count > 0) {
-        status.innerText = `${count} 枚の画像が選択されています。「保存」ボタンを押してください。`;
-        status.style.color = "var(--accent-color)"; // 目立つ色に
+        const names = imageList.map((f, i) => `<li>${i + 1}. ${f.name}</li>`).join('');
+        status.innerHTML = `${count} 枚の画像が取り込まれています。<br><ul style="text-align:left;margin:8px 0;padding-left:18px;">${names}</ul><button id="clearBtn" style="margin-top:8px;padding:6px 10px;border-radius:6px;">取り消す</button>`;
+        status.style.color = "var(--accent-color)";
+        const clearBtn = document.getElementById('clearBtn');
+        if (clearBtn) clearBtn.addEventListener('click', clearList);
       } else {
         status.innerText = "";
       }
     }
 
-    // processImages() 関数の中身はそのままでOKです！
-    // （HTMLのボタンにある onclick="processImages()" で実行されるようになります）
-
+    // 取り込んだ順に連結して保存する
     async function processImages() {
-      const input = document.getElementById('imageInput');
       const btn = document.getElementById('processBtn'); // ボタン要素
-      const status = document.getElementById('status'); // 状況表示エリア
-      const files = Array.from(input.files);
+      const statusArea = document.getElementById('status'); // 状況表示エリア
+      const files = imageList.slice(); // 取り込み順のコピー
       if (files.length === 0) return;
 
       // 1. 処理開始の準備（ボタン無効化と表示変更）
       btn.disabled = true;
       const originalBtnText = btn.innerText;
       btn.innerText = "処理中...";
-      if (status) status.innerText = "画像を読み込み中...";
+      if (statusArea) statusArea.innerText = "画像を読み込み中...";
 
       // メモリ解放のために作成したURLを記録する配列
       const objectUrls = [];
@@ -199,14 +210,14 @@
         let finalBlob = null;
         const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
-        // 4. Python版と同じリサイズ＆品質ループ
+        // 4. リサイズ＆品質ループ
         loop: while (scale > 0.3) {
-          if (status) status.innerText = `サイズ調整中... (Scale: ${Math.round(scale * 100)}%)`;
+          if (statusArea) statusArea.innerText = `サイズ調整中... (Scale: ${Math.round(scale * 100)}%)`;
 
           canvas.width = width * scale;
           canvas.height = totalHeight * scale;
 
-          // 連結描画
+          // 連結描画（取り込み順）
           let yOffset = 0;
           images.forEach(img => {
             ctx.drawImage(img, 0, yOffset, canvas.width, img.height * scale);
@@ -217,7 +228,6 @@
           for (let q = 0.95; q > 0.5; q -= 0.05) {
             const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', q));
 
-            // ログ出力（デバッグ用）
             console.log(`scale=${scale.toFixed(2)}, quality=${q.toFixed(2)} → ${(blob.size / 1024 / 1024).toFixed(2)}MB`);
 
             if (blob.size <= MAX_SIZE) {
@@ -236,10 +246,9 @@
           link.download = "combined.jpg";
           link.click();
 
-          // ダウンロード用URLも解放対象に加える
           objectUrls.push(downloadUrl);
 
-          if (status) status.innerText = "保存が完了しました！";
+          if (statusArea) statusArea.innerText = "保存が完了しました！";
           alert("2MB以下で保存しました！");
         } else {
           alert("2MB以下に収めることができませんでした。");
@@ -248,10 +257,9 @@
       } catch (error) {
         console.error(error);
         alert("エラーが発生しました: " + error.message);
-        if (status) status.innerText = "エラーが発生しました。";
+        if (statusArea) statusArea.innerText = "エラーが発生しました。";
       } finally {
         // 6. メモリ解放の儀式
-        // 作成したすべての ObjectURL を無効化する
         objectUrls.forEach(url => URL.revokeObjectURL(url));
 
         // 7. ボタンを元に戻す
