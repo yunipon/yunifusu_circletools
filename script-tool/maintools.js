@@ -1588,6 +1588,11 @@ const Bundlingrules = [
  * 最も内側の括弧から順に削除していくことで、括弧の入れ子に対応
  */
 function removeBracketsRecursively(text) {
+  // 不可視スペースやゼロ幅文字を除去しておく
+  text = text.replace(/[\u200B\uFEFF\u00A0]/g, '');
+  // Unicode正規化で類似文字を統一（例：全角/半角の差を吸収）
+  if (String.prototype.normalize) text = text.normalize('NFKC');
+
   let changed = true;
   while (changed) {
     const before = text;
@@ -1601,10 +1606,12 @@ function removeBracketsRecursively(text) {
     text = text.replace(/《[^《》]*》/g, '');
     // ネストなし[]: \[[^\[\]]*\]
     text = text.replace(/\[[^\[\]]*\]/g, '');
-    
+
     changed = (text !== before);
   }
-  return text;
+
+  // 結果をトリムして返す
+  return text.trim();
 }
 
 function makeincluded() {
@@ -1616,6 +1623,15 @@ function makeincluded() {
   let text = area.value;
 
   // セリフ出力と空白行詰め関数を順番に回す
+  // 先に括弧の種類を統一（全角→半角）しておくことで
+  // applyExtract の途中で半角/全角が混在して片方だけ残る問題を防ぐ
+  text = text.replace(/[\u200B\uFEFF\u00A0]/g, '');
+  if (String.prototype.normalize) text = text.normalize('NFKC');
+  // 全角括弧を半角に統一
+  text = text.replace(/（/g, '(').replace(/）/g, ')');
+  area.value = text;
+  area.dispatchEvent(new Event('input'));
+
   applyExtract(Bundlingrules)
   shrinkBlankLines('textExtract')
 
