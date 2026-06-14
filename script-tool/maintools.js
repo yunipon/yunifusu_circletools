@@ -1583,36 +1583,7 @@ const Bundlingrules = [
   { label: 'ト書き行削除', pattern: '^\\s*(SE|SE).*', active: true },
 ];
 
-/**
- * ネストされた括弧を完全に削除する
- * 最も内側の括弧から順に削除していくことで、括弧の入れ子に対応
- */
-function removeBracketsRecursively(text) {
-  // 不可視スペースやゼロ幅文字を除去しておく
-  text = text.replace(/[\u200B\uFEFF\u00A0]/g, '');
-  // Unicode正規化で類似文字を統一（例：全角/半角の差を吸収）
-  if (String.prototype.normalize) text = text.normalize('NFKC');
 
-  let changed = true;
-  while (changed) {
-    const before = text;
-    // ネストなし全角括弧（）: （[^（）]*）
-    text = text.replace(/（[^（）]*）/g, '');
-    // ネストなし半角括弧(): ([^()]*)
-    text = text.replace(/\([^()]*\)/g, '');
-    // ネストなし【】: 【[^【】]*】
-    text = text.replace(/【[^【】]*】/g, '');
-    // ネストなし《》: 《[^《》]*》
-    text = text.replace(/《[^《》]*》/g, '');
-    // ネストなし[]: \[[^\[\]]*\]
-    text = text.replace(/\[[^\[\]]*\]/g, '');
-
-    changed = (text !== before);
-  }
-
-  // 結果をトリムして返す
-  return text.trim();
-}
 
 function makeincluded() {
 
@@ -1623,27 +1594,11 @@ function makeincluded() {
   let text = area.value;
 
   // セリフ出力と空白行詰め関数を順番に回す
-  // 先に括弧の種類を統一（全角→半角）しておくことで
-  // applyExtract の途中で半角/全角が混在して片方だけ残る問題を防ぐ
-  text = text.replace(/[\u200B\uFEFF\u00A0]/g, '');
-  if (String.prototype.normalize) text = text.normalize('NFKC');
-  // 全角括弧を半角に統一
-  text = text.replace(/（/g, '(').replace(/）/g, ')');
-  area.value = text;
-  area.dispatchEvent(new Event('input'));
-
   applyExtract(Bundlingrules)
   shrinkBlankLines('textExtract')
 
-  // ネストされた括弧を完全に削除（正規表現では対応できない場合用）
-  const areaAfterExtract = document.getElementById('textExtract');
-  if (areaAfterExtract) {
-    areaAfterExtract.value = removeBracketsRecursively(areaAfterExtract.value);
-    areaAfterExtract.dispatchEvent(new Event('input'));
-  }
-
   // 変形前台本をbeforeエリアに出力&文字数再カウント&inputイベント処理
-  areabefore.value = areaAfterExtract ? areaAfterExtract.value : text;
+  areabefore.value = text;
   updateCharCount('textExtractBefore', 'countExtractBefore');
   areabefore.dispatchEvent(new Event('input'));
 
