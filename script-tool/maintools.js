@@ -39,7 +39,7 @@ const defaultExtract = [
   { label: '()内削除', pattern: '[（\\(][^）\\)]*[）\\)]', active: true },
   { label: '《》内削除', pattern: '《[^》]*》', active: true },
   { label: '[]内削除', pattern: '\\[[^\\]]*\\]', active: true },
-  { label: 'スペース削除（文章の途中のスペースも削除）', pattern: '[ 　]', active: true }
+  { label: 'スペース削除（文章の途中のスペースも削除）', pattern: '[ 　]', active: true },
   { label: 'ト書き行削除', pattern: '^\\s*(◆|■|※|//|◇|□|＊).*', active: true },
   { label: 'ト書き行削除', pattern: '^\\s*(SE|SE).*', active: true },
 ];
