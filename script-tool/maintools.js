@@ -303,9 +303,132 @@ function applyExtract(rules) {
   updateCharCount('textExtract', 'countExtract');
   //alert("完了しました");
 
+  // 【追加】抽出後の検査：ルールに沿った記号が残っていないかチェック
+  checkExtractResult(rules);
+
   //保存用
   area.dispatchEvent(new Event('input'));
   areabefore.dispatchEvent(new Event('input'));
+}
+
+/**
+ * applyExtract() 実行後の検査：削除されるべき記号が残っていないかチェック
+ * ユーザーがアクティブにしたルールに基づいて動的にチェック
+ */
+function checkExtractResult(rules) {
+  const area = document.getElementById('textExtract');
+  if (!area) return;
+
+  const text = area.value;
+  const warnings = [];
+
+  // === アクティブなルールから削除対象記号を動的に判定 ===
+  const activeRules = rules.filter(r => r.active && r.pattern && !r.isSpecial);
+
+  activeRules.forEach(rule => {
+    const pattern = rule.pattern;
+    const label = rule.label;
+
+    // 括弧・記号のチェック対応表
+    if (pattern.includes('（') || pattern.includes('\\(')) {
+      // 全角括弧削除ルール
+      if (pattern.includes('（')) {
+        const openCount = (text.match(/（/g) || []).length;
+        const closeCount = (text.match(/）/g) || []).length;
+        if (openCount > 0 || closeCount > 0) {
+          if (openCount !== closeCount) {
+            warnings.push(`【${label}】全角括弧バランス不整：開き(${openCount}) ≠ 閉じ(${closeCount})`);
+          } else {
+            warnings.push(`【${label}】全角括弧が残存：${openCount}個のペアが削除されていません`);
+          }
+        }
+      }
+      // 半角括弧削除ルール
+      if (pattern.includes('\\(')) {
+        const openCount = (text.match(/\(/g) || []).length;
+        const closeCount = (text.match(/\)/g) || []).length;
+        if (openCount > 0 || closeCount > 0) {
+          if (openCount !== closeCount) {
+            warnings.push(`【${label}】半角括弧バランス不整：開き(${openCount}) ≠ 閉じ(${closeCount})`);
+          } else {
+            warnings.push(`【${label}】半角括弧が残存：${openCount}個のペアが削除されていません`);
+          }
+        }
+      }
+    }
+    // 【】削除ルール
+    else if (pattern.includes('【')) {
+      const openCount = (text.match(/【/g) || []).length;
+      const closeCount = (text.match(/】/g) || []).length;
+      if (openCount > 0 || closeCount > 0) {
+        if (openCount !== closeCount) {
+          warnings.push(`【${label}】バランス不整：開き(${openCount}) ≠ 閉じ(${closeCount})`);
+        } else {
+          warnings.push(`【${label}】が残存：${openCount}個のペアが削除されていません`);
+        }
+      }
+    }
+    // 《》削除ルール
+    else if (pattern.includes('《')) {
+      const openCount = (text.match(/《/g) || []).length;
+      const closeCount = (text.match(/》/g) || []).length;
+      if (openCount > 0 || closeCount > 0) {
+        if (openCount !== closeCount) {
+          warnings.push(`【${label}】バランス不整：開き(${openCount}) ≠ 閉じ(${closeCount})`);
+        } else {
+          warnings.push(`【${label}】が残存：${openCount}個のペアが削除されていません`);
+        }
+      }
+    }
+    // []削除ルール
+    else if (pattern.includes('\\[')) {
+      const openCount = (text.match(/\[/g) || []).length;
+      const closeCount = (text.match(/\]/g) || []).length;
+      if (openCount > 0 || closeCount > 0) {
+        if (openCount !== closeCount) {
+          warnings.push(`【${label}】バランス不整：開き(${openCount}) ≠ 閉じ(${closeCount})`);
+        } else {
+          warnings.push(`【${label}】が残存：${openCount}個のペアが削除されていません`);
+        }
+      }
+    }
+    // 行頭記号削除ルール（◆、■、◇、□、※など）
+    else if (pattern.startsWith('^')) {
+      // ^◆、^■、^◇、^□、^※パターン
+      if (pattern.includes('◆')) {
+        const count = (text.match(/^◆/gm) || []).length;
+        if (count > 0) warnings.push(`【${label}】◆記号が${count}個残存しています`);
+      }
+      if (pattern.includes('■')) {
+        const count = (text.match(/^■/gm) || []).length;
+        if (count > 0) warnings.push(`【${label}】■記号が${count}個残存しています`);
+      }
+      if (pattern.includes('◇')) {
+        const count = (text.match(/^◇/gm) || []).length;
+        if (count > 0) warnings.push(`【${label}】◇記号が${count}個残存しています`);
+      }
+      if (pattern.includes('□')) {
+        const count = (text.match(/^□/gm) || []).length;
+        if (count > 0) warnings.push(`【${label}】□記号が${count}個残存しています`);
+      }
+      if (pattern.includes('※')) {
+        const count = (text.match(/^※/gm) || []).length;
+        if (count > 0) warnings.push(`【${label}】※記号が${count}個残存しています`);
+      }
+    }
+    // コメント削除ルール（%%%）
+    else if (pattern.includes('%')) {
+      const count = (text.match(/%%%/g) || []).length;
+      if (count > 0) {
+        warnings.push(`【${label}】%%%が${count}個残存しています（${count % 2 === 0 ? 'ペア数' : '不完全'}: ${Math.ceil(count / 2)}）`);
+      }
+    }
+  });
+
+  // === 警告アラートを出す ===
+  if (warnings.length > 0) {
+    alert(`【抽出完了時チェック】ユーザーが有効にしたルールで削除対象の記号が残存しています：\n\n${warnings.join('\n')}\n\n内容を確認してください。`);
+  }
 }
 
 function runPreview() {
