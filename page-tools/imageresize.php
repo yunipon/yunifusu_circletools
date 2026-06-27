@@ -425,6 +425,12 @@
             nameTag.style.fontSize = "10px";
             wrapper.appendChild(nameTag);
 
+            const qualityTag = document.createElement('div');
+            qualityTag.className = 'quality-tag';
+            qualityTag.style.cssText = 'font-size:11px; color:#aaa; margin-top:2px;';
+            qualityTag.innerText = '―';
+            wrapper.appendChild(qualityTag);
+
             document.getElementById('canvasContainer').appendChild(wrapper);
             resolve();
           };
@@ -438,16 +444,65 @@
       document.getElementById('squareAdjustArea').style.display = 'none';
     }
 
+    function getDataURLByteSize(dataURL) {
+      const base64 = dataURL.split(',')[1];
+      return Math.floor(base64.length * 3 / 4);
+    }
+
+    function findBestQuality(canvas) {
+      const MAX = 2 * 1024 * 1024;
+      const fullURL = canvas.toDataURL('image/jpeg', 1.0);
+      if (getDataURLByteSize(fullURL) <= MAX) {
+        return { dataURL: fullURL, sizeBytes: getDataURLByteSize(fullURL), quality: 1.0 };
+      }
+      let lo = 0.1, hi = 0.99, bestQ = 0.1;
+      let bestURL = canvas.toDataURL('image/jpeg', 0.1);
+      for (let i = 0; i < 12; i++) {
+        const mid = (lo + hi) / 2;
+        const url = canvas.toDataURL('image/jpeg', mid);
+        if (getDataURLByteSize(url) <= MAX) {
+          bestQ = mid;
+          bestURL = url;
+          lo = mid;
+        } else {
+          hi = mid;
+        }
+      }
+      return { dataURL: bestURL, sizeBytes: getDataURLByteSize(bestURL), quality: bestQ };
+    }
+
     function downloadAllImages() {
       const canvases = document.querySelectorAll('.resized-canvas');
       if (canvases.length === 0) return;
+      status.innerText = `保存準備中（2MB以下に自動調整中）... 0/${canvases.length}`;
+      let completed = 0;
       canvases.forEach((cvs, index) => {
         setTimeout(() => {
+          const { dataURL, sizeBytes, quality } = findBestQuality(cvs);
           const link = document.createElement('a');
           link.download = `resized_${TARGET_WIDTH}x${TARGET_HEIGHT}_${index + 1}.jpg`;
-          link.href = cvs.toDataURL('image/jpeg', 1.0);
+          link.href = dataURL;
           link.click();
-        }, index * 400); // 1600pxは重いため間隔を少し広げる
+
+          const sizeMB = (sizeBytes / (1024 * 1024)).toFixed(2);
+          const qualityTag = cvs.parentElement.querySelector('.quality-tag');
+          if (qualityTag) {
+            if (quality < 1.0) {
+              qualityTag.style.color = 'orange';
+              qualityTag.innerText = `品質 ${Math.round(quality * 100)}% / ${sizeMB} MB（圧縮済み）`;
+            } else {
+              qualityTag.style.color = 'green';
+              qualityTag.innerText = `品質 100% / ${sizeMB} MB`;
+            }
+          }
+
+          completed++;
+          if (completed === canvases.length) {
+            status.innerText = `すべて保存完了（全${canvases.length}枚）`;
+          } else {
+            status.innerText = `保存中... ${completed}/${canvases.length}`;
+          }
+        }, index * 400);
       });
     }
   </script>
