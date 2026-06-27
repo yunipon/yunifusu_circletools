@@ -344,7 +344,7 @@
       ctx.drawImage(rawImg, Math.abs(imgL) * ratio, Math.abs(imgT) * ratio, 500 * ratio, 500 * ratio, 0, 0, 500, 500);
 
       const link = document.createElement('a');
-      link.download = `${currentEditingName}_sq.jpg`;
+      link.download = 'スクエアアイコン_500×500.jpg';
       link.href = canvas.toDataURL('image/jpeg', 1.0);
       link.click();
     }
@@ -364,6 +364,7 @@
             cvs.height = TARGET_HEIGHT;
             cvs.className = 'resized-canvas';
             cvs.style.width = "100%";
+            cvs.dataset.originalName = file.name.replace(/\.[^.]+$/, '');
             const ctx = cvs.getContext('2d');
 
             // 1. 高画質リサイズ (段階的)
@@ -480,7 +481,7 @@
         setTimeout(() => {
           const { dataURL, sizeBytes, quality } = findBestQuality(cvs);
           const link = document.createElement('a');
-          link.download = `resized_${TARGET_WIDTH}x${TARGET_HEIGHT}_${index + 1}.jpg`;
+          link.download = `${cvs.dataset.originalName}_R${TARGET_WIDTH}×${TARGET_HEIGHT}.jpg`;
           link.href = dataURL;
           link.click();
 
