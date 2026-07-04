@@ -2030,6 +2030,8 @@ const CHAR_FIELDS = [
   { label: 'スタイル', class: '.p-c-style' },
   { label: '乳の特徴', class: '.p-c-breast' },
   { label: 'アクセサリー', class: '.p-c-accessory' },
+  { label: '肌の特徴', class: '.p-c-skin' },
+  { label: '表情・雰囲気', class: '.p-c-expression' },
   { label: 'イメージキャラ', class: '.p-c-img-char' },
   { label: '声質', class: '.p-c-voice' }
 ];
@@ -2076,6 +2078,8 @@ function addPlotChar() {
       <input type="text" class="p-c-style" placeholder="スタイル・体格" style="width: 100%; box-sizing: border-box;">
       <input type="text" class="p-c-breast" placeholder="乳の特徴" style="width: 100%; box-sizing: border-box;">
       <input type="text" class="p-c-accessory" placeholder="アクセサリー" style="width: 100%; box-sizing: border-box;">
+      <input type="text" class="p-c-skin" placeholder="肌の特徴" style="width: 100%; box-sizing: border-box;">
+      <input type="text" class="p-c-expression" placeholder="表情・雰囲気" style="width: 100%; box-sizing: border-box;">
       <input type="text" class="p-c-img-char" placeholder="イメージキャラ" style="width: 100%; box-sizing: border-box;">
       <input type="text" class="p-c-voice" placeholder="声質・声優案" style="width: 100%; box-sizing: border-box;">
     </div>
