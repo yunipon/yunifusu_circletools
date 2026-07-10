@@ -942,7 +942,7 @@ function clearData(type) {
   }
   else if (type === 'plot') {
     // 基本項目
-    ['p-title', 'p-summary', 'p-summary-long', 'p-hero-setting', 'p-concept', 'p-thumbnail', 'plotResult'].forEach(id => {
+    ['p-title', 'p-summary', 'p-summary-long', 'p-hero-setting', 'p-other1', 'p-other2', 'plotResult'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = "";
     });
@@ -2252,10 +2252,11 @@ function generatePlotText() {
 
   // 残りの項目
   addSection('主人公の設定', 'p-hero-setting');
-  addSection('その他１', 'p-concept');
-  addSection('その他２', 'p-thumbnail');
-  //addSection('コンセプト・推しポイント', 'p-concept');
-  //addSection('サムネイル案', 'p-thumbnail');
+  addSection('その他１', 'p-other1');
+  addSection('その他２', 'p-other2');
+  addSection('その他３', 'p-other3');
+  //addSection('コンセプト・推しポイント', 'p-other1');
+  //addSection('サムネイル案', 'p-other2');
 
   document.getElementById('plotResult').value = res.trim();
 }
@@ -2266,7 +2267,7 @@ function generatePlotText() {
 function parseAndFillPlot(text) {
   // --- 1. 既存データを完全にクリアする ---
   // 固定項目のクリア
-  const basicIds = ['p-title', 'p-summary', 'p-summary-long', 'p-hero-setting', 'p-concept', 'p-thumbnail', 'plotResult'];
+  const basicIds = ['p-title', 'p-summary', 'p-summary-long', 'p-hero-setting', 'p-other1', 'p-other2', 'p-other3', 'plotResult'];
   basicIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = "";
@@ -2311,11 +2312,15 @@ function parseAndFillPlot(text) {
       i = data.lastIndex;
     } else if (line.includes('■その他１')) {
       const data = getSectionContent(lines, i);
-      document.getElementById('p-concept').value = data.content;
+      document.getElementById('p-other1').value = data.content;
       i = data.lastIndex;
     } else if (line.includes('■その他２')) {
       const data = getSectionContent(lines, i);
-      document.getElementById('p-thumbnail').value = data.content;
+      document.getElementById('p-other2').value = data.content;
+      i = data.lastIndex;
+    } else if (line.includes('■その他３')) {
+      const data = getSectionContent(lines, i);
+      document.getElementById('p-other3').value = data.content;
       i = data.lastIndex;
     }
 

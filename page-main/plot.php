@@ -61,12 +61,17 @@
 
       <div class="rule-card" style="border-left-color: #28a745;">
         <h4>■ その他１</h4>
-        <textarea id="p-concept" style="height:80px;"></textarea>
+        <textarea id="p-other1" style="height:80px;"></textarea>
       </div>
 
       <div class="rule-card" style="border-left-color: #ffc107;">
         <h4>■ その他２</h4>
-        <textarea id="p-thumbnail" style="height:80px;"></textarea>
+        <textarea id="p-other2" style="height:80px;"></textarea>
+      </div>
+
+      <div class="rule-card" style="border-left-color: #17a2b8;">
+        <h4>■ その他３</h4>
+        <textarea id="p-other3" style="height:80px;"></textarea>
       </div>
 
       <div class="btn-group" style="margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap;">
