@@ -2311,15 +2311,15 @@ function parseAndFillPlot(text) {
       document.getElementById('p-hero-setting').value = data.content;
       i = data.lastIndex;
     } else if (line.includes('■その他１')) {
-      const data = getSectionContent(lines, i);
+      const data = getSectionContent(lines, i, true);
       document.getElementById('p-other1').value = data.content;
       i = data.lastIndex;
     } else if (line.includes('■その他２')) {
-      const data = getSectionContent(lines, i);
+      const data = getSectionContent(lines, i, true);
       document.getElementById('p-other2').value = data.content;
       i = data.lastIndex;
     } else if (line.includes('■その他３')) {
-      const data = getSectionContent(lines, i);
+      const data = getSectionContent(lines, i, true);
       document.getElementById('p-other3').value = data.content;
       i = data.lastIndex;
     }
@@ -2449,15 +2449,14 @@ function parseAndFillPlot(text) {
  * 改良版：次の見出しが出るまでの全テキストを取得するヘルパー
  * (これがないとタイトルやあらすじの解析で止まります)
  */
-function getSectionContent(lines, currentIndex) {
+function getSectionContent(lines, currentIndex, freeForm = false) {
   let j = currentIndex + 1;
   let contentLines = [];
   while (j < lines.length) {
     let line = lines[j];
     // 次の見出し（■ または ・）が出てきたら終了
-    if (line.trim().startsWith('■') || line.trim().startsWith('・') || line.trim().startsWith('【')) {
-      break;
-    }
+    if (line.trim().startsWith('■')) break;
+    if (!freeForm && (line.trim().startsWith('・') || line.trim().startsWith('【'))) break;
     contentLines.push(line);
     j++;
   }
