@@ -593,10 +593,10 @@ h3 {
   /* 親（editor-container）の余白を埋める */
   border: 1px solid #ddd;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   background-color: #fff;
   min-height: 200px;
-  /* 必要に応じて調整 */
+  resize: vertical;
 }
 
 /* 行番号エリア */
@@ -627,10 +627,9 @@ h3 {
   font-family: var(--font-editor);
   font-size: 14px;
   line-height: 1.6;
-  resize: vertical;
+  resize: none;
   background-color: transparent;
   margin: 0;
-  /* ↓ 中身が増えたら自動でスクロールバーを出す */
   overflow-y: auto;
 }
 
