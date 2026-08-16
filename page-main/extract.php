@@ -95,6 +95,7 @@
 
           <!-- ② テキスト整形 -->
           <strong>テキスト整形</strong>
+          <div class="text-format-subheading">空白調整</div>
           <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
             <span class="tooltip" data-tooltip="右の削除ルール設定に基づいてト書きなどを削除し、セリフのみを残します">
               <button class="btn-primary" onclick="applyExtract(extractRules)">セリフのみ抽出</button>
@@ -114,8 +115,15 @@
             <span class="tooltip" data-tooltip="空行・改行をすべて完全に削除します（空白行削除より強力）">
               <button class="btn-primary" onclick="removeAllBlankLines('textExtract')">空白改行完全削除</button>
             </span>
-            <span class="tooltip pronunciation-tooltip" data-tooltip="外部ルールに従い、セリフの対象語へ読み分けタグを付けます。&#10;付与設定：[BA] [BI] [BU] [BE] [BO] [PA] [PI] [PU] [PE] [PO] [BYU] [PYU]">
+          </div>
+          <hr class="text-format-divider">
+          <div class="text-format-subheading">読み分けタグ</div>
+          <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <span class="tooltip pronunciation-tooltip" data-tooltip="セリフの対象語へ読み分けタグを付けます。&#10;付与設定：[BA] [BI] [BU] [BE] [BO] [PA] [PI] [PU] [PE] [PO] [BYU] [PYU]">
               <button class="btn-primary" onclick="applyPronunciationTags('textExtract')">読み分けタグ付与</button>
+            </span>
+            <span class="tooltip" data-tooltip="読み分けタグと対象語の一覧をTXTでダウンロードします">
+              <button class="btn-secondary" onclick="downloadPronunciationTagList()">設定一覧DL</button>
             </span>
           </div>
           <div id="pronunciationTagResult" class="pronunciation-tag-result" aria-live="polite"></div>

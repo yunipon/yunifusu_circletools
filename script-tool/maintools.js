@@ -1825,6 +1825,32 @@ async function applyPronunciationTags(targetId) {
   }
 }
 
+async function downloadPronunciationTagList() {
+  try {
+    const response = await fetch(pronunciationTagRulesUrl, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`ルールファイルを読み込めません（HTTP ${response.status}）`);
+    const data = await response.json();
+    validatePronunciationTagRules(data);
+
+    const content = data.rules.map(rule =>
+      rule.terms.map(term => `${rule.tag}${term}`).join('\r\n')
+    ).join('\r\n\r\n') + '\r\n';
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '読み分けタグ設定一覧.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Pronunciation tag download error:', error);
+    showPronunciationTagResult([], error.message);
+  }
+}
+
 function updatePlotCharCount(textarea, displayId) {
   const display = document.getElementById(displayId);
   if (display) {

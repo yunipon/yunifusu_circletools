@@ -109,6 +109,7 @@
 
           <!-- ② テキスト整形 -->
           <strong>テキスト整形</strong>
+          <div class="text-format-subheading">空白調整</div>
           <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <span class="tooltip" data-tooltip="ト書きとセリフの間など、種類が変わる行の間に空行を挿入します">
               <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
@@ -119,8 +120,15 @@
             <span class="tooltip" data-tooltip="各行の先頭にある半角・全角スペースやタブを削除します">
               <button class="btn-primary" onclick="removeLeadingSpaces('textMulti')">行頭空白削除</button>
             </span>
-            <span class="tooltip pronunciation-tooltip" data-tooltip="外部ルールに従い、セリフの対象語へ読み分けタグを付けます。&#10;付与設定：[BA] [BI] [BU] [BE] [BO] [PA] [PI] [PU] [PE] [PO] [BYU] [PYU]">
+          </div>
+          <hr class="text-format-divider">
+          <div class="text-format-subheading">読み分けタグ</div>
+          <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <span class="tooltip pronunciation-tooltip" data-tooltip="セリフの対象語へ読み分けタグを付けます。&#10;付与設定：[BA] [BI] [BU] [BE] [BO] [PA] [PI] [PU] [PE] [PO] [BYU] [PYU]">
               <button class="btn-primary" onclick="applyPronunciationTags('textMulti')">読み分けタグ付与</button>
+            </span>
+            <span class="tooltip" data-tooltip="読み分けタグと対象語の一覧をTXTでダウンロードします">
+              <button class="btn-secondary" onclick="downloadPronunciationTagList()">設定一覧DL</button>
             </span>
           </div>
           <div id="pronunciationTagResult" class="pronunciation-tag-result" aria-live="polite"></div>

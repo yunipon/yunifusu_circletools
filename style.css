@@ -1113,3 +1113,16 @@ pre {
   border: 1px solid #dfe4e8;
   border-radius: 6px;
 }
+
+.text-format-subheading {
+  margin-top: 12px;
+  color: #566573;
+  font-size: 0.82rem;
+  font-weight: bold;
+}
+
+.text-format-divider {
+  margin: 15px 0 0;
+  border: 0;
+  border-top: 1px dashed #b8c8d4;
+}
