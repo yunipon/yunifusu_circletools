@@ -71,12 +71,13 @@
             <div class="editor-pane" style="flex: 1;">
               <div class="textarea-wrapper">
                 <div id="lineNumbers" class="line-numbers"></div>
-                <textarea id="textFormat"
+                <textarea id="textFormat" wrap="off"
                   oninput="updateCharCount('textFormat', 'countFormat'); runPreview(); updateNameButtons('textFormat'); updateLineNumbers()"
                   onscroll="syncScroll()"
                   placeholder="台本を貼り付けてください...">
                 </textarea>
               </div>
+              <div id="horizontalScrollHint" class="horizontal-scroll-hint" hidden>※ 長い行は横にスクロールできます</div>
             </div>
             <div class="char-count" style="font-size: 0.85rem; color: #666; margin: 5px 0px;">
               入力文字数: <span id="countFormat">0</span>

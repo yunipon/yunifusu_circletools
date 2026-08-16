@@ -145,6 +145,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   //文字数と行数表示実行
   updateLineNumbers();
+  window.addEventListener('resize', updateHorizontalScrollHint);
   refreshAllCounts();
 
 });
@@ -231,6 +232,19 @@ function updateLineNumbers() {
   }
 
   lineNumbers.innerHTML = numberArray.join('<br>');
+  updateHorizontalScrollHint(textarea);
+}
+
+function updateHorizontalScrollHint(textarea = null) {
+  const suppliedTextarea = textarea && textarea.nodeType === 1 ? textarea : null;
+  const target = suppliedTextarea || ['textExtract', 'textFormat', 'textMulti']
+    .map(id => document.getElementById(id))
+    .find(Boolean);
+  const hint = document.getElementById('horizontalScrollHint');
+  if (!target || !hint) return;
+
+  // 小数ピクセルの誤差で案内が点滅しないよう、1px以上の超過時だけ表示する。
+  hint.hidden = target.scrollWidth <= target.clientWidth + 1;
 }
 
 function syncScroll() {

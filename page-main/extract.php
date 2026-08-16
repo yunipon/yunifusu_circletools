@@ -81,12 +81,13 @@
           </div>
           <div class="textarea-wrapper">
             <div id="lineNumbers" class="line-numbers"></div>
-            <textarea id="textExtract"
+            <textarea id="textExtract" wrap="off"
               oninput="updateCharCount('textExtract', 'countExtract'); updateNameButtons('textExtract'); updateLineNumbers()"
               onscroll="syncScroll()"
               placeholder="台本を貼り付けてください...">
               </textarea>
           </div>
+          <div id="horizontalScrollHint" class="horizontal-scroll-hint" hidden>※ 長い行は横にスクロールできます</div>
           <div class="char-count">
             文字数: <span id="countExtract">0</span>
           </div>

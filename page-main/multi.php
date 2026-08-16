@@ -91,12 +91,13 @@
           <div style="font-size: x-small; color: red; margin-bottom: 8px;">【注意】「//」はキャラ名以外に使用しないでください！！</div>
           <div class="textarea-wrapper">
             <div id="lineNumbers" class="line-numbers"></div>
-            <textarea id="textMulti"
+            <textarea id="textMulti" wrap="off"
               oninput="updateCharCount('textMulti', 'countMulti'); runMultiPreview(); updateNameButtons('textMulti'); updateLineNumbers()"
               onscroll="syncScroll()"
               placeholder="複数人の台本を貼り付けてください...">
             </textarea>
           </div>
+          <div id="horizontalScrollHint" class="horizontal-scroll-hint" hidden>※ 長い行は横にスクロールできます</div>
           <div class="char-count" style="text-align: right; margin-top: 5px; color: #666;">
             文字数: <span id="countMulti">0</span>
           </div>
