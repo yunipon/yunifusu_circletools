@@ -112,7 +112,7 @@
                 <button class="btn-primary" onclick="applyPronunciationTags('textFormat')">読み分けタグ付与</button>
               </span>
               <span class="tooltip" data-tooltip="読み分けタグと対象語の一覧をTXTでダウンロードします">
-                <button class="btn-secondary" onclick="downloadPronunciationTagList()">設定一覧DL</button>
+                <button class="btn-secondary btn-download" onclick="downloadPronunciationTagList()">設定一覧DL</button>
               </span>
             </div>
             <div id="pronunciationTagResult" class="pronunciation-tag-result" aria-live="polite"></div>

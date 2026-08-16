@@ -112,6 +112,14 @@
   cursor: pointer;
 }
 
+.btn-secondary.btn-download {
+  background: #4c6fae;
+}
+
+.btn-secondary.btn-download:hover {
+  background: #3b588d;
+}
+
 .btn-danger {
   background: #dc3545;
   color: white;

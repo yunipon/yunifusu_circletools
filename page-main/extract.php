@@ -96,7 +96,7 @@
 
           <!-- ② テキスト整形 -->
           <strong>テキスト整形</strong>
-          <div class="text-format-subheading">空白調整</div>
+          <div class="text-format-subheading">抽出</div>
           <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
             <span class="tooltip" data-tooltip="右の削除ルール設定に基づいてト書きなどを削除し、セリフのみを残します">
               <button class="btn-primary" onclick="applyExtract(extractRules)">セリフのみ抽出</button>
@@ -104,6 +104,10 @@
             <span class="tooltip" data-tooltip="ト書きを削除し、空白行を調整して同梱テキスト用に整形します">
               <button class="btn-primary" onclick="makeincluded()">同梱用</button>
             </span>
+          </div>
+          <hr class="text-format-divider">
+          <div class="text-format-subheading">空白調整</div>
+          <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
             <span class="tooltip" data-tooltip="各行の先頭にある半角・全角スペースやタブを削除します">
               <button class="btn-primary" onclick="removeLeadingSpaces('textExtract')">行頭空白削除</button>
             </span>
@@ -124,7 +128,7 @@
               <button class="btn-primary" onclick="applyPronunciationTags('textExtract')">読み分けタグ付与</button>
             </span>
             <span class="tooltip" data-tooltip="読み分けタグと対象語の一覧をTXTでダウンロードします">
-              <button class="btn-secondary" onclick="downloadPronunciationTagList()">設定一覧DL</button>
+              <button class="btn-secondary btn-download" onclick="downloadPronunciationTagList()">設定一覧DL</button>
             </span>
           </div>
           <div id="pronunciationTagResult" class="pronunciation-tag-result" aria-live="polite"></div>
