@@ -102,7 +102,11 @@
               <span class="tooltip" data-tooltip="各行の先頭にある半角・全角スペースやタブを削除します">
                 <button class="btn-primary" onclick="removeLeadingSpaces('textFormat')">行頭空白削除</button>
               </span>
+              <span class="tooltip pronunciation-tooltip" data-tooltip="外部ルールに従い、セリフの対象語へ読み分けタグを付けます。&#10;付与設定：[BA] [BI] [BU] [BE] [BO] [PA] [PI] [PU] [PE] [PO] [BYU] [PYU]">
+                <button class="btn-primary" onclick="applyPronunciationTags('textFormat')">読み分けタグ付与</button>
+              </span>
             </div>
+            <div id="pronunciationTagResult" class="pronunciation-tag-result" aria-live="polite"></div>
 
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 

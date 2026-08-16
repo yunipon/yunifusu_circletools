@@ -1703,6 +1703,128 @@ function removeLeadingSpaces(targetId, displayAreaId = null) {
   area.dispatchEvent(new Event('input'));
 }
 
+// ==========================================
+// 読み分けタグ付与（ルールは外部 JSON で管理）
+// ==========================================
+
+const pronunciationTagRulesUrl = '../data/pronunciation-tags.json';
+
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function validatePronunciationTagRules(data) {
+  if (!data || !Array.isArray(data.rules) || !Array.isArray(data.excludedLinePatterns)) {
+    throw new Error('rules または excludedLinePatterns がありません。');
+  }
+
+  const seenTerms = new Set();
+  const rules = [];
+  data.rules.forEach(rule => {
+    if (!rule || typeof rule.tag !== 'string' || !/^\[[A-Za-z0-9_-]+\]$/.test(rule.tag) || !Array.isArray(rule.terms)) {
+      throw new Error('tag または terms の形式が正しくありません。');
+    }
+    rule.terms.forEach(term => {
+      if (typeof term !== 'string' || term === '') throw new Error('空の対象語は使用できません。');
+      if (seenTerms.has(term)) throw new Error(`対象語「${term}」が重複しています。`);
+      seenTerms.add(term);
+      rules.push({ tag: rule.tag, term });
+    });
+  });
+
+  // 「ぱん」と「ぱんぱん」がある場合も、必ず長い語を先に照合する。
+  rules.sort((a, b) => b.term.length - a.term.length);
+  return {
+    rules,
+    excludedLineRegexes: data.excludedLinePatterns.map(pattern => new RegExp(pattern))
+  };
+}
+
+function tagPronunciationSegment(segment, rules, lineNumber, changes) {
+  if (!segment || rules.length === 0) return segment;
+  const byTerm = new Map(rules.map(rule => [rule.term, rule]));
+  const matcher = new RegExp(rules.map(rule => escapeRegExp(rule.term)).join('|'), 'g');
+
+  return segment.replace(matcher, (term, offset, wholeSegment) => {
+    const rule = byTerm.get(term);
+    const alreadyTagged = /\[[A-Za-z0-9_-]+\]$/.test(wholeSegment.slice(0, offset));
+    if (alreadyTagged) return term;
+    changes.push({ lineNumber, tag: rule.tag, term });
+    return rule.tag + term;
+  });
+}
+
+function addPronunciationTagsToText(text, config) {
+  const changes = [];
+  let insideComment = false;
+  const lines = text.split('\n');
+
+  const output = lines.map((line, index) => {
+    const isExcludedLine = config.excludedLineRegexes.some(regex => regex.test(line));
+    let result = '';
+    let cursor = 0;
+
+    while (cursor < line.length) {
+      const markerIndex = line.indexOf('%%%', cursor);
+      const end = markerIndex === -1 ? line.length : markerIndex;
+      const segment = line.slice(cursor, end);
+      result += (!insideComment && !isExcludedLine)
+        ? tagPronunciationSegment(segment, config.rules, index + 1, changes)
+        : segment;
+
+      if (markerIndex === -1) break;
+      result += '%%%';
+      insideComment = !insideComment;
+      cursor = markerIndex + 3;
+    }
+
+    return result;
+  });
+
+  return { text: output.join('\n'), changes };
+}
+
+function showPronunciationTagResult(changes, errorMessage = '') {
+  const resultArea = document.getElementById('pronunciationTagResult');
+  if (!resultArea) return;
+  resultArea.style.display = 'block';
+
+  if (errorMessage) {
+    resultArea.textContent = `処理できませんでした：${errorMessage}`;
+    return;
+  }
+  if (changes.length === 0) {
+    resultArea.textContent = '0件付与しました（変更はありません）';
+    return;
+  }
+
+  const details = changes.map(change =>
+    `・${change.lineNumber}行目：${change.tag}${change.term}`
+  );
+  resultArea.textContent = `${changes.length}件付与しました\n${details.join('\n')}`;
+}
+
+async function applyPronunciationTags(targetId) {
+  const area = document.getElementById(targetId);
+  if (!area) return;
+
+  try {
+    const response = await fetch(pronunciationTagRulesUrl, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`ルールファイルを読み込めません（HTTP ${response.status}）`);
+    const config = validatePronunciationTagRules(await response.json());
+    const result = addPronunciationTagsToText(area.value, config);
+
+    if (result.changes.length > 0) {
+      area.value = result.text;
+      triggerSave(area);
+    }
+    showPronunciationTagResult(result.changes);
+  } catch (error) {
+    console.error('Pronunciation tag error:', error);
+    showPronunciationTagResult([], error.message);
+  }
+}
+
 function updatePlotCharCount(textarea, displayId) {
   const display = document.getElementById(displayId);
   if (display) {
