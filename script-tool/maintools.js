@@ -2195,7 +2195,12 @@ const CHAR_FIELDS = [
   { label: '肌の特徴', class: '.p-c-skin' },
   { label: '表情・雰囲気', class: '.p-c-expression' },
   { label: 'イメージキャラ', class: '.p-c-img-char' },
-  { label: '声質', class: '.p-c-voice' }
+  { label: '声質', class: '.p-c-voice' },
+  { label: '一人称', class: '.p-c-first-person' },
+  { label: '主人公への呼称', class: '.p-c-hero-name' },
+  { label: '他キャラへの呼称', class: '.p-c-other-name' },
+  { label: '男性器の呼称', class: '.p-c-male-genital-name' },
+  { label: '女性器の呼称', class: '.p-c-female-genital-name' }
 ];
 
 
@@ -2244,6 +2249,16 @@ function addPlotChar() {
       <input type="text" class="p-c-expression" placeholder="表情・雰囲気" style="width: 100%; box-sizing: border-box;">
       <input type="text" class="p-c-img-char" placeholder="イメージキャラ" style="width: 100%; box-sizing: border-box;">
       <input type="text" class="p-c-voice" placeholder="声質・声優案" style="width: 100%; box-sizing: border-box;">
+    </div>
+    <div style="margin-top:10px;">
+      <label>呼称</label>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top:5px;">
+        <input type="text" class="p-c-first-person" placeholder="一人称" style="width: 100%; box-sizing: border-box;">
+        <input type="text" class="p-c-hero-name" placeholder="主人公への呼称" style="width: 100%; box-sizing: border-box;">
+        <input type="text" class="p-c-other-name" placeholder="他キャラへの呼称" style="width: 100%; box-sizing: border-box;">
+        <input type="text" class="p-c-male-genital-name" placeholder="男性器の呼称" style="width: 100%; box-sizing: border-box;">
+        <input type="text" class="p-c-female-genital-name" placeholder="女性器の呼称" style="width: 100%; box-sizing: border-box;">
+      </div>
     </div>
     <div style="margin-top:10px;">
       <label>追記情報（上記項目に無い情報）</label>
