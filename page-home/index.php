@@ -58,7 +58,7 @@
         <a href="/page-tools/imagejoin.php" class="card tool-card">
           <div class="card-icon" style="background: #e8f5e9; color: #43a047;">🖼️</div>
           <h3>複数画像連結</h3>
-          <p>複数の画像を縦に並べて1枚に連結して2MB以下で保存します。縦デザインの紹介画像の連結に。</p>
+          <p>複数の画像を縦に並べて1枚に連結して1.9MB以下で保存します。縦デザインの紹介画像の連結に。</p>
         </a>
 
         <a href="/page-tools/imageresize.php" class="card tool-card">

@@ -103,7 +103,7 @@
 
       <div class="note">
         ※ すべての画像を同じ横幅に調整し、縦に連結します。<br>
-        ※ 自動でリサイズし、ファイルサイズを2MB以下に抑えます。
+        ※ 自動でリサイズし、ファイルサイズを1.9MB以下に抑えます。
       </div>
     </div>
   </main>
@@ -208,7 +208,7 @@
 
         let scale = 1.0;
         let finalBlob = null;
-        const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+        const MAX_SIZE = 1_900_000; // 登録サイトの2MB制限に対する安全幅を確保
 
         // 4. リサイズ＆品質ループ
         loop: while (scale > 0.3) {
@@ -249,9 +249,9 @@
           objectUrls.push(downloadUrl);
 
           if (statusArea) statusArea.innerText = "保存が完了しました！";
-          alert("2MB以下で保存しました！");
+          alert("1.9MB以下で保存しました！");
         } else {
-          alert("2MB以下に収めることができませんでした。");
+          alert("1.9MB以下に収めることができませんでした。");
         }
 
       } catch (error) {
