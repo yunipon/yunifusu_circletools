@@ -61,6 +61,12 @@
           <p>複数の画像を縦に並べて1枚に連結して1.9MB以下で保存します。縦デザインの紹介画像の連結に。</p>
         </a>
 
+        <a href="/page-tools/imagecompress.php" class="card tool-card">
+          <div class="card-icon" style="background: #fff3e0; color: #ef6c00;">🗜️</div>
+          <h3>画像一括圧縮</h3>
+          <p>画像の縦横比を維持したまま、複数枚まとめて1.9MB以下のJPEGに変換します。</p>
+        </a>
+
         <a href="/page-tools/imageresize.php" class="card tool-card">
           <div class="card-icon" style="background: #e3f2fd; color: #1e88e5;">📐</div>
           <h3>画像リサイズ&amp;トリミング</h3>

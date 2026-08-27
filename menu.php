@@ -27,6 +27,7 @@
         </button>
         <div class="top-nav-dropdown-content">
           <a href="/page-tools/imagejoin.php">画像連結</a>
+          <a href="/page-tools/imagecompress.php">画像一括圧縮</a>
           <a href="/page-tools/imageresize.php">画像リサイズ&amp;トリミング</a>
           <a href="/page-tools/graffiti.php">画像らくがき</a>
           <a href="/page-tools/bpmtest.php">BPMスピードテスト</a>
