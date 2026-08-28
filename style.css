@@ -184,10 +184,28 @@
 
 /* ホバーした時に表示 */
 .tooltip:hover::before,
-.tooltip:hover::after {
+.tooltip:hover::after,
+.tooltip:focus::before,
+.tooltip:focus::after {
   opacity: 1;
   visibility: visible;
   transition: none;
+}
+
+.rule-help-tooltip {
+  color: #3498db;
+  line-height: 1;
+  border-radius: 50%;
+}
+
+.rule-help-tooltip:focus-visible {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+.rule-help-tooltip .material-symbols-outlined {
+  display: block;
+  font-size: 18px;
 }
 
 /* ==========================================

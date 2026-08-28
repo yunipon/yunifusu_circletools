@@ -189,7 +189,14 @@
                 </ul>
               </div>
               <div class="rule-card" style="margin-top: 15px; border-left-color: #3498db;">
-                <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; color: #2c3e50;">新しい削除ルール</div>
+                <div style="display: flex; align-items: center; gap: 4px; font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; color: #2c3e50;">
+                  <span>新しい削除ルール</span>
+                  <span class="tooltip pronunciation-tooltip rule-help-tooltip"
+                    data-tooltip="〇〇.* → 〇〇以降を行末まで削除&#10;^〇〇.* → 〇〇から始まる行を丸ごと削除"
+                    tabindex="0" aria-label="正規表現のポイント">
+                    <span class="material-symbols-outlined" aria-hidden="true">info</span>
+                  </span>
+                </div>
                 <div class="rule-header">
                   <input type="checkbox" id="newExtractRuleActive" checked title="追加時から有効にする">
                   <div class="rule-info">
