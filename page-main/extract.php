@@ -188,8 +188,18 @@
                   </li>
                 </ul>
               </div>
+              <div class="rule-card" style="margin-top: 15px; border-left-color: #3498db;">
+                <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; color: #2c3e50;">新しい削除ルール</div>
+                <div class="rule-header">
+                  <input type="checkbox" id="newExtractRuleActive" checked title="追加時から有効にする">
+                  <div class="rule-info">
+                    <input type="text" id="newExtractRuleLabel" class="rule-label-input" placeholder="項目名">
+                    <input type="text" id="newExtractRulePattern" class="rule-pattern" placeholder="正規表現パターン">
+                  </div>
+                  <button class="btn-primary" onclick="addNewRule('ext')">+ 追加</button>
+                </div>
+              </div>
               <div style="margin:10px 0px;">
-                <button class="btn-primary" onclick="addNewRule('ext')">+ 項目追加</button>
                 <button class="btn-primary" onclick="saveSettings('ext')">設定を保存</button>
                 <button class="btn-danger" onclick="resetToDefault('ext')">デフォルトに戻す</button>
               </div>

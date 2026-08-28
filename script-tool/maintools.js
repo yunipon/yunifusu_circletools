@@ -795,6 +795,38 @@ function deleteRule(type, i) {
 function addNewRule(type) {
   const list = type === 'ext' ? extractRules : type === 'fmt' ? formatRules : multiRules;
 
+  const labelInput = type === 'ext' ? document.getElementById('newExtractRuleLabel') : null;
+  const patternInput = type === 'ext' ? document.getElementById('newExtractRulePattern') : null;
+  const activeInput = type === 'ext' ? document.getElementById('newExtractRuleActive') : null;
+
+  if (labelInput && patternInput) {
+    const label = labelInput.value.trim();
+    const pattern = patternInput.value.trim();
+    if (!label || !pattern) {
+      alert('項目名と正規表現パターンを入力してください。');
+      (!label ? labelInput : patternInput).focus();
+      return;
+    }
+
+    list.unshift({
+      label,
+      pattern,
+      active: activeInput ? activeInput.checked : true,
+      bgColor: 'none',
+      fgColor: '#000000',
+      bold: false,
+      fontSize: '11'
+    });
+
+    labelInput.value = '';
+    patternInput.value = '';
+    if (activeInput) activeInput.checked = true;
+    renderAllRules();
+    saveSettings(type);
+    labelInput.focus();
+    return;
+  }
+
   // デフォルトの新規ルール構造
   const newRule = {
     label: '新規ルール',
