@@ -693,16 +693,39 @@ textarea {
   全角計算33文字で改行されるように最大幅を設定
   Wordの遊ゴシック11ptが「タブ+全角」が34文字入る横幅であるため。
   */
+  counter-reset: preview-line-number;
   max-width: 530px;
-  background: #fff;
+  background: linear-gradient(to right, #f7f7f7 0, #f7f7f7 49px, #eee 49px, #eee 50px, #fff 50px);
   border: 1px solid #ddd;
-  padding: 15px;
+  padding: 15px 15px 15px 60px;
   border-radius: 8px;
   min-height: 200px;
   max-height: 500px;
   overflow-y: auto;
   white-space: pre-wrap;
   line-height: 1.6;
+}
+
+.preview-box > div {
+  counter-increment: preview-line-number;
+  position: relative;
+  min-height: 1.6em;
+}
+
+.preview-box > div::before {
+  content: counter(preview-line-number);
+  position: absolute;
+  top: 0;
+  right: calc(100% + 10px);
+  width: 40px;
+  color: #999;
+  font-family: var(--font-editor);
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.6;
+  text-align: right;
+  user-select: none;
+  pointer-events: none;
 }
 
 /* ==========================================
