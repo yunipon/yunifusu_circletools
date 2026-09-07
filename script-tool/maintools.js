@@ -1096,7 +1096,10 @@ function checkDelimitedSections(text) {
       const foundIndex = openSections.findLastIndex(item => isLabelMatch(item.label, endLabel));
 
       if (foundIndex === -1) {
-        errors.push(`行 ${rowNum}: 「ここから」がないか、ラベルが不一致な「${trimmedLine}」があります。`);
+        errors.push({
+          line: rowNum,
+          message: `行 ${rowNum}: 「ここから」がないか、ラベルが不一致な「${trimmedLine}」があります。`
+        });
       } else {
         // 一致するものが見つかったら、その要素だけを削除（交差を許容）
         openSections.splice(foundIndex, 1);
@@ -1106,10 +1109,18 @@ function checkDelimitedSections(text) {
 
   // 閉じ忘れチェック
   openSections.forEach(unclosed => {
-    errors.push(`行 ${unclosed.line}: 「${unclosed.fullText}」が閉じられていません。`);
+    errors.push({
+      line: unclosed.line,
+      message: `行 ${unclosed.line}: 「${unclosed.fullText}」が閉じられていません。`
+    });
   });
 
-  return { isValid: errors.length === 0, errors };
+  errors.sort((a, b) => a.line - b.line);
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors.map(error => error.message)
+  };
 }
 
 function isLabelMatch(startLabel, endLabel) {
