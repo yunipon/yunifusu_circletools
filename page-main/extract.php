@@ -157,6 +157,7 @@
             <span class="tooltip" data-tooltip="「＊」から始まるアドリブ指示を抽出します">
               <button class="btn-secondary" onclick="extractAdlibCommands()">「＊」抽出</button>
             </span>
+            <label style="font-size: 0.85rem; color: #555;"><input type="checkbox" id="groupAdlibsByTrack" checked> トラック別に分類</label>
           </div>
           <div style="padding-top: 15px;">
             <p style="font-size: 0.78rem; color: #888; margin: 0 0 6px 0;">※ テキスト整形ボタンを実行すると、整形前の元テキストがここに自動転記されます。チェック結果もここに出力されます。</p>

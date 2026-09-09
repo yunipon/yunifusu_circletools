@@ -1216,19 +1216,56 @@ function extractAdlibCommands() {
   const lines = scriptText.split('\n');
   const adlibRegex = /＊[^(\n]*?(秒|回)[^\n]*/g;
   const additionalAdlibRegex = /^＊(?!.*(?:秒|回)).*$/gm;
+  const groupByTrack = document.getElementById('groupAdlibsByTrack')?.checked ?? true;
+  const trackPattern = /^(トラック|ＴＲＡＣＫ|Track)/i;
 
   let resultText = "";
   let additionalResultText = "";
   let hasKanjiDigit = false;
 
+  const addGroupedItem = (groups, owner, track, text) => {
+    if (!groups[owner]) groups[owner] = {};
+    if (!groups[owner][track]) groups[owner][track] = [];
+    groups[owner][track].push(text);
+  };
+
+  const addGroupedStats = (groups, owner, track, stats) => {
+    if (!groups[owner]) groups[owner] = {};
+    if (!groups[owner][track]) groups[owner][track] = { totalSeconds: 0, totalCount: 0 };
+    groups[owner][track].totalSeconds += stats.seconds;
+    groups[owner][track].totalCount += stats.count;
+  };
+
+  const formatTrackGroups = (groups, statsGroups = {}) => Object.entries(groups || {})
+    .map(([track, items]) => {
+      const stats = statsGroups[track] || { totalSeconds: 0, totalCount: 0 };
+      let header = `${track}｜${items.length}件`;
+      if (stats.totalSeconds > 0 || stats.totalCount > 0) {
+        header += `　合計：${stats.totalSeconds}秒、${stats.totalCount}回`;
+      }
+      return `${header}\n${items.join('\n')}`;
+    })
+    .join('\n\n');
+
   if (sourceId === 'textMulti') {
     let currentHeroine = "共通/未特定";
+    let currentTrack = "トラック未特定";
+    let trackIndex = 0;
     let adlibsByHeroine = {};
     let additionalAdlibsByHeroine = {};
     let adlibStatsByHeroine = {}; // 秒数と回数を集計するオブジェクト
+    let adlibsByHeroineAndTrack = {};
+    let additionalAdlibsByHeroineAndTrack = {};
+    let adlibStatsByHeroineAndTrack = {};
 
     lines.forEach(line => {
       const trimmed = line.trim();
+      if (trackPattern.test(trimmed)) {
+        trackIndex += 1;
+        currentTrack = parseTrackTitle(trimmed, trackIndex);
+        return;
+      }
+
       let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
       if (nameDefMatch) {
         currentHeroine = nameDefMatch[1].trim();
@@ -1243,11 +1280,13 @@ function extractAdlibCommands() {
         matches.forEach(m => {
           const trimmedM = m.trim();
           adlibsByHeroine[currentHeroine].push(trimmedM);
+          addGroupedItem(adlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
           
           // 秒数と回数を抽出して集計
           const stats = parseAdlibStats(trimmedM);
           adlibStatsByHeroine[currentHeroine].totalSeconds += stats.seconds;
           adlibStatsByHeroine[currentHeroine].totalCount += stats.count;
+          addGroupedStats(adlibStatsByHeroineAndTrack, currentHeroine, currentTrack, stats);
           if (stats.hasKanji) {
             hasKanjiDigit = true;
           }
@@ -1257,7 +1296,11 @@ function extractAdlibCommands() {
       const additionalMatches = line.match(additionalAdlibRegex);
       if (additionalMatches) {
         if (!additionalAdlibsByHeroine[currentHeroine]) additionalAdlibsByHeroine[currentHeroine] = [];
-        additionalMatches.forEach(m => additionalAdlibsByHeroine[currentHeroine].push(m.trim()));
+        additionalMatches.forEach(m => {
+          const trimmedM = m.trim();
+          additionalAdlibsByHeroine[currentHeroine].push(trimmedM);
+          addGroupedItem(additionalAdlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
+        });
       }
     });
 
@@ -1266,32 +1309,44 @@ function extractAdlibCommands() {
     // 1. まず「共通/未特定」があれば最初に出す
     if (adlibsByHeroine["共通/未特定"]) {
       const stats = adlibStatsByHeroine["共通/未特定"] || { totalSeconds: 0, totalCount: 0 };
-      let headerText = `【共通/未特定】`;
+      let headerText = `【共通/未特定｜${adlibsByHeroine["共通/未特定"].length}件】`;
       if (stats.totalSeconds > 0 || stats.totalCount > 0) {
         headerText += `　合計：${stats.totalSeconds}秒、${stats.totalCount}回`;
       }
-      resultText += headerText + '\n' + adlibsByHeroine["共通/未特定"].join('\n') + '\n\n';
+      const body = groupByTrack
+        ? formatTrackGroups(adlibsByHeroineAndTrack["共通/未特定"], adlibStatsByHeroineAndTrack["共通/未特定"])
+        : adlibsByHeroine["共通/未特定"].join('\n');
+      resultText += headerText + '\n' + body + '\n\n';
     }
 
     // 2. 入力欄に並んでいる名前の順に、抽出したデータを結合する
     orderedHeroineNames.forEach(name => {
       if (adlibsByHeroine[name]) {
         const stats = adlibStatsByHeroine[name] || { totalSeconds: 0, totalCount: 0 };
-        let headerText = `【${name}】`;
+        let headerText = `【${name}｜${adlibsByHeroine[name].length}件】`;
         if (stats.totalSeconds > 0 || stats.totalCount > 0) {
           headerText += `　合計：${stats.totalSeconds}秒、${stats.totalCount}回`;
         }
-        resultText += headerText + '\n' + adlibsByHeroine[name].join('\n') + '\n\n';
+        const body = groupByTrack
+          ? formatTrackGroups(adlibsByHeroineAndTrack[name], adlibStatsByHeroineAndTrack[name])
+          : adlibsByHeroine[name].join('\n');
+        resultText += headerText + '\n' + body + '\n\n';
       }
     });
 
     // 追加アドリブのフォーマット
     if (additionalAdlibsByHeroine["共通/未特定"]) {
-      additionalResultText += `【共通/未特定】\n` + additionalAdlibsByHeroine["共通/未特定"].join('\n') + '\n\n';
+      const body = groupByTrack
+        ? formatTrackGroups(additionalAdlibsByHeroineAndTrack["共通/未特定"])
+        : additionalAdlibsByHeroine["共通/未特定"].join('\n');
+      additionalResultText += `【共通/未特定｜${additionalAdlibsByHeroine["共通/未特定"].length}件】\n${body}\n\n`;
     }
     orderedHeroineNames.forEach(name => {
       if (additionalAdlibsByHeroine[name]) {
-        additionalResultText += `【${name}】\n` + additionalAdlibsByHeroine[name].join('\n') + '\n\n';
+        const body = groupByTrack
+          ? formatTrackGroups(additionalAdlibsByHeroineAndTrack[name])
+          : additionalAdlibsByHeroine[name].join('\n');
+        additionalResultText += `【${name}｜${additionalAdlibsByHeroine[name].length}件】\n${body}\n\n`;
       }
     });
 
@@ -1299,23 +1354,45 @@ function extractAdlibCommands() {
     let allMatches = [];
     let additionalAllMatches = [];
     let totalStats = { totalSeconds: 0, totalCount: 0 };
+    let currentTrack = "トラック未特定";
+    let trackIndex = 0;
+    let adlibsByTrack = {};
+    let additionalAdlibsByTrack = {};
+    let adlibStatsByTrack = {};
     
     lines.forEach(line => {
+      const trimmed = line.trim();
+      if (trackPattern.test(trimmed)) {
+        trackIndex += 1;
+        currentTrack = parseTrackTitle(trimmed, trackIndex);
+        return;
+      }
+
       const matches = line.match(adlibRegex);
       if (matches) {
         matches.forEach(m => {
           const trimmedM = m.trim();
           allMatches.push(trimmedM);
+          if (!adlibsByTrack[currentTrack]) adlibsByTrack[currentTrack] = [];
+          adlibsByTrack[currentTrack].push(trimmedM);
           
           // 秒数と回数を抽出して集計
           const stats = parseAdlibStats(trimmedM);
           totalStats.totalSeconds += stats.seconds;
           totalStats.totalCount += stats.count;
+          if (!adlibStatsByTrack[currentTrack]) adlibStatsByTrack[currentTrack] = { totalSeconds: 0, totalCount: 0 };
+          adlibStatsByTrack[currentTrack].totalSeconds += stats.seconds;
+          adlibStatsByTrack[currentTrack].totalCount += stats.count;
         });
       }
       const additionalMatches = line.match(additionalAdlibRegex);
       if (additionalMatches) {
-        additionalMatches.forEach(m => additionalAllMatches.push(m.trim()));
+        additionalMatches.forEach(m => {
+          const trimmedM = m.trim();
+          additionalAllMatches.push(trimmedM);
+          if (!additionalAdlibsByTrack[currentTrack]) additionalAdlibsByTrack[currentTrack] = [];
+          additionalAdlibsByTrack[currentTrack].push(trimmedM);
+        });
       }
     });
     
@@ -1325,8 +1402,12 @@ function extractAdlibCommands() {
       summaryText = `【合計】${totalStats.totalSeconds}秒、${totalStats.totalCount}回\n\n`;
     }
     
-    resultText = summaryText + allMatches.join('\n');
-    additionalResultText = additionalAllMatches.join('\n');
+    resultText = summaryText + (groupByTrack
+      ? formatTrackGroups(adlibsByTrack, adlibStatsByTrack)
+      : allMatches.join('\n'));
+    additionalResultText = groupByTrack
+      ? formatTrackGroups(additionalAdlibsByTrack)
+      : additionalAllMatches.join('\n');
   }
 
   // （抽出ループが終わった後の出力部分）
