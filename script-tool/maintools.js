@@ -1217,7 +1217,6 @@ function extractAdlibCommands() {
   const adlibRegex = /＊[^(\n]*?(秒|回)[^\n]*/g;
   const additionalAdlibRegex = /^＊(?!.*(?:秒|回)).*$/gm;
   const groupByTrack = document.getElementById('groupAdlibsByTrack')?.checked ?? true;
-  const trackPattern = /^(トラック|ＴＲＡＣＫ|Track)/i;
 
   let resultText = "";
   let additionalResultText = "";
@@ -1260,7 +1259,7 @@ function extractAdlibCommands() {
 
     lines.forEach(line => {
       const trimmed = line.trim();
-      if (trackPattern.test(trimmed)) {
+      if (isTrackHeading(trimmed)) {
         trackIndex += 1;
         currentTrack = parseTrackTitle(trimmed, trackIndex);
         return;
@@ -1362,7 +1361,7 @@ function extractAdlibCommands() {
     
     lines.forEach(line => {
       const trimmed = line.trim();
-      if (trackPattern.test(trimmed)) {
+      if (isTrackHeading(trimmed)) {
         trackIndex += 1;
         currentTrack = parseTrackTitle(trimmed, trackIndex);
         return;
@@ -1546,24 +1545,43 @@ function formatPercent(part, total) {
   return `${percent.toFixed(1).replace(/\.0$/, '')}%`;
 }
 
+function isTrackHeading(line) {
+  const normalized = (line || '').normalize('NFKC').trim();
+  return /^(?:トラック|track|tr|特典|bonus|ボーナス|小説)/i.test(normalized);
+}
+
 function parseTrackTitle(line, index) {
-  const cleaned = line.replace(/＝＝＝/g, '').replace(/[\s　]+/g, ' ').trim();
-  const match = cleaned.match(/(トラック|ＴＲＡＣＫ|Track)(.*)/i);
-  if (!match) {
-    return `トラック${String(index).padStart(2, '0')}`;
+  const normalized = (line || '')
+    .replace(/＝＝＝/g, '')
+    .normalize('NFKC')
+    .replace(/[\s　]+/g, ' ')
+    .trim();
+
+  const prefixMatch = normalized.match(/^(?:トラック|track|tr)\s*/i);
+  const suffix = prefixMatch ? normalized.slice(prefixMatch[0].length).trim() : normalized;
+
+  const bonusMatch = suffix.match(/^(?:特典|bonus|ボーナス)(?:[\s：:_-]*([0-9]+))?/i);
+  if (bonusMatch) {
+    const bonusNumber = bonusMatch[1]
+      ? String(Number(bonusMatch[1])).padStart(2, '0')
+      : '';
+    return `TR特典${bonusNumber}`;
   }
 
-  const suffix = match[2].trim();
-  if (!suffix) {
-    return `トラック${String(index).padStart(2, '0')}`;
+  if (/^小説/i.test(suffix)) {
+    return 'TR小説';
   }
 
-  return `${match[1]}${suffix}`;
+  const numberMatch = suffix.match(/^(?:第\s*)?([0-9]+)/);
+  if (numberMatch) {
+    return `TR${String(Number(numberMatch[1])).padStart(2, '0')}`;
+  }
+
+  return `TR${String(index).padStart(2, '0')}`;
 }
 
 function extractTrackSections(inputText) {
   const lines = inputText.split(/\r?\n/);
-  const trackPattern = /^(トラック|ＴＲＡＣＫ|Track)/i;
   const sections = [];
   let current = null;
   let trackIndex = 0;
@@ -1578,7 +1596,7 @@ function extractTrackSections(inputText) {
       }
     }
 
-    if (!isInCommentBlock && trackPattern.test(trimmed)) {
+    if (!isInCommentBlock && isTrackHeading(trimmed)) {
       trackIndex += 1;
       if (current) {
         sections.push(current);
