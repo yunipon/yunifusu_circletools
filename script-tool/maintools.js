@@ -1256,6 +1256,7 @@ function extractAdlibCommands() {
     let adlibsByHeroineAndTrack = {};
     let additionalAdlibsByHeroineAndTrack = {};
     let adlibStatsByHeroineAndTrack = {};
+    let allAdlibsByHeroineAndTrack = {};
 
     lines.forEach(line => {
       const trimmed = line.trim();
@@ -1280,6 +1281,7 @@ function extractAdlibCommands() {
           const trimmedM = m.trim();
           adlibsByHeroine[currentHeroine].push(trimmedM);
           addGroupedItem(adlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
+          addGroupedItem(allAdlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
           
           // 秒数と回数を抽出して集計
           const stats = parseAdlibStats(trimmedM);
@@ -1299,6 +1301,7 @@ function extractAdlibCommands() {
           const trimmedM = m.trim();
           additionalAdlibsByHeroine[currentHeroine].push(trimmedM);
           addGroupedItem(additionalAdlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
+          addGroupedItem(allAdlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
         });
       }
     });
@@ -1349,6 +1352,27 @@ function extractAdlibCommands() {
       }
     });
 
+    // 秒・回の有無にかかわらず、キャラクターごとに同じ一覧へまとめる
+    resultText = "";
+    additionalResultText = "";
+    const outputHeroineNames = ["共通/未特定", ...orderedHeroineNames];
+    outputHeroineNames.forEach(name => {
+      const trackGroups = allAdlibsByHeroineAndTrack[name];
+      if (!trackGroups) return;
+
+      const totalItems = Object.values(trackGroups).reduce((sum, items) => sum + items.length, 0);
+      const stats = adlibStatsByHeroine[name] || { totalSeconds: 0, totalCount: 0 };
+      let headerText = `【${name}｜${totalItems}件】`;
+      if (stats.totalSeconds > 0 || stats.totalCount > 0) {
+        headerText += `　合計：${stats.totalSeconds}秒、${stats.totalCount}回`;
+      }
+
+      const body = groupByTrack
+        ? formatTrackGroups(trackGroups, adlibStatsByHeroineAndTrack[name])
+        : Object.values(trackGroups).flat().join('\n');
+      resultText += `${headerText}\n${body}\n\n`;
+    });
+
   } else {
     let allMatches = [];
     let additionalAllMatches = [];
@@ -1358,6 +1382,7 @@ function extractAdlibCommands() {
     let adlibsByTrack = {};
     let additionalAdlibsByTrack = {};
     let adlibStatsByTrack = {};
+    let allAdlibsByTrack = {};
     
     lines.forEach(line => {
       const trimmed = line.trim();
@@ -1374,6 +1399,8 @@ function extractAdlibCommands() {
           allMatches.push(trimmedM);
           if (!adlibsByTrack[currentTrack]) adlibsByTrack[currentTrack] = [];
           adlibsByTrack[currentTrack].push(trimmedM);
+          if (!allAdlibsByTrack[currentTrack]) allAdlibsByTrack[currentTrack] = [];
+          allAdlibsByTrack[currentTrack].push(trimmedM);
           
           // 秒数と回数を抽出して集計
           const stats = parseAdlibStats(trimmedM);
@@ -1391,6 +1418,8 @@ function extractAdlibCommands() {
           additionalAllMatches.push(trimmedM);
           if (!additionalAdlibsByTrack[currentTrack]) additionalAdlibsByTrack[currentTrack] = [];
           additionalAdlibsByTrack[currentTrack].push(trimmedM);
+          if (!allAdlibsByTrack[currentTrack]) allAdlibsByTrack[currentTrack] = [];
+          allAdlibsByTrack[currentTrack].push(trimmedM);
         });
       }
     });
@@ -1407,6 +1436,11 @@ function extractAdlibCommands() {
     additionalResultText = groupByTrack
       ? formatTrackGroups(additionalAdlibsByTrack)
       : additionalAllMatches.join('\n');
+
+    resultText = summaryText + (groupByTrack
+      ? formatTrackGroups(allAdlibsByTrack, adlibStatsByTrack)
+      : Object.values(allAdlibsByTrack).flat().join('\n'));
+    additionalResultText = "";
   }
 
   // （抽出ループが終わった後の出力部分）
@@ -1419,8 +1453,8 @@ function extractAdlibCommands() {
   }
 
   outputArea.value = resultText
-    ? `=== アドリブ抽出結果 ===\n${headerNote}\n` + resultText.trim() + (additionalResultText ? `\n\n=== その他＊マーク抽出結果 (秒/回なし) ===\n` + additionalResultText.trim() : '')
-    : "アドリブ指示（＊〜秒/回）は見つかりませんでした。" + (additionalResultText ? `\n\n=== その他＊マーク抽出結果 (秒/回なし) ===\n` + additionalResultText.trim() : '');
+    ? `=== ＊マーク抽出結果 ===\n${headerNote}\n` + resultText.trim()
+    : "＊マークで始まる項目は見つかりませんでした。";
 
   outputArea.style.color = "black";
   outputArea.dispatchEvent(new Event('input'));
