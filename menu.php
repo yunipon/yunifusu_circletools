@@ -32,6 +32,7 @@
           <a href="/page-tools/graffiti.php">画像らくがき</a>
           <a href="/page-tools/bpmtest.php">BPMスピードテスト</a>
           <a href="/page-tools/dltextbhecker.php">DLスマホ表示チェック</a>
+          <a href="/page-tools/character-timeline.php">キャラクター位置タイムライン</a>
         </div>
       </div>
 
