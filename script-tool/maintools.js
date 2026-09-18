@@ -1244,6 +1244,17 @@ function extractAdlibCommands() {
     groups[owner][track].totalCount += stats.count;
   };
 
+  const withAudioPosition = (text, position) => position ? `${text}（${position}）` : text;
+  const findSpeakerBlockPosition = startIndex => {
+    for (let index = startIndex + 1; index < lines.length; index++) {
+      const candidate = lines[index].trim();
+      if (isTrackHeading(candidate) || /^\/\/([^：: \t\n]+)[:：]/.test(candidate)) break;
+      const positionMatch = candidate.match(/^◇音声[：:](.*)$/);
+      if (positionMatch) return positionMatch[1].trim();
+    }
+    return '';
+  };
+
   const formatTrackGroups = (groups, statsGroups = {}) => Object.entries(groups || {})
     .map(([track, items]) => {
       const stats = statsGroups[track] || { totalSeconds: 0, totalCount: 0 };
@@ -1266,18 +1277,28 @@ function extractAdlibCommands() {
     let additionalAdlibsByHeroineAndTrack = {};
     let adlibStatsByHeroineAndTrack = {};
     let allAdlibsByHeroineAndTrack = {};
+    let audioPositionsByHeroine = {};
 
-    lines.forEach(line => {
+    lines.forEach((line, lineIndex) => {
       const trimmed = line.trim();
       if (isTrackHeading(trimmed)) {
         trackIndex += 1;
         currentTrack = parseTrackTitle(trimmed, trackIndex);
+        audioPositionsByHeroine = {};
         return;
       }
 
       let nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
       if (nameDefMatch) {
         currentHeroine = nameDefMatch[1].trim();
+        const blockPosition = findSpeakerBlockPosition(lineIndex);
+        if (blockPosition) audioPositionsByHeroine[currentHeroine] = blockPosition;
+        return;
+      }
+
+      const audioPositionMatch = trimmed.match(/^◇音声[：:](.*)$/);
+      if (audioPositionMatch) {
+        audioPositionsByHeroine[currentHeroine] = audioPositionMatch[1].trim();
         return;
       }
 
@@ -1288,9 +1309,10 @@ function extractAdlibCommands() {
         
         matches.forEach(m => {
           const trimmedM = m.trim();
-          adlibsByHeroine[currentHeroine].push(trimmedM);
-          addGroupedItem(adlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
-          addGroupedItem(allAdlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
+          const outputText = withAudioPosition(trimmedM, audioPositionsByHeroine[currentHeroine]);
+          adlibsByHeroine[currentHeroine].push(outputText);
+          addGroupedItem(adlibsByHeroineAndTrack, currentHeroine, currentTrack, outputText);
+          addGroupedItem(allAdlibsByHeroineAndTrack, currentHeroine, currentTrack, outputText);
           
           // 秒数と回数を抽出して集計
           const stats = parseAdlibStats(trimmedM);
@@ -1308,9 +1330,10 @@ function extractAdlibCommands() {
         if (!additionalAdlibsByHeroine[currentHeroine]) additionalAdlibsByHeroine[currentHeroine] = [];
         additionalMatches.forEach(m => {
           const trimmedM = m.trim();
-          additionalAdlibsByHeroine[currentHeroine].push(trimmedM);
-          addGroupedItem(additionalAdlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
-          addGroupedItem(allAdlibsByHeroineAndTrack, currentHeroine, currentTrack, trimmedM);
+          const outputText = withAudioPosition(trimmedM, audioPositionsByHeroine[currentHeroine]);
+          additionalAdlibsByHeroine[currentHeroine].push(outputText);
+          addGroupedItem(additionalAdlibsByHeroineAndTrack, currentHeroine, currentTrack, outputText);
+          addGroupedItem(allAdlibsByHeroineAndTrack, currentHeroine, currentTrack, outputText);
         });
       }
     });
@@ -1392,12 +1415,20 @@ function extractAdlibCommands() {
     let additionalAdlibsByTrack = {};
     let adlibStatsByTrack = {};
     let allAdlibsByTrack = {};
+    let currentAudioPosition = '';
     
     lines.forEach(line => {
       const trimmed = line.trim();
       if (isTrackHeading(trimmed)) {
         trackIndex += 1;
         currentTrack = parseTrackTitle(trimmed, trackIndex);
+        currentAudioPosition = '';
+        return;
+      }
+
+      const audioPositionMatch = trimmed.match(/^◇音声[：:](.*)$/);
+      if (audioPositionMatch) {
+        currentAudioPosition = audioPositionMatch[1].trim();
         return;
       }
 
@@ -1405,11 +1436,12 @@ function extractAdlibCommands() {
       if (matches) {
         matches.forEach(m => {
           const trimmedM = m.trim();
-          allMatches.push(trimmedM);
+          const outputText = withAudioPosition(trimmedM, currentAudioPosition);
+          allMatches.push(outputText);
           if (!adlibsByTrack[currentTrack]) adlibsByTrack[currentTrack] = [];
-          adlibsByTrack[currentTrack].push(trimmedM);
+          adlibsByTrack[currentTrack].push(outputText);
           if (!allAdlibsByTrack[currentTrack]) allAdlibsByTrack[currentTrack] = [];
-          allAdlibsByTrack[currentTrack].push(trimmedM);
+          allAdlibsByTrack[currentTrack].push(outputText);
           
           // 秒数と回数を抽出して集計
           const stats = parseAdlibStats(trimmedM);
@@ -1424,11 +1456,12 @@ function extractAdlibCommands() {
       if (additionalMatches) {
         additionalMatches.forEach(m => {
           const trimmedM = m.trim();
-          additionalAllMatches.push(trimmedM);
+          const outputText = withAudioPosition(trimmedM, currentAudioPosition);
+          additionalAllMatches.push(outputText);
           if (!additionalAdlibsByTrack[currentTrack]) additionalAdlibsByTrack[currentTrack] = [];
-          additionalAdlibsByTrack[currentTrack].push(trimmedM);
+          additionalAdlibsByTrack[currentTrack].push(outputText);
           if (!allAdlibsByTrack[currentTrack]) allAdlibsByTrack[currentTrack] = [];
-          allAdlibsByTrack[currentTrack].push(trimmedM);
+          allAdlibsByTrack[currentTrack].push(outputText);
         });
       }
     });
