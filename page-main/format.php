@@ -59,6 +59,17 @@
           <div id="dynamicNameButtons" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
         </div>
       </details>
+      <div class="card">
+        <strong>文字列置換</strong>
+        <div class="replace-section" style="gap: 10px; align-items: center;">
+          <input type="text" id="replaceBefore" class="replace-input" placeholder="置換前">
+          <span>→</span>
+          <input type="text" id="replaceAfter" class="replace-input" placeholder="置換後">
+          <button class="btn-primary" onclick="executeReplace()" style="margin: 10px 0px;">置換実行</button>
+        </div>
+        <div id="replaceResult" aria-live="polite" style="min-height: 1.4em; margin-top: 2px; font-size: 0.85rem; color: #555;"></div>
+      </div>
+
       <div class="editor-container">
         <div class="editor-left">
           <div class="card">

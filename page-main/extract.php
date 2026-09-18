@@ -71,6 +71,7 @@
             <input type="text" id="replaceAfter" class="replace-input" placeholder="置換後">
             <button class="btn-primary" onclick="executeReplace()" style="margin: 10px 0px;">置換実行</button>
           </div>
+          <div id="replaceResult" aria-live="polite" style="min-height: 1.4em; margin-top: 2px; font-size: 0.85rem; color: #555;"></div>
 
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 

@@ -1214,6 +1214,15 @@ function extractAdlibCommands() {
 
   const scriptText = targetElement.value;
   const lines = scriptText.split('\n');
+  if (sourceId !== 'textMulti') {
+    orderedHeroineNames = [];
+    lines.forEach(line => {
+      const match = line.trim().match(/^\/\/([^：: \t\n]+)[:：]/);
+      const name = match?.[1]?.trim();
+      if (name && !orderedHeroineNames.includes(name)) orderedHeroineNames.push(name);
+    });
+  }
+  const groupByCharacter = sourceId === 'textMulti' || orderedHeroineNames.length > 0;
   const adlibRegex = /＊[^(\n]*?(秒|回)[^\n]*/g;
   const additionalAdlibRegex = /^＊(?!.*(?:秒|回)).*$/gm;
   const groupByTrack = document.getElementById('groupAdlibsByTrack')?.checked ?? true;
@@ -1246,7 +1255,7 @@ function extractAdlibCommands() {
     })
     .join('\n\n');
 
-  if (sourceId === 'textMulti') {
+  if (groupByCharacter) {
     let currentHeroine = "共通/未特定";
     let currentTrack = "トラック未特定";
     let trackIndex = 0;
@@ -1445,7 +1454,7 @@ function extractAdlibCommands() {
 
   // （抽出ループが終わった後の出力部分）
   let headerNote = "";
-  if (sourceId === 'textMulti') {
+  if (groupByCharacter) {
     headerNote = `キャラ名（${orderedHeroineNames.join('、')}）で抽出しました。\n`;
     if (hasKanjiDigit) {
       headerNote += `\n※※※※※※※※※※※※※※※※※※\n🚨 漢数字が混在しています 🚨\n⚠️ 漢数字は合計できません ⚠️\n※※※※※※※※※※※※※※※※※※\n`;
@@ -1723,22 +1732,42 @@ function countCharactersByTrack() {
 // ==========================================
 
 function executeReplace() {
-  const area = document.getElementById('textExtract');
+  const area = ['textMulti', 'textFormat', 'textExtract']
+    .map(id => document.getElementById(id))
+    .find(Boolean);
   const areabefore = document.getElementById('textExtractBefore');
+  const result = document.getElementById('replaceResult');
   const b = document.getElementById('replaceBefore').value;
   const a = document.getElementById('replaceAfter').value;
 
-  if (!b) return;
-  areabefore.value = area.value;
-  updateCharCount('textExtractBefore', 'countExtractBefore');
+  if (!area) return;
+  if (!b) {
+    if (result) result.textContent = '置換前の文字列を入力してください。';
+    return;
+  }
+  if (areabefore) {
+    areabefore.value = area.value;
+    updateCharCount('textExtractBefore', 'countExtractBefore');
+  }
 
   const re = new RegExp(b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+  const replaceCount = (area.value.match(re) || []).length;
   area.value = area.value.replace(re, a);
-  updateCharCount('textExtract', 'countExtract');
+  if (result) {
+    result.textContent = `${replaceCount}件置換しました。`;
+    result.style.color = replaceCount > 0 ? '#176b3a' : '#555';
+    result.style.fontWeight = replaceCount > 0 ? 'bold' : 'normal';
+  }
+  const countIdByArea = {
+    textExtract: 'countExtract',
+    textFormat: 'countFormat',
+    textMulti: 'countMulti'
+  };
+  updateCharCount(area.id, countIdByArea[area.id]);
 
   //保存処理
   area.dispatchEvent(new Event('input'));
-  areabefore.dispatchEvent(new Event('input'));
+  if (areabefore) areabefore.dispatchEvent(new Event('input'));
 }
 
 function shrinkBlankLines(id) {
