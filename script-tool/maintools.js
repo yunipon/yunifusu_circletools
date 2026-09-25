@@ -2935,6 +2935,10 @@ async function handleExport(type) {
 
 
 // 共通：画面からデータを解析して配列で返す
+function isSituationDescriptionLine(text) {
+  return /^《状況[：:]/.test((text || "").trim());
+}
+
 function getParsedScriptLines(textareaElement = null) {
   let preview = null;
   const multiArea = document.getElementById('previewAreaMulti');
@@ -2991,11 +2995,12 @@ function getParsedScriptLines(textareaElement = null) {
       if (text !== "") {
         const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
         const isTrackBorder = text.includes("＝＝＝") || text.includes("トラック") || text.includes("Track");
+        const isSituationDescription = isSituationDescriptionLine(text);
 
         // --- 条件をシンプルに修正 ---
         // 1. 台本内にキャラ定義が1つでも存在する (hasAnyHeroineDef)
         // 2. この行自体が除外対象（名前行、トラック行、コメント内）ではない
-        if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isInCommentBlock && !text.includes("%%%")) {
+        if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isSituationDescription && !isInCommentBlock && !text.includes("%%%")) {
           text = "\t" + text;
         }
       }
@@ -3026,9 +3031,10 @@ function getParsedScriptLines(textareaElement = null) {
       if (text !== "") {
         const isHeroineName = /^\/\/([^：: \t\n]+)[:：]/.test(text);
         const isTrackBorder = text.includes("＝＝＝") || text.includes("トラック") || text.includes("Track");
+        const isSituationDescription = isSituationDescriptionLine(text);
 
         // 【改良】台本全体にキャラ名定義があり、かつ除外行ではない場合のみタブを挿入
-        if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isInCommentTextArea && !text.includes("%%%")) {
+        if (hasAnyHeroineDef && !isHeroineName && !isTrackBorder && !isSituationDescription && !isInCommentTextArea && !text.includes("%%%")) {
           text = "\t" + text;
         }
       }
