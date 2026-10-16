@@ -2268,11 +2268,13 @@ function buildIndividualScriptLines(lines, targetHeroine) {
       if (/^[◇□＊]/.test(trimmed)) return;
       if (getLineType(trimmed) === 'dialogue' && !/^〔/.test(trimmed)) return;
     }
-    // 削除したセリフ・指示の間の空行が連続しないようにする。
-    if (!trimmed.trim() && result.length && !result[result.length - 1].text.trim()) return;
     result.push(line);
   });
-  return result;
+  // コメント内も含め、変換後の台本全体で連続する空白行を1行にまとめる。
+  const isBlankLine = line => /^[\s\u200B\uFEFF]*$/.test(line.text);
+  return result.filter((line, index) =>
+    !isBlankLine(line) || index === 0 || !isBlankLine(result[index - 1])
+  );
 }
 
 async function exportAllHeroinesToWord() {

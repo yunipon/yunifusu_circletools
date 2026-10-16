@@ -123,14 +123,14 @@
           <strong>テキスト整形</strong>
           <div class="text-format-subheading">空白調整</div>
           <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <span class="tooltip" data-tooltip="各行の先頭にある半角・全角スペースやタブを削除します">
+              <button class="btn-primary" onclick="removeLeadingSpaces('textMulti')">行頭空白削除</button>
+            </span>
             <span class="tooltip" data-tooltip="ト書きとセリフの間など、種類が変わる行の間に空行を挿入します">
               <button class="btn-primary" onclick="addLineBreaksBetweenTypes()">空行を追加</button>
             </span>
             <span class="tooltip" data-tooltip="空白のみの行を削除します（セリフ間の完全な空行を取り除きます）">
               <button class="btn-primary" onclick="removeBlankLinesOnly('textMulti')">空白行削除</button>
-            </span>
-            <span class="tooltip" data-tooltip="各行の先頭にある半角・全角スペースやタブを削除します">
-              <button class="btn-primary" onclick="removeLeadingSpaces('textMulti')">行頭空白削除</button>
             </span>
           </div>
           <hr class="text-format-divider">
