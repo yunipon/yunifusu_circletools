@@ -2235,6 +2235,46 @@ function clearHeroineNames() {
 // ==========================================
 
 //ツール使用関数
+function buildIndividualScriptLines(lines, targetHeroine) {
+  let currentSpeaker = '';
+  let insideComment = false;
+  const result = [];
+
+  lines.forEach(line => {
+    // 不可視のゼロ幅スペースが行頭にあっても指示を認識する。
+    const trimmed = line.text.replace(/^[\s\u200B\uFEFF]+/, '');
+    if (trimmed.includes('%%%')) {
+      if ((trimmed.match(/%%%/g) || []).length % 2 === 1) insideComment = !insideComment;
+      result.push(line);
+      return;
+    }
+    if (insideComment) {
+      result.push(line);
+      return;
+    }
+    const speakerMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
+    if (speakerMatch) {
+      currentSpeaker = speakerMatch[1].trim();
+      result.push(currentSpeaker === targetHeroine ? line : {
+        ...line,
+        text: `（${currentSpeaker}　セリフ）`
+      });
+      return;
+    }
+    if (isTrackHeading(trimmed) || /^[＝=]{3,}/.test(trimmed)) {
+      currentSpeaker = '';
+    }
+    if (currentSpeaker && currentSpeaker !== targetHeroine) {
+      if (/^[◇□＊]/.test(trimmed)) return;
+      if (getLineType(trimmed) === 'dialogue' && !/^〔/.test(trimmed)) return;
+    }
+    // 削除したセリフ・指示の間の空行が連続しないようにする。
+    if (!trimmed.trim() && result.length && !result[result.length - 1].text.trim()) return;
+    result.push(line);
+  });
+  return result;
+}
+
 async function exportAllHeroinesToWord() {
   // --- A. ラジオボタンの状態を取得 ---
   const wordMode = document.querySelector('input[name="wordMode"]:checked').value;
@@ -2267,80 +2307,12 @@ async function exportAllHeroinesToWord() {
     if (outputArea) outputArea.style.color = "black";
   }
 
-  // --- 1. 設定データの取得と初期化 ---
-  const commentRule = typeof formatRules !== 'undefined' ? formatRules.find(r => r.pattern === 'format_comment' && r.active) : null;
-
-  // Word用にカラーコードを変換（#FFFFFF -> FFFFFF）
-  const cleanHex = (hex) => (hex || "#000000").replace('#', '');
-
-  // --- 2. ヒロインごとのメインループ ---
+  // 各キャラクターの台本を、他キャラクターのセリフを省略表記にして生成する。
   const lines = getParsedScriptLines(textarea);
+  if (!lines) return;
   for (let hIdx = 0; hIdx < heroineNames.length; hIdx++) {
     const targetHeroine = heroineNames[hIdx];
-    const filteredLines = [];
-    let isActiveFlag = false;
-    let isInCommentBlock = false;  // コメントブロック内フラグ
-    let shouldOutputNextLine = false;  // 【同時　ここから】直後の1行を全員出力するフラグ
-
-    lines.forEach(line => {
-      const trimmed = line.text.trim();
-      let shouldOutput = false;
-
-      // ① コメント行マーカーの処理
-      if (line.text.includes("%%%")) {
-        const count = (line.text.match(/%%%/g) || []).length;
-        if (count === 1) isInCommentBlock = !isInCommentBlock;  // %%% の開始・終了を切り替え
-        shouldOutput = true;
-      }
-      // ① 同時指示ブロックマーカー：【同時　ここから】（マーカー行は全員出力、直後の1行も全員出力）
-      else if (trimmed.includes("【同時") && trimmed.includes("ここから")) {
-        shouldOutputNextLine = true;
-        shouldOutput = true;
-      }
-      else if (trimmed.includes("【同時") && trimmed.includes("ここまで")) {
-        shouldOutput = true;
-      }
-      // ①② 【同時　ここから】直後の1行（全員出力）
-      else if (shouldOutputNextLine) {
-        shouldOutput = true;
-        shouldOutputNextLine = false;
-      }
-      // ①③ コメントブロック内の行（%%%と%%%の間の全て - 全員出力）
-      else if (isInCommentBlock) {
-        shouldOutput = true;
-      }
-      // ② 共通項目（全員出力）
-      else if (trimmed.includes("トラック") || trimmed.includes("Track") || trimmed.includes("＝＝＝") || trimmed.match(/[（(]([^｜|]+)[｜|]ループ\s*[：:]/)) {
-        shouldOutput = true;
-      }
-      // ③ ヒロイン切り替え（//名前：）
-      else {
-        const nameDefMatch = trimmed.match(/^\/\/([^：: \t\n]+)[:：]/);
-        if (nameDefMatch) {
-          const foundName = nameDefMatch[1].trim();
-          if (foundName === targetHeroine) {
-            isActiveFlag = true;
-            shouldOutput = true;
-          } else if (heroineNames.includes(foundName)) {
-            isActiveFlag = false;
-            return;
-          }
-        }
-
-        // ④ 通常セリフ（フラグがONの時だけ出す）
-        if (!shouldOutput) {
-          if (isActiveFlag) {
-            shouldOutput = true;
-          } else {
-            return;
-          }
-        }
-      }
-
-      if (shouldOutput) {
-        filteredLines.push(line);
-      }
-    });
+    const filteredLines = buildIndividualScriptLines(lines, targetHeroine);
 
     // --- 3. Wordファイル生成の実行 ---
     if (filteredLines.length > 0) {
