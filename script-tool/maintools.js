@@ -1764,6 +1764,15 @@ function countCharactersByTrack() {
 // セリフカウント詳細
 // ==========================================
 
+function showScriptBeforeChange(area) {
+  if (!area || !['textFormat', 'textMulti'].includes(area.id)) return;
+  const output = document.getElementById('textCheck');
+  if (!output) return;
+  output.value = area.value;
+  output.style.color = 'black';
+  output.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 function executeReplace() {
   const area = ['textMulti', 'textFormat', 'textExtract']
     .map(id => document.getElementById(id))
@@ -1785,6 +1794,7 @@ function executeReplace() {
 
   const re = new RegExp(b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
   const replaceCount = (area.value.match(re) || []).length;
+  showScriptBeforeChange(area);
   area.value = area.value.replace(re, a);
   if (result) {
     result.textContent = `${replaceCount}件置換しました。`;
@@ -1804,6 +1814,7 @@ function executeReplace() {
 }
 
 function shrinkBlankLines(id) {
+  showScriptBeforeChange(document.getElementById(id));
   if (id === 'textExtract') {
     const area = document.getElementById('textExtract');
     const areabefore = document.getElementById('textExtractBefore');
@@ -1862,6 +1873,7 @@ function makeincluded() {
 function removeAllBlankLines(targetId) {
   const area = document.getElementById(targetId);
   if (!area || !area.value) return;
+  showScriptBeforeChange(area);
 
   const areabefore = document.getElementById('textExtractBefore');
   areabefore.value = area.value;
@@ -1892,6 +1904,7 @@ function removeAllBlankLines(targetId) {
 function removeBlankLinesOnly(targetId, displayAreaId = null) {
   const area = document.getElementById(targetId);
   if (!area || !area.value) return;
+  showScriptBeforeChange(area);
 
   // 1. 行単位に分割
   const lines = area.value.split('\n');
@@ -1929,6 +1942,7 @@ function removeLeadingSpaces(targetId, displayAreaId = null) {
   if (!area || area.value === undefined) return;
 
   const originalText = area.value;
+  showScriptBeforeChange(area);
   const lines = originalText.split('\n');
   const trimmedLines = lines.map(line => line.replace(/^[ \t　]+/, ''));
   area.value = trimmedLines.join('\n');
@@ -2067,6 +2081,7 @@ async function applyPronunciationTags(targetId) {
     const result = addPronunciationTagsToText(area.value, config);
 
     if (result.changes.length > 0) {
+      showScriptBeforeChange(area);
       area.value = result.text;
       triggerSave(area);
     }
@@ -2152,6 +2167,7 @@ function addLineBreaksBetweenTypes() {
 
   if (!targetArea || !targetArea.value.trim()) return;
 
+  showScriptBeforeChange(targetArea);
   const lines = targetArea.value.split('\n');
   const result = [];
 
@@ -2338,6 +2354,7 @@ function previewAdlibRenumbering(targetId) {
   apply.onclick = () => {
     if (area.value !== source) return alert('台本が変更されています。閉じて、もう一度確認してください。');
     adlibRenumberBackups.set(targetId, { source, output: plan.output });
+    showScriptBeforeChange(area);
     area.value = plan.output;
     area.dispatchEvent(new Event('input', { bubbles: true }));
     triggerSave(area);
@@ -2358,6 +2375,7 @@ function undoAdlibRenumbering(targetId) {
   const backup = adlibRenumberBackups.get(targetId);
   if (!area || !backup) return alert('元に戻せる番号振り直しがありません。');
   if (area.value !== backup.output && !confirm('振り直し後の編集内容も取り消して、振り直し前の台本に戻しますか？')) return;
+  showScriptBeforeChange(area);
   area.value = backup.source;
   area.dispatchEvent(new Event('input', { bubbles: true }));
   triggerSave(area);
