@@ -2235,36 +2235,66 @@ function clearHeroineNames() {
 // ==========================================
 
 //ツール使用関数
-function planAdlibRenumbering(source) {
+function collectAdlibDefinitions(source) {
+  let speaker = '';
+  const entries = [];
+  source.split('\n').forEach((line, index) => {
+    const text = line.replace(/^[\s\u200B]+/, '');
+    const name = text.match(/^\/\/([^：: \t\n]+)[:：]/);
+    if (name) speaker = name[1];
+    if (isTrackHeading(text) || /^[＝=]{3,}/.test(text)) speaker = '';
+    const star = line.match(/^([\s\u200B]*＊\s*)(.*)$/);
+    if (!star) return;
+    const id = star[2].match(/^([A-Za-z]+)([0-9]+)?(?=$|[^A-Za-z0-9])/);
+    entries.push({ lineIndex: index, speaker, head: star[1], body: star[2], prefix: id ? id[1] : '', oldId: id && id[2] ? id[0] : '', token: id ? id[0] : '' });
+  });
+  return entries;
+}
+
+function planAdlibRenumbering(source, characterPrefixes = new Map()) {
   const definitions = new Map();
   const counters = new Map();
   const errors = [];
-  source.split('\n').forEach((line, index) => {
-    const match = line.match(/^[\s\u200B]*＊\s*([A-Za-z]+)([0-9]+)(?![0-9])/);
-    if (!match) return;
-    const oldId = match[1] + match[2];
-    if (definitions.has(oldId)) {
-      errors.push(`${index + 1}行目：${oldId}の定義が重複しています`);
+  const entries = collectAdlibDefinitions(source);
+  const changes = [];
+  entries.forEach(entry => {
+    const prefix = characterPrefixes.get(entry.speaker) || entry.prefix;
+    if (!prefix || !/^[A-Za-z]+$/.test(prefix)) {
+      errors.push(`${entry.lineIndex + 1}行目：${entry.speaker || '話者未指定'}の記号を設定してください`);
       return;
     }
-    const number = (counters.get(match[1]) || 0) + 1;
-    counters.set(match[1], number);
-    definitions.set(oldId, { newId: match[1] + number, references: 0 });
+    if (entry.oldId && definitions.has(entry.oldId)) {
+      errors.push(`${entry.lineIndex + 1}行目：${entry.oldId}の定義が重複しています`);
+      return;
+    }
+    const number = (counters.get(prefix) || 0) + 1;
+    counters.set(prefix, number);
+    entry.newId = prefix + number;
+    const change = { oldId: entry.oldId, newId: entry.newId, lineIndex: entry.lineIndex, references: 0 };
+    changes.push(change);
+    if (entry.oldId) definitions.set(entry.oldId, change);
   });
   // 対応表を使って一度で置換し、B8→B1→B2のような連鎖を防ぐ。
-  const output = source.replace(/(^|[^A-Za-z0-9_])([A-Za-z]+[0-9]+)(?![0-9])/gm, (whole, before, id) => {
+  const replaced = source.replace(/(^|[^A-Za-z0-9_])([A-Za-z]+[0-9]+)(?![0-9])/gm, (whole, before, id) => {
     const entry = definitions.get(id);
     if (!entry) return whole;
     entry.references += 1;
     return before + entry.newId;
   });
+  const outputLines = replaced.split('\n');
+  entries.forEach(entry => {
+    if (!entry.oldId && entry.newId) {
+      outputLines[entry.lineIndex] = entry.head + entry.newId + (entry.token ? '' : '　') + entry.body.slice(entry.token.length);
+    }
+  });
+  const output = outputLines.join('\n');
   source.split('\n').forEach((line, index) => {
     if (!/^[\s\u200B]*[（(◆■◇□【※＊]/.test(line)) return;
     for (const match of line.matchAll(/(?:^|[^A-Za-z0-9_])([A-Za-z]+[0-9]+)(?![0-9])/g)) {
       if (!definitions.has(match[1])) errors.push(`${index + 1}行目：${match[1]}の定義が見つかりません`);
     }
   });
-  return { output, definitions, errors };
+  return { output, definitions, errors, changes };
 }
 
 const adlibRenumberBackups = new Map();
@@ -2273,7 +2303,22 @@ function previewAdlibRenumbering(targetId) {
   const area = document.getElementById(targetId);
   if (!area || !area.value.trim()) return alert('台本を入力してください。');
   const source = area.value;
-  const plan = planAdlibRenumbering(source);
+  const entries = collectAdlibDefinitions(source);
+  const characterPrefixes = new Map();
+  for (const speaker of new Set(entries.map(entry => entry.speaker))) {
+    const ownEntries = entries.filter(entry => entry.speaker === speaker);
+    if (!ownEntries.some(entry => !entry.prefix)) continue;
+    const existing = [...new Set(ownEntries.map(entry => entry.prefix).filter(Boolean))];
+    let prefix = existing.length === 1 ? existing[0] : null;
+    if (!prefix) {
+      prefix = prompt(`${speaker || '話者未指定のアドリブ'}の記号はどれにしますか？（半角英字、例：B）`);
+      if (prefix === null) return;
+      prefix = prefix.trim();
+      if (!/^[A-Za-z]+$/.test(prefix)) return alert('記号は半角英字で入力してください。');
+    }
+    characterPrefixes.set(speaker, prefix);
+  }
+  const plan = planAdlibRenumbering(source, characterPrefixes);
   const dialog = document.createElement('dialog');
   dialog.style.cssText = 'width: min(640px, 90vw); max-height: 80vh; overflow: auto; padding: 24px; border: 1px solid #ccc; border-radius: 8px;';
   const title = document.createElement('h3');
@@ -2283,9 +2328,9 @@ function previewAdlibRenumbering(targetId) {
   const report = document.createElement('textarea');
   report.readOnly = true;
   report.style.cssText = 'width: 100%; height: 240px; box-sizing: border-box;';
-  report.value = plan.errors.length ? plan.errors.join('\n') : Array.from(plan.definitions, ([oldId, entry]) =>
-    `${oldId} → ${entry.newId}（参照 ${entry.references - 1}件）`
-  ).join('\n') || '番号付きの＊定義が見つかりません。';
+  report.value = plan.errors.length ? plan.errors.join('\n') : plan.changes.map(entry =>
+    `${entry.lineIndex + 1}行目：${entry.oldId || '番号なし'} → ${entry.newId}（参照 ${Math.max(0, entry.references - 1)}件）`
+  ).join('\n') || '＊定義が見つかりません。';
   const apply = document.createElement('button');
   apply.className = 'btn-primary';
   apply.textContent = '適用する';
