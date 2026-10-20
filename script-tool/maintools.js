@@ -2000,18 +2000,32 @@ function validatePronunciationTagRules(data) {
 
   // 「ぱん」と「ぱんぱん」がある場合も、必ず長い語を先に照合する。
   rules.sort((a, b) => b.term.length - a.term.length);
+  const excludedTerms = data.excludedTerms === undefined ? [] : data.excludedTerms;
+  if (!Array.isArray(excludedTerms) || excludedTerms.some(term => typeof term !== 'string' || term.length === 0)) {
+    throw new Error('excludedTerms は空でない文字列の配列で指定してください。');
+  }
   return {
     rules,
+    excludedTerms,
     excludedLineRegexes: data.excludedLinePatterns.map(pattern => new RegExp(pattern))
   };
 }
 
-function tagPronunciationSegment(segment, rules, lineNumber, changes) {
+function tagPronunciationSegment(segment, rules, lineNumber, changes, excludedTerms = []) {
   if (!segment || rules.length === 0) return segment;
   const byTerm = new Map(rules.map(rule => [rule.term, rule]));
   const matcher = new RegExp(rules.map(rule => escapeRegExp(rule.term)).join('|'), 'g');
+  const excludedRanges = [];
+  excludedTerms.forEach(term => {
+    let start = segment.indexOf(term);
+    while (start !== -1) {
+      excludedRanges.push({ start, end: start + term.length });
+      start = segment.indexOf(term, start + 1);
+    }
+  });
 
   return segment.replace(matcher, (term, offset, wholeSegment) => {
+    if (excludedRanges.some(range => offset < range.end && offset + term.length > range.start)) return term;
     const rule = byTerm.get(term);
     const alreadyTagged = /\[[A-Za-z0-9_-]+\]$/.test(wholeSegment.slice(0, offset));
     if (alreadyTagged) return term;
@@ -2035,7 +2049,7 @@ function addPronunciationTagsToText(text, config) {
       const end = markerIndex === -1 ? line.length : markerIndex;
       const segment = line.slice(cursor, end);
       result += (!insideComment && !isExcludedLine)
-        ? tagPronunciationSegment(segment, config.rules, index + 1, changes)
+        ? tagPronunciationSegment(segment, config.rules, index + 1, changes, config.excludedTerms)
         : segment;
 
       if (markerIndex === -1) break;
