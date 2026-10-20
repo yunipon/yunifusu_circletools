@@ -2362,6 +2362,7 @@ function undoAdlibRenumbering(targetId) {
   area.dispatchEvent(new Event('input', { bubbles: true }));
   triggerSave(area);
   adlibRenumberBackups.delete(targetId);
+  alert('元に戻しました。');
 }
 
 function buildIndividualScriptLines(lines, targetHeroine) {
