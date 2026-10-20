@@ -2235,6 +2235,90 @@ function clearHeroineNames() {
 // ==========================================
 
 //ツール使用関数
+function planAdlibRenumbering(source) {
+  const definitions = new Map();
+  const counters = new Map();
+  const errors = [];
+  source.split('\n').forEach((line, index) => {
+    const match = line.match(/^[\s\u200B]*＊\s*([A-Za-z]+)([0-9]+)(?![0-9])/);
+    if (!match) return;
+    const oldId = match[1] + match[2];
+    if (definitions.has(oldId)) {
+      errors.push(`${index + 1}行目：${oldId}の定義が重複しています`);
+      return;
+    }
+    const number = (counters.get(match[1]) || 0) + 1;
+    counters.set(match[1], number);
+    definitions.set(oldId, { newId: match[1] + number, references: 0 });
+  });
+  // 対応表を使って一度で置換し、B8→B1→B2のような連鎖を防ぐ。
+  const output = source.replace(/(^|[^A-Za-z0-9_])([A-Za-z]+[0-9]+)(?![0-9])/gm, (whole, before, id) => {
+    const entry = definitions.get(id);
+    if (!entry) return whole;
+    entry.references += 1;
+    return before + entry.newId;
+  });
+  source.split('\n').forEach((line, index) => {
+    if (!/^[\s\u200B]*[（(◆■◇□【※＊]/.test(line)) return;
+    for (const match of line.matchAll(/(?:^|[^A-Za-z0-9_])([A-Za-z]+[0-9]+)(?![0-9])/g)) {
+      if (!definitions.has(match[1])) errors.push(`${index + 1}行目：${match[1]}の定義が見つかりません`);
+    }
+  });
+  return { output, definitions, errors };
+}
+
+const adlibRenumberBackups = new Map();
+
+function previewAdlibRenumbering(targetId) {
+  const area = document.getElementById(targetId);
+  if (!area || !area.value.trim()) return alert('台本を入力してください。');
+  const source = area.value;
+  const plan = planAdlibRenumbering(source);
+  const dialog = document.createElement('dialog');
+  dialog.style.cssText = 'width: min(640px, 90vw); max-height: 80vh; overflow: auto; padding: 24px; border: 1px solid #ccc; border-radius: 8px;';
+  const title = document.createElement('h3');
+  title.textContent = 'アドリブ番号の振り直し確認';
+  const note = document.createElement('p');
+  note.textContent = '台本全体の登場順で、英字部分ごとに1から採番します。定義と同じ番号の参照もまとめて更新します。';
+  const report = document.createElement('textarea');
+  report.readOnly = true;
+  report.style.cssText = 'width: 100%; height: 240px; box-sizing: border-box;';
+  report.value = plan.errors.length ? plan.errors.join('\n') : Array.from(plan.definitions, ([oldId, entry]) =>
+    `${oldId} → ${entry.newId}（参照 ${entry.references - 1}件）`
+  ).join('\n') || '番号付きの＊定義が見つかりません。';
+  const apply = document.createElement('button');
+  apply.className = 'btn-primary';
+  apply.textContent = '適用する';
+  apply.disabled = plan.errors.length > 0 || source === plan.output;
+  apply.onclick = () => {
+    if (area.value !== source) return alert('台本が変更されています。閉じて、もう一度確認してください。');
+    adlibRenumberBackups.set(targetId, { source, output: plan.output });
+    area.value = plan.output;
+    area.dispatchEvent(new Event('input', { bubbles: true }));
+    triggerSave(area);
+    dialog.close();
+  };
+  const close = document.createElement('button');
+  close.className = 'btn-secondary';
+  close.textContent = '閉じる';
+  close.onclick = () => dialog.close();
+  dialog.append(title, note, report, apply, close);
+  dialog.addEventListener('close', () => dialog.remove(), { once: true });
+  document.body.appendChild(dialog);
+  dialog.showModal();
+}
+
+function undoAdlibRenumbering(targetId) {
+  const area = document.getElementById(targetId);
+  const backup = adlibRenumberBackups.get(targetId);
+  if (!area || !backup) return alert('元に戻せる番号振り直しがありません。');
+  if (area.value !== backup.output && !confirm('振り直し後の編集内容も取り消して、振り直し前の台本に戻しますか？')) return;
+  area.value = backup.source;
+  area.dispatchEvent(new Event('input', { bubbles: true }));
+  triggerSave(area);
+  adlibRenumberBackups.delete(targetId);
+}
+
 function buildIndividualScriptLines(lines, targetHeroine) {
   let currentSpeaker = '';
   let insideComment = false;

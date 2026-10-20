@@ -133,6 +133,12 @@
             </span>
           </div>
           <div id="pronunciationTagResult" class="pronunciation-tag-result" aria-live="polite"></div>
+          <hr class="text-format-divider">
+          <div class="text-format-subheading">アドリブ素材番号</div>
+          <div class="btn-group" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+            <button class="btn-primary" onclick="previewAdlibRenumbering('textExtract')">番号振り直し（確認）</button>
+            <button class="btn-secondary" onclick="undoAdlibRenumbering('textExtract')">振り直しを元に戻す</button>
+          </div>
 
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 
