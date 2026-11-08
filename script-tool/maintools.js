@@ -918,6 +918,8 @@ function updateNameButtons(ID) {
         <button class="btn-copy btn-name" onclick="copyToClipboard('//${name}：')">//${name}：</button>
         <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　ここから）')">（${name}）ループ始</button>
         <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　ここまで）')">（${name}）ループ終</button>
+        <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　中断）')">（${name}）ループ中断</button>
+        <button class="btn-copy btn-name" onclick="copyToClipboard('（${name}｜ループ：　再開）')">（${name}）ループ再開</button>
       </div>
     `).join('');
   }
@@ -1058,7 +1060,7 @@ function runScriptCheck() {
     outputArea.style.color = "red";
   } else {
     // 成功時
-    outputArea.value = "チェック完了！\n「ここから・ここまで」のペアは完璧です。";
+    outputArea.value = "チェック完了！\n開始・終了とループの中断・再開のペアに問題はありません。";
     outputArea.style.color = "blue"; // 任意：成功時に文字色を変える
   }
   outputArea.dispatchEvent(new Event('input'));
@@ -1069,6 +1071,7 @@ function checkDelimitedSections(text) {
   const lines = text.split('\n');
   let openSections = []; // スタックではなく、現在開いているセクションの配列
   const errors = [];
+  const pausedLoops = new Map();
 
   const indicatorRegex = /^[（(◆◇【\[■□※＊《()（）[\]】》]/;
 
@@ -1077,6 +1080,20 @@ function checkDelimitedSections(text) {
     const rowNum = index + 1;
 
     if (!indicatorRegex.test(trimmedLine)) return;
+    const pauseMarker = trimmedLine.match(/^[（(]([^｜|]+)[｜|]ループ[：:].*?(中断|再開)\s*[）)]$/);
+    if (pauseMarker) {
+      const name = pauseMarker[1].trim();
+      if (pauseMarker[2] === '中断') {
+        if (pausedLoops.has(name)) {
+          errors.push({ line: rowNum, message: `行 ${rowNum}: ${name}のループはすでに中断中です。` });
+        } else {
+          pausedLoops.set(name, rowNum);
+        }
+      } else if (!pausedLoops.delete(name)) {
+        errors.push({ line: rowNum, message: `行 ${rowNum}: ${name}のループ中断が見つかりません。` });
+      }
+      return;
+    }
 
     // 「ここから」判定
     if (trimmedLine.includes('ここから')) {
@@ -1115,6 +1132,7 @@ function checkDelimitedSections(text) {
     });
   });
 
+  pausedLoops.forEach((line, name) => errors.push({ line, message: `行 ${line}: ${name}のループが再開されていません。` }));
   errors.sort((a, b) => a.line - b.line);
 
   return {

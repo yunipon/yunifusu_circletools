@@ -102,7 +102,7 @@ function isTrackLine(line) {
 }
 
 function loopMarker(line) {
-  const match = line.match(/^[（(]([^｜|]+)[｜|]ループ[：:](.*?)(ここから|ここまで)[\s　]*[）)]$/);
+  const match = line.match(/^[（(]([^｜|]+)[｜|]ループ[：:](.*?)(ここから|ここまで|中断|再開)[\s　]*[）)]$/);
   return match ? { character: match[1].trim(), label: match[2].trim(), type: match[3] } : null;
 }
 
@@ -147,6 +147,7 @@ function analyzeScript(text) {
   const warnings = [];
   const positions = {};
   const activeLoops = new Map();
+  const pausedLoops = new Map();
   const materialDefinitions = new Map();
   let track = 'TR未特定';
   let trackOrder = 0;
@@ -206,6 +207,8 @@ function analyzeScript(text) {
         warnings.push(`行${lineNumber}：${name}のループ「${loop.label}」が閉じる前に新しいトラックが始まりました。`);
       });
       activeLoops.clear();
+      pausedLoops.forEach((loop, name) => warnings.push(`行${loop.pausedAt}：${name}のループが再開されないままトラックが変わりました。`));
+      pausedLoops.clear();
       Object.keys(positions).forEach(name => delete positions[name]);
       lineStatuses[index] = {};
       trackOrder += 1;
@@ -267,6 +270,7 @@ function analyzeScript(text) {
         seenCharacters: new Set(),
         dialogueCounts: {},
         loopCharacters: new Map(),
+        interruptedLoops: new Set(),
         positions: { ...positions }
       };
       resetAggregation();
@@ -275,9 +279,13 @@ function analyzeScript(text) {
 
     const loop = loopMarker(trimmed);
     if (loop) {
-      lineKinds[index] = loop.type === 'ここから' ? 'loop-start' : 'loop-end';
+      lineKinds[index] = ['ここから', '再開'].includes(loop.type) ? 'loop-start' : 'loop-end';
       rememberCharacter(loop.character);
       if (loop.type === 'ここから') {
+        if (pausedLoops.has(loop.character)) {
+          warnings.push(`行${lineNumber}：${loop.character}の中断中のループを先に再開してください。`);
+          return;
+        }
         const code = materialCode(loop.label);
         const definition = code ? materialDefinitions.get(`${loop.character}|${code}`) : null;
         const loopPosition = definition?.position || positions[loop.character] || '位置未指定';
@@ -287,6 +295,29 @@ function analyzeScript(text) {
           mode: 'bgv', position: loopPosition, label: loop.label || 'ループ'
         };
         if (simultaneous) simultaneous.loopCharacters.set(loop.character, { label: loop.label, position: loopPosition });
+      } else if (loop.type === '中断') {
+        const playing = activeLoops.get(loop.character);
+        if (!playing) {
+          warnings.push(`行${lineNumber}：${loop.character}に中断できるループがありません。`);
+        } else {
+          pausedLoops.set(loop.character, { ...playing, pausedAt: lineNumber });
+          activeLoops.delete(loop.character);
+          delete lineStatuses[index][loop.character];
+          simultaneous?.interruptedLoops.add(loop.character);
+        }
+      } else if (loop.type === '再開') {
+        const paused = pausedLoops.get(loop.character);
+        if (!paused) {
+          warnings.push(`行${lineNumber}：${loop.character}に中断中のループがありません。`);
+        } else {
+          pausedLoops.delete(loop.character);
+          activeLoops.set(loop.character, paused);
+          lineStatuses[index][loop.character] = { mode: 'bgv', position: paused.position, label: paused.label || 'ループ' };
+          simultaneous?.interruptedLoops.add(loop.character);
+        }
+      } else if (pausedLoops.has(loop.character)) {
+        warnings.push(`行${lineNumber}：${loop.character}のループが再開されないまま終了しました。`);
+        pausedLoops.delete(loop.character);
       } else if (!activeLoops.has(loop.character)) {
         warnings.push(`行${lineNumber}：${loop.character}のループ開始が見つかりません。`);
       } else {
@@ -322,6 +353,10 @@ function analyzeScript(text) {
         Object.entries(statuses).forEach(([name, status]) => {
           const existing = lineStatuses[rowIndex][name];
           if (existing?.mode === 'bgv') return;
+          if (status.mode === 'bgv' && simultaneous.interruptedLoops.has(name)) {
+            if (!simultaneous.seenCharacters.has(name)) return;
+            status = { ...status, mode: 'simultaneous', label: '' };
+          }
           lineStatuses[rowIndex][name] = {
             mode: 'simultaneous',
             position: existing?.position || status.position || '位置未指定',
@@ -384,6 +419,7 @@ function analyzeScript(text) {
 
   if (simultaneous) warnings.push(`行${simultaneous.start}：同時区間が閉じられていません。`);
   activeLoops.forEach((loop, name) => warnings.push(`行${loop.line}：${name}のループ「${loop.label}」が閉じられていません。`));
+  pausedLoops.forEach((loop, name) => warnings.push(`行${loop.pausedAt}：${name}のループが再開されていません。`));
   if (!characters.length) warnings.push('「//キャラ名：」形式の話者指定が見つかりませんでした。');
   if (!tracks.length) tracks.push('TR未特定');
 
