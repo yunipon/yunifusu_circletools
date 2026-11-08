@@ -85,13 +85,12 @@
         <input type="text" id="replaceBefore" class="replace-input" placeholder="置換前">
         <span>→</span>
         <input type="text" id="replaceAfter" class="replace-input" placeholder="置換後">
-        <button class="btn-primary" onclick="executeReplace()" style="margin: 10px 0px;">置換実行</button>
+        <button class="btn-primary" onclick="executeReplace()" style="margin: 4px 0;">置換実行</button>
       </div>
-      <div id="replaceResult" aria-live="polite" style="min-height: 1.4em; margin-top: 2px; font-size: 0.85rem; color: #555;"></div>
+      <div id="replaceResult" aria-live="polite" style="font-size: 0.85rem; color: #555;"></div>
       <p style="margin: 4px 0 0; font-size: 0.85rem; color: #555;">
-        <strong>💡 ト書きは、書きやすい略記で。</strong><br>
-        台本を書いている間は、自分で決めた短い記号でト書きを入れておき、仕上げにこの「文字列置換」で所定の書式にそろえると便利です。<br>
-        例：<code>＞同時</code> → <code>【同時　ここから】</code> ／ <code>＜同時</code> → <code>【同時　ここまで】</code>
+        <strong>💡ト書きは、書きやすい略記もおすすめです！</strong><br>
+        自分で決めた短い記号でト書きを入れておき、仕上げに「文字列置換」で所定の書式にそろえると便利かもです。
       </p>
     </div>
 
