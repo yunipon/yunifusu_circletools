@@ -200,9 +200,9 @@
             <a href="https://docs.google.com/document/d/1b_lHI0iIr8ZJAqy_hhZRsqsbeL9PVfbV2v_C87LZ10o/edit?usp=sharing" target="_blank">記載例はこちら</a>
           </h4>
           <div>
-            <p style="color: #000000;  font-weight: bold;">＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
-            <p style="color: #000000;  font-weight: bold;">トラック</p>
-            <p style="color: #000000;  font-weight: bold;">＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
+            <p style="color: #000000; font-weight: bold;">＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝<br>
+              トラック<br>
+              ＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝</p>
             <p style="color: #666666;">%%%
             <p style="color: #666666;">ここはメモ欄です　←灰色の文字</p>
             <p style="color: #666666;">ここに記載しているものはセリフのみ抽出のツールでまとめて削除されます。</p>
