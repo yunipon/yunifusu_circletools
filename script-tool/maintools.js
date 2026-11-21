@@ -272,14 +272,14 @@ function syncScroll() {
 // ==========================================
 // 4. セリフ抽出・整形ロジック
 // ==========================================
-function applyExtract(rules) {
-  const area = document.getElementById('textExtract');
-  const areabefore = document.getElementById('textExtractBefore');
+function applyExtract(rules, targetId = 'textExtract') {
+  const area = document.getElementById(targetId);
+  const areabefore = document.getElementById(targetId === 'textExtract' ? 'textExtractBefore' : 'textCheck');
   if (!area || !area.value) return;
 
   let text = area.value;
-  areabefore.value = text;
-  updateCharCount('textExtractBefore', 'countExtractBefore');
+  if (areabefore) areabefore.value = text;
+  if (targetId === 'textExtract') updateCharCount('textExtractBefore', 'countExtractBefore');
 
   // 全体に対する一括カッコ統一（基本処理）
   text = text.replace(/\(/g, "（").replace(/\)/g, "）");
@@ -314,15 +314,15 @@ function applyExtract(rules) {
 
   // 空行などを整理して反映
   area.value = lines.filter(l => l !== null).join('\n').trim();
-  updateCharCount('textExtract', 'countExtract');
+  updateCharCount(targetId, targetId === 'textExtract' ? 'countExtract' : 'countMulti');
   //alert("完了しました");
 
   // 【追加】抽出後の検査：ルールに沿った記号が残っていないかチェック
-  checkExtractResult(rules);
+  if (targetId === 'textExtract') checkExtractResult(rules);
 
   //保存用
   area.dispatchEvent(new Event('input'));
-  areabefore.dispatchEvent(new Event('input'));
+  if (areabefore) areabefore.dispatchEvent(new Event('input'));
 }
 
 /**
@@ -1902,11 +1902,11 @@ function normalizeBundledTrackHeadings(text) {
   });
 }
 
-function makeincluded() {
+function makeincluded(targetId = 'textExtract') {
 
   // テキストエリアの最初の文字列を保持しておく
-  const area = document.getElementById('textExtract');
-  const areabefore = document.getElementById('textExtractBefore');
+  const area = document.getElementById(targetId);
+  const areabefore = document.getElementById(targetId === 'textExtract' ? 'textExtractBefore' : 'textCheck');
   if (!area || !area.value) return;
   let text = area.value;
 
@@ -1921,16 +1921,21 @@ function makeincluded() {
     return `${border}\n${token}\n${border}`;
   });
   // セリフ出力と空白行詰め関数を順番に回す
-  applyExtract(Bundlingrules);
+  applyExtract(Bundlingrules, targetId);
   headings.forEach(({ token, heading }) => { area.value = area.value.replace(token, heading); });
   area.value = removeEmptySpeakerSections(area.value);
-  shrinkBlankLines('textExtract');
-  updateCharCount('textExtract', 'countExtract');
+  area.value = area.value.replace(/\n{3,}/g, '\n\n');
+  updateCharCount(targetId, targetId === 'textExtract' ? 'countExtract' : 'countMulti');
+  if (targetId === 'textMulti') runMultiPreview();
+  area.dispatchEvent(new Event('input'));
 
   // 変形前台本をbeforeエリアに出力&文字数再カウント&inputイベント処理
-  areabefore.value = text;
-  updateCharCount('textExtractBefore', 'countExtractBefore');
-  areabefore.dispatchEvent(new Event('input'));
+  if (areabefore) {
+    areabefore.value = text;
+    areabefore.style.color = 'black';
+    if (targetId === 'textExtract') updateCharCount('textExtractBefore', 'countExtractBefore');
+    areabefore.dispatchEvent(new Event('input'));
+  }
 
 }
 

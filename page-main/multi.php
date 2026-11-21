@@ -125,6 +125,13 @@
 
           <!-- ② テキスト整形 -->
           <strong>テキスト整形</strong>
+          <div class="text-format-subheading">抽出</div>
+          <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <span class="tooltip" data-tooltip="ト書きとセリフのない話者タグを削除し、トラック見出しと空白行を同梱テキスト用に整えます">
+              <button class="btn-primary" onclick="makeincluded('textMulti')">同梱用</button>
+            </span>
+          </div>
+          <hr class="text-format-divider">
           <div class="text-format-subheading">空白調整</div>
           <div class="btn-group" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
             <span class="tooltip" data-tooltip="各行の先頭にある半角・全角スペースやタブを削除します">
