@@ -1866,6 +1866,29 @@ const Bundlingrules = [
 
 
 
+function removeEmptySpeakerSections(text) {
+  const lines = text.split('\n');
+  let hasDialogue = false;
+  const keptLines = [];
+  // 次の話者タグ／トラックまでに本文が残っているか、末尾から判定する。
+  for (let index = lines.length - 1; index >= 0; index--) {
+    const line = lines[index];
+    const trimmed = line.replace(/\u200B/g, '').trim();
+    if (/^\/\/([^：: \t\n]+)[:：]/.test(trimmed)) {
+      if (hasDialogue) keptLines.push(line);
+      hasDialogue = false;
+    } else {
+      if (isTrackHeading(trimmed) || /^[＝=]{3,}/.test(trimmed)) {
+        hasDialogue = false;
+      } else if (trimmed) {
+        hasDialogue = true;
+      }
+      keptLines.push(line);
+    }
+  }
+  return keptLines.reverse().join('\n').trim();
+}
+
 function makeincluded() {
 
   // テキストエリアの最初の文字列を保持しておく
@@ -1875,8 +1898,10 @@ function makeincluded() {
   let text = area.value;
 
   // セリフ出力と空白行詰め関数を順番に回す
-  applyExtract(Bundlingrules)
-  shrinkBlankLines('textExtract')
+  applyExtract(Bundlingrules);
+  area.value = removeEmptySpeakerSections(area.value);
+  shrinkBlankLines('textExtract');
+  updateCharCount('textExtract', 'countExtract');
 
   // 変形前台本をbeforeエリアに出力&文字数再カウント&inputイベント処理
   areabefore.value = text;
