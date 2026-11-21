@@ -1889,6 +1889,19 @@ function removeEmptySpeakerSections(text) {
   return keptLines.reverse().join('\n').trim();
 }
 
+function normalizeBundledTrackHeadings(text) {
+  const border = '＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝';
+  return text.replace(/^[\t 　]*[＝=]{3,}[\t 　]*\r?\n([\s\S]*?)^[\t 　]*[＝=]{3,}[\t 　]*$/gm, (block, body) => {
+    const candidates = body.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    // 話者や演技指示を含む区間は、見出しとしてまとめない。
+    if (!candidates.length || candidates.some(line => /^(?:\/\/|[◆■◇□＊]|%%%)/.test(line))) return block;
+    const heading = candidates.find(line => !/^[（(【《〔]/.test(line)) || candidates[0];
+    const match = heading.match(/^((?:トラック|ＴＲＡＣＫ|Track|TR|ボーナス|BONUS|特典|小説)[\s　]*[0-9０-９]+|(?:トラック|ＴＲＡＣＫ|Track|TR|ボーナス|BONUS|特典|小説)(?=$|[\s　:：._\-（(]))/i);
+    const title = match ? match[1].trim() : heading;
+    return `${border}\n${title}\n${border}`;
+  });
+}
+
 function makeincluded() {
 
   // テキストエリアの最初の文字列を保持しておく
@@ -1897,8 +1910,19 @@ function makeincluded() {
   if (!area || !area.value) return;
   let text = area.value;
 
+  // 見出しを先に整え、抽出ルールによる空白・括弧の削除から保護する。
+  const normalized = normalizeBundledTrackHeadings(text);
+  let marker = 'BUNDLEDTRACKHEADING';
+  while (text.includes(marker)) marker += 'X';
+  const headings = [];
+  area.value = normalized.replace(/^(＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝)\n([^\n]+)\n\1$/gm, (block, border, heading) => {
+    const token = `${marker}${headings.length}END`;
+    headings.push({ token, heading });
+    return `${border}\n${token}\n${border}`;
+  });
   // セリフ出力と空白行詰め関数を順番に回す
   applyExtract(Bundlingrules);
+  headings.forEach(({ token, heading }) => { area.value = area.value.replace(token, heading); });
   area.value = removeEmptySpeakerSections(area.value);
   shrinkBlankLines('textExtract');
   updateCharCount('textExtract', 'countExtract');
