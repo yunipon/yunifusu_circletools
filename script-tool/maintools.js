@@ -1243,7 +1243,7 @@ function extractAdlibCommands() {
   const groupByCharacter = sourceId === 'textMulti' || orderedHeroineNames.length > 0;
   const adlibRegex = /＊[^(\n]*?(秒|回)[^\n]*/g;
   const additionalAdlibRegex = /^＊(?!.*(?:秒|回)).*$/gm;
-  const groupByTrack = document.getElementById('groupAdlibsByTrack')?.checked ?? true;
+  const groupByTrack = document.getElementById('groupAdlibsByTrack')?.checked ?? false;
 
   let resultText = "";
   let additionalResultText = "";
