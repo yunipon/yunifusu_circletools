@@ -512,7 +512,7 @@ function renderOverview(analysis) {
       const value = counts[track][name];
       const leftClass = value.left > 0 ? 'left nonzero' : 'zero';
       const rightClass = value.right > 0 ? 'right nonzero' : 'zero';
-      return `<td><div class="direction-count"><span class="${leftClass}">左 <strong>${value.left}</strong></span><span class="${rightClass}">右 <strong>${value.right}</strong></span></div></td>`;
+      return `<td><div class="direction-count" style="--character-color:${characterColor(name, analysis.characters)}"><span class="${leftClass}">左 <strong>${value.left}</strong></span><span class="${rightClass}">右 <strong>${value.right}</strong></span></div></td>`;
     }).join('');
     return `<tr><td><strong>${escapeHtml(track)}</strong></td>${cells}</tr>`;
   }).join('');

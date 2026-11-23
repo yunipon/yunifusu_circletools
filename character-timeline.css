@@ -274,8 +274,7 @@ body {
 .position-count-table th:not(:first-child), .position-count-table td:not(:first-child) { text-align: center; }
 .direction-count { display: flex; justify-content: center; gap: 18px; white-space: nowrap; }
 .direction-count .zero, .direction-count .zero strong { color: var(--ink); font-weight: 400; }
-.direction-count .left.nonzero { color: #2563eb; }
-.direction-count .right.nonzero { color: #dc2626; }
+.direction-count .nonzero { color: var(--character-color); }
 .direction-count .nonzero, .direction-count .nonzero strong { font-weight: 800; }
 
 @media (max-width: 980px) {
