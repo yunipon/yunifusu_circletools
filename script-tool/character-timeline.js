@@ -214,6 +214,17 @@ function analyzeScript(text) {
       trackOrder += 1;
       track = normalizeTrackName(trimmed, trackOrder);
       lineTracks[index] = track;
+      // 見出し直前の空行と上側の区切り線も、新しいトラックに含める。
+      let borderIndex = index - 1;
+      while (borderIndex >= 0 && !lines[borderIndex].trim()) borderIndex -= 1;
+      if (borderIndex >= 0 && /^[＝=]{3,}$/.test(lines[borderIndex].trim())) {
+        lineKinds[borderIndex] = 'track';
+        for (let rowIndex = borderIndex; rowIndex < index; rowIndex += 1) {
+          lineTracks[rowIndex] = track;
+          lineStatuses[rowIndex] = {};
+          lineSpeakers[rowIndex] = '';
+        }
+      }
       rememberTrack(track);
       speaker = '';
       resetAggregation();
@@ -593,7 +604,7 @@ function renderTimeline(track) {
     const source = sourcePresentations[index];
     return `<div class="continuous-row" data-line-index="${index}" style="grid-template-columns:${columns}"><div class="source-number">${index + 1}</div><div class="source-text ${source.className}" style="${source.style}">${escapeHtml(analysis.lines[index]) || '&nbsp;'}</div>${cells}</div>`;
   }).join('');
-  elements.timeline.innerHTML = `<div class="continuous-header" style="grid-template-columns:${columns}"><div class="continuous-head">行</div><div class="continuous-head script-head">台本</div>${positionHead}</div>${rows}`;
+  elements.timeline.innerHTML = `<div class="continuous-header" style="grid-template-columns:${columns}"><div class="continuous-head">行</div><div class="continuous-head script-head">台本<span class="current-track" aria-label="現在表示中のトラック"></span></div>${positionHead}</div>${rows}`;
 
   const timelineRows = Array.from(elements.timeline.querySelectorAll('.continuous-row'));
   const updateTrackerFromScroll = () => {
@@ -624,6 +635,12 @@ function renderTimeline(track) {
 }
 
 function renderPositionTracker(lineIndex) {
+  const currentTrack = elements.timeline.querySelector('.current-track');
+  if (currentTrack) {
+    currentTrack.textContent = currentAnalysis && lineIndex >= 0
+      ? `表示位置：${currentAnalysis.lineTracks[lineIndex] || 'TR未特定'}`
+      : '';
+  }
   if (!currentAnalysis || lineIndex < 0) {
     elements.positionTracker.hidden = true;
     return;

@@ -209,6 +209,14 @@ body {
   border-bottom: 1px solid #cdd5df;
   background: #f8fafc;
 }
+.current-track {
+  margin-left: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #e8eef7;
+  color: #344054;
+  font-size: 11px;
+}
 .continuous-head {
   display: flex;
   align-items: center;
