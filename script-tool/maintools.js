@@ -38,6 +38,7 @@ const defaultExtract = [
   { label: '【】内削除', pattern: '【[^】]*】', active: true },
   { label: '()内削除', pattern: '[（\\(][^）\\)]*[）\\)]', active: true },
   { label: '《》内削除', pattern: '《[^》]*》', active: true },
+  { label: '〔〕内削除', pattern: '〔[^〕]*〕', active: true },
   { label: '[]内削除', pattern: '\\[[^\\]]*\\]', active: true },
   { label: 'スペース削除（文章の途中のスペースも削除）', pattern: '[ 　]', active: true },
   { label: 'ト書き行削除', pattern: '^\\s*(◆|■|※|//|◇|□|＊).*', active: true },
@@ -284,19 +285,19 @@ function applyExtract(rules, targetId = 'textExtract') {
   // 全体に対する一括カッコ統一（基本処理）
   text = text.replace(/\(/g, "（").replace(/\)/g, "）");
 
-  const commentRule = rules[0];
-  if (commentRule && commentRule.pattern === 'delete_comment' && commentRule.active) {
+  const commentRule = rules.find(rule => rule.pattern === 'delete_comment' && rule.active);
+  if (commentRule) {
     text = text.replace(/%%%[\s\S]*?%%%/g, "");
   }
 
   let lines = text.split('\n');
   lines = lines.map(line => {
     // まずは前後の不要な空白だけ消す（装飾ライン判定のため）
-    let newLine = line.trim();
+    let newLine = line.replace(/^[\s\u200B]+/, '').trimEnd();
 
-    rules.forEach((rule, index) => {
-      // 1番目(コメント削除)と非アクティブ、特殊ルールはスキップ
-      if (index === 0 || !rule.active || !rule.pattern || rule.isSpecial) return;
+    rules.forEach(rule => {
+      // 並べ替え後も通常ルールを先頭から実行する。
+      if (!rule.active || !rule.pattern || rule.isSpecial || rule.pattern === 'delete_comment') return;
       if (newLine === "") return; // 既に空行ならスキップ
 
       // --- 通常ルール（正規表現） ---
@@ -1857,6 +1858,7 @@ const Bundlingrules = [
   { label: '【】内削除', pattern: '【[^】]*】', active: true },
   { label: '()内削除', pattern: '[（\\(][^）\\)]*[）\\)]', active: true },
   { label: '《》内削除', pattern: '《[^》]*》', active: true },
+  { label: '〔〕内削除', pattern: '〔[^〕]*〕', active: true },
   { label: 'スペース削除（文章の途中のスペースも削除）', pattern: '[ 　]', active: true },
   { label: '[]内削除', pattern: '\\[[^\\]]*\\]', active: true },
 
